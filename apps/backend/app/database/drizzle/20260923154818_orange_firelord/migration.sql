@@ -1,1 +1,0 @@
-ALTER TABLE "event_tier_purchases" DROP CONSTRAINT "event_tier_purchases_event_id_org_events_id_fkey", ADD CONSTRAINT "event_tier_purchases_event_id_org_events_id_fkey" FOREIGN KEY ("event_id") REFERENCES "org_events"("id") ON DELETE RESTRICT;

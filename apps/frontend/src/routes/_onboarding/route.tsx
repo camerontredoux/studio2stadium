@@ -31,7 +31,7 @@ export const Route = createFileRoute("/_onboarding")({
 
       if (session.verified && session.profileId) {
         throw redirect({
-          to: "/feed",
+          to: session.type === "dancer" ? "/checkout" : "/feed",
           replace: true,
         });
       }

@@ -14,6 +14,7 @@ import {
 } from "#database/schema/event-features";
 import { users } from "#database/schema/users";
 import { and, eq, sql } from "drizzle-orm";
+import { imageUrl } from "#utils/image-url";
 import type { ScoutingViewScope } from "../../view-scope.ts";
 
 @inject()
@@ -39,6 +40,7 @@ export class GetDancerByIdService {
           isRegistered: sql<boolean>`${eventRosters.userId} IS NOT NULL`,
           username: users.username,
           profilePhotoUrl: eventDancerProfiles.profilePhotoUrl,
+          avatar: users.avatar,
           gradYear: sql<
             number | null
           >`COALESCE(${eventDancerProfiles.gradYear}, ${dancerProfiles.gradYear})`,
@@ -49,7 +51,6 @@ export class GetDancerByIdService {
             string | null
           >`COALESCE(${eventDancerProfiles.studio}, ${dancerProfiles.studio})`,
           state: eventDancerProfiles.state,
-          height: eventDancerProfiles.height,
           danceStyles: eventDancerProfiles.danceStyles,
           bio: eventDancerProfiles.bio,
           extra: eventDancerProfiles.extra,
@@ -160,8 +161,12 @@ export class GetDancerByIdService {
       isCalledBack = callbackRow.length > 0;
     }
 
+    const { avatar, ...rest } = dancer!;
+
     return {
-      ...dancer,
+      ...rest,
+      // The event photo, else the linked account's avatar, as the list does.
+      profilePhotoUrl: rest.profilePhotoUrl ?? imageUrl(avatar, "avatar"),
       note,
       rating,
       isFavorited,

@@ -3,13 +3,27 @@ import { inject } from "@adonisjs/core";
 import { eventCallbacks } from "#database/schema/event-features";
 import { eventRosters } from "#database/schema/org-events";
 import { and, asc, count, countDistinct, eq, sql } from "drizzle-orm";
+import type { BoardPage } from "../board-page-validator.ts";
 
 @inject()
 export class AdminCallbackBoardService {
   constructor(private db: DatabaseService = new DatabaseService()) {}
 
-  async execute(eventId: string, showcaseId: string) {
-    const [bibs, stats] = await Promise.all([
+  async execute(eventId: string, showcaseId: string, q: BoardPage = {}) {
+    const page = q.page ?? 0;
+    const limit = q.limit ?? 100;
+    const where = and(
+      eq(eventCallbacks.showcaseId, showcaseId),
+      // Exclude staff sandboxes: skip staff dancers and any callback
+      // authored by a staff (preview) coach roster.
+      eq(eventRosters.isStaff, false),
+      sql`NOT EXISTS (
+        SELECT 1 FROM event_rosters cr
+        WHERE cr.id = ${eventCallbacks.coachRosterId}
+          AND cr.is_staff = true
+      )`
+    );
+    const [bibs, [called], stats] = await Promise.all([
       this.db.use((db) =>
         db
           .select({
@@ -24,26 +38,29 @@ export class AdminCallbackBoardService {
             eventRosters,
             eq(eventRosters.id, eventCallbacks.dancerRosterId)
           )
-          .where(
-            and(
-              eq(eventCallbacks.showcaseId, showcaseId),
-              // Exclude staff sandboxes: skip staff dancers and any callback
-              // authored by a staff (preview) coach roster.
-              eq(eventRosters.isStaff, false),
-              sql`NOT EXISTS (
-                SELECT 1 FROM event_rosters cr
-                WHERE cr.id = ${eventCallbacks.coachRosterId}
-                  AND cr.is_staff = true
-              )`
-            )
-          )
+          .where(where)
           .groupBy(
             eventCallbacks.dancerRosterId,
             eventRosters.bibNumber,
             eventRosters.firstName,
             eventRosters.lastName
           )
-          .orderBy(asc(eventRosters.bibNumber))
+          .orderBy(
+            asc(eventRosters.bibNumber),
+            asc(eventCallbacks.dancerRosterId)
+          )
+          .limit(limit)
+          .offset(page * limit)
+      ),
+      this.db.use((db) =>
+        db
+          .select({ total: countDistinct(eventCallbacks.dancerRosterId) })
+          .from(eventCallbacks)
+          .innerJoin(
+            eventRosters,
+            eq(eventRosters.id, eventCallbacks.dancerRosterId)
+          )
+          .where(where)
       ),
       this.db.use((db) =>
         db
@@ -69,7 +86,7 @@ export class AdminCallbackBoardService {
       bibs,
       totalSchools: Number(stats[0]?.totalSchools ?? 0),
       totalDancers: Number(stats[0]?.totalDancers ?? 0),
-      uniqueCallbacks: bibs.length,
+      uniqueCallbacks: Number(called?.total ?? 0),
     };
   }
 }

@@ -7,7 +7,14 @@ import {
   eventRosters,
   eventDancerProfiles,
 } from "#database/schema/org-events";
+import {
+  eventFavorites,
+  eventNotes,
+  eventRatings,
+  eventSchoolSelections,
+} from "#database/schema/event-features";
 import { seedOrganizations } from "#commands/backfill-organizations";
+import { imageUrl } from "#utils/image-url";
 import { eq } from "drizzle-orm";
 import { ListDancersService } from "./service.ts";
 
@@ -16,6 +23,10 @@ test.group("ListDancersService", (group) => {
   let event: typeof orgEvents.$inferSelect;
 
   group.each.setup(async () => {
+    await db.delete(eventFavorites).execute();
+    await db.delete(eventNotes).execute();
+    await db.delete(eventSchoolSelections).execute();
+    await db.delete(eventRatings).execute();
     await db.delete(eventDancerProfiles).execute();
     await db.delete(eventRosters).execute();
     await db.delete(orgEvents).execute();
@@ -68,7 +79,7 @@ test.group("ListDancersService", (group) => {
     ]);
 
     const svc = new ListDancersService();
-    const rows = await svc.execute(summit.id, event.id, null, {});
+    const { data: rows } = await svc.execute(summit.id, event.id, null, {});
     assert.equal(rows.length, 2);
     assert.isTrue(rows.every((r) => r.bibNumber !== null));
   });
@@ -94,7 +105,7 @@ test.group("ListDancersService", (group) => {
     ]);
 
     const svc = new ListDancersService();
-    const rows = await svc.execute(summit.id, event.id, null, {
+    const { data: rows } = await svc.execute(summit.id, event.id, null, {
       search: "alice",
     });
     assert.equal(rows.length, 1);
@@ -122,7 +133,7 @@ test.group("ListDancersService", (group) => {
     ]);
 
     const svc = new ListDancersService();
-    const rows = await svc.execute(summit.id, event.id, null, {
+    const { data: rows } = await svc.execute(summit.id, event.id, null, {
       search: "jones",
     });
     assert.equal(rows.length, 1);
@@ -150,7 +161,9 @@ test.group("ListDancersService", (group) => {
     ]);
 
     const svc = new ListDancersService();
-    const rows = await svc.execute(summit.id, event.id, null, { bib: 101 });
+    const { data: rows } = await svc.execute(summit.id, event.id, null, {
+      bib: 101,
+    });
     assert.equal(rows.length, 1);
     assert.equal(rows[0]!.bibNumber, 101);
   });
@@ -192,7 +205,7 @@ test.group("ListDancersService", (group) => {
     ]);
 
     const svc = new ListDancersService();
-    const rows = await svc.execute(summit.id, event.id, null, {});
+    const { data: rows } = await svc.execute(summit.id, event.id, null, {});
     const alice = rows.find((r) => r.firstName === "Alice");
     const bob = rows.find((r) => r.firstName === "Bob");
     assert.isTrue(alice!.isRegistered);
@@ -214,10 +227,46 @@ test.group("ListDancersService", (group) => {
     ]);
 
     const svc = new ListDancersService();
-    const rows = await svc.execute(summit.id, event.id, null, {});
+    const { data: rows } = await svc.execute(summit.id, event.id, null, {});
     assert.equal(rows.length, 1);
     assert.isNull(rows[0]!.profilePhotoUrl);
     assert.isNull(rows[0]!.studio);
+  });
+
+  test("falls back to the linked account's avatar when there is no event photo", async ({
+    assert,
+  }) => {
+    const [user] = await db
+      .insert(users)
+      .values({
+        username: "alice",
+        email: "alice@x.co",
+        displayEmail: "alice@x.co",
+        firstName: "Alice",
+        lastName: "Smith",
+        password: "x",
+        role: "user",
+        type: "dancer",
+        verified: true,
+        avatar: "avatar/alice/photo",
+      })
+      .returning();
+    await db.insert(eventRosters).values({
+      eventId: event.id,
+      type: "dancer",
+      email: "alice@x.co",
+      firstName: "Alice",
+      lastName: "Smith",
+      bibNumber: 101,
+      userId: user!.id,
+    });
+
+    const svc = new ListDancersService();
+    const { data: rows } = await svc.execute(summit.id, event.id, null, {});
+    assert.equal(
+      rows[0]!.profilePhotoUrl,
+      imageUrl("avatar/alice/photo", "avatar")
+    );
   });
 
   test("returns eventDancerProfiles fields when profile exists", async ({
@@ -247,7 +296,7 @@ test.group("ListDancersService", (group) => {
     });
 
     const svc = new ListDancersService();
-    const rows = await svc.execute(summit.id, event.id, null, {});
+    const { data: rows } = await svc.execute(summit.id, event.id, null, {});
     assert.equal(rows.length, 1);
     assert.equal(rows[0]!.profilePhotoUrl, "https://cdn.example.com/photo.jpg");
     assert.equal(rows[0]!.studio, "Elite Dance");
@@ -289,7 +338,7 @@ test.group("ListDancersService", (group) => {
 
     const svc = new ListDancersService();
 
-    const all = await svc.execute(summit.id, event.id, null, {});
+    const { data: all } = await svc.execute(summit.id, event.id, null, {});
     assert.equal(all.length, 2);
   });
 
@@ -345,7 +394,7 @@ test.group("ListDancersService", (group) => {
       .returning();
 
     const svc = new ListDancersService();
-    const all = await svc.execute(summit.id, event.id, null, {});
+    const { data: all } = await svc.execute(summit.id, event.id, null, {});
     assert.equal(all.length, 1);
     assert.equal(all[0]!.rosterId, activeRoster!.id);
   });
@@ -384,7 +433,7 @@ test.group("ListDancersService", (group) => {
     ]);
 
     const svc = new ListDancersService();
-    const all = await svc.execute(summit.id, event.id, null, {});
+    const { data: all } = await svc.execute(summit.id, event.id, null, {});
     assert.equal(all.length, 2);
   });
 
@@ -422,7 +471,7 @@ test.group("ListDancersService", (group) => {
     ]);
 
     const svc = new ListDancersService();
-    const all = await svc.execute(summit.id, event.id, null, {});
+    const { data: all } = await svc.execute(summit.id, event.id, null, {});
     const gone = all.find((r) => r.lastName === "Dancer" && !r.bibNumber);
     const here = all.find((r) => r.firstName === "Here");
     assert.equal(here!.bibNumber, 300);
@@ -430,7 +479,7 @@ test.group("ListDancersService", (group) => {
     assert.isNull(gone!.bibNumber);
 
     // Browsing that past event directly still shows the bib it issued.
-    const pastOnly = await svc.execute(
+    const { data: pastOnly } = await svc.execute(
       summit.id,
       event.id,
       null,
@@ -493,9 +542,262 @@ test.group("ListDancersService", (group) => {
       .returning();
 
     const svc = new ListDancersService();
-    const all = await svc.execute(summit.id, event.id, null, {});
+    const { data: all } = await svc.execute(summit.id, event.id, null, {});
     assert.equal(all.length, 1);
     assert.equal(all[0]!.rosterId, activeRoster!.id);
     assert.equal(all[0]!.bibNumber, 200);
+  });
+
+  /** Five dancers on the active event, bibs 101 to 105, plus one coach. */
+  async function seedRoster() {
+    const dancers = await db
+      .insert(eventRosters)
+      .values(
+        ["Eve", "Dee", "Cal", "Bea", "Abe"].map((firstName, index) => ({
+          eventId: event.id,
+          type: "dancer" as const,
+          email: `${firstName.toLowerCase()}@x.co`,
+          firstName,
+          lastName: "Dancer",
+          bibNumber: 101 + index,
+        }))
+      )
+      .returning();
+    const [coach] = await db
+      .insert(eventRosters)
+      .values({
+        eventId: event.id,
+        type: "coach",
+        email: "coach@x.co",
+        firstName: "Coach",
+        lastName: "Person",
+      })
+      .returning();
+    const view = {
+      eventId: event.id,
+      coachRosterId: coach!.id,
+      showcaseId: null,
+    };
+    return { dancers, view };
+  }
+
+  test("pages after the dedupe and reports the total", async ({ assert }) => {
+    await seedRoster();
+    const svc = new ListDancersService();
+
+    const first = await svc.execute(summit.id, event.id, null, { limit: 2 });
+    const last = await svc.execute(summit.id, event.id, null, {
+      limit: 2,
+      page: 2,
+    });
+
+    assert.deepEqual(
+      first.data.map((r) => r.bibNumber),
+      [101, 102]
+    );
+    assert.deepEqual(
+      last.data.map((r) => r.bibNumber),
+      [105]
+    );
+    assert.equal(first.total, 5);
+    assert.equal(first.counts.all, 5);
+  });
+
+  test("sorts on the server, blanks last in both directions", async ({
+    assert,
+  }) => {
+    await seedRoster();
+    await db.insert(eventRosters).values({
+      eventId: event.id,
+      type: "dancer",
+      email: "nobib@x.co",
+      firstName: "Zed",
+      lastName: "Dancer",
+    });
+    const svc = new ListDancersService();
+
+    const byName = await svc.execute(summit.id, event.id, null, {
+      sortBy: "name",
+      sortDir: "desc",
+    });
+    const byBibDesc = await svc.execute(summit.id, event.id, null, {
+      sortBy: "bib",
+      sortDir: "desc",
+    });
+
+    assert.deepEqual(
+      byName.data.map((r) => r.firstName),
+      ["Zed", "Eve", "Dee", "Cal", "Bea", "Abe"]
+    );
+    assert.deepEqual(
+      byBibDesc.data.map((r) => r.bibNumber),
+      [105, 104, 103, 102, 101, null]
+    );
+  });
+
+  test("searches bib, name and studio, treating wildcards as text", async ({
+    assert,
+  }) => {
+    const { dancers } = await seedRoster();
+    await db.insert(eventDancerProfiles).values({
+      rosterId: dancers[0]!.id,
+      studio: "100% Dance",
+    });
+    const svc = new ListDancersService();
+
+    const byBib = await svc.execute(summit.id, event.id, null, {
+      search: "103",
+    });
+    const byStudio = await svc.execute(summit.id, event.id, null, {
+      search: "100%",
+    });
+    const wildcard = await svc.execute(summit.id, event.id, null, {
+      search: "_",
+    });
+
+    assert.deepEqual(
+      byBib.data.map((r) => r.firstName),
+      ["Cal"]
+    );
+    assert.deepEqual(
+      byStudio.data.map((r) => r.firstName),
+      ["Eve"]
+    );
+    assert.lengthOf(wildcard.data, 0);
+    assert.equal(byStudio.counts.all, 5);
+  });
+
+  test("filters to the coach's marks and ranks rated dancers", async ({
+    assert,
+  }) => {
+    const { dancers, view } = await seedRoster();
+    const [eve, dee, cal] = dancers;
+    await db.insert(eventFavorites).values(
+      [dee!, cal!].map((dancer) => ({
+        eventId: event.id,
+        coachRosterId: view.coachRosterId,
+        dancerRosterId: dancer.id,
+      }))
+    );
+    await db.insert(eventRatings).values(
+      [
+        [eve!, 4],
+        [dee!, 3],
+        [cal!, 4],
+      ].map(([dancer, rating]) => ({
+        eventId: event.id,
+        coachRosterId: view.coachRosterId,
+        dancerRosterId: (dancer as typeof eve)!.id,
+        rating: rating as number,
+      }))
+    );
+    const svc = new ListDancersService();
+
+    const favorites = await svc.execute(summit.id, event.id, view, {
+      filter: "favorites",
+    });
+    const ranked = await svc.execute(summit.id, event.id, view, {
+      filter: "rated",
+      sortBy: "rank",
+    });
+
+    assert.deepEqual(
+      favorites.data.map((r) => r.firstName),
+      ["Dee", "Cal"]
+    );
+    // Rating first, then favourites, then bib.
+    assert.deepEqual(
+      ranked.data.map((r) => r.firstName),
+      ["Cal", "Eve", "Dee"]
+    );
+    assert.deepEqual(favorites.counts, {
+      all: 5,
+      favorites: 2,
+      calledBack: 0,
+      rated: 3,
+    });
+  });
+  test("narrows to every filter set, leaving the tab counts whole", async ({
+    assert,
+  }) => {
+    const { dancers, view } = await seedRoster();
+    const [eve, dee, cal, bea] = dancers;
+    const mark = (dancer: typeof eve) => ({
+      eventId: event.id,
+      coachRosterId: view.coachRosterId,
+      dancerRosterId: dancer!.id,
+    });
+    await db.insert(eventFavorites).values([mark(dee), mark(cal)]);
+    await db.insert(eventRatings).values([
+      { ...mark(eve), rating: 4 },
+      { ...mark(cal), rating: 5 },
+    ]);
+    await db.insert(eventNotes).values([
+      { ...mark(cal), content: "Clean turns" },
+      { ...mark(dee), content: "Ask about summer" },
+    ]);
+    await db.insert(eventSchoolSelections).values([
+      { ...mark(cal), rank: 1 },
+      { ...mark(eve), rank: 2 },
+    ]);
+    await db.insert(eventDancerProfiles).values([
+      { rosterId: eve!.id, gpa: 4.0, state: "TX" },
+      { rosterId: dee!.id, gpa: 3.5, state: "CA" },
+      { rosterId: cal!.id, gpa: 3.2, state: "TX" },
+      { rosterId: bea!.id, state: "TX" },
+    ]);
+    const svc = new ListDancersService();
+    const names = async (q: Parameters<ListDancersService["execute"]>[3]) => {
+      const { data } = await svc.execute(summit.id, event.id, view, q);
+      return data.map((r) => r.firstName);
+    };
+
+    assert.deepEqual(
+      await names({
+        interested: true,
+        favorited: true,
+        rated: true,
+        hasNote: true,
+      }),
+      ["Cal"]
+    );
+    assert.deepEqual(await names({ interested: true }), ["Eve", "Cal"]);
+    assert.deepEqual(await names({ hasNote: true }), ["Dee", "Cal"]);
+    // At least the low end, under the high end; a blank GPA matches no range.
+    assert.deepEqual(await names({ gpaMin: 3.5 }), ["Eve", "Dee"]);
+    assert.deepEqual(await names({ gpaMin: 3, gpaBelow: 3.5 }), ["Cal"]);
+    assert.deepEqual(await names({ gpaMin: 3.5, gpaBelow: 4 }), ["Dee"]);
+    assert.deepEqual(await names({ gpaMin: 4 }), ["Eve"]);
+    assert.deepEqual(await names({ gpaBelow: 2.5 }), []);
+    assert.deepEqual(await names({ state: "TX" }), ["Eve", "Cal", "Bea"]);
+
+    const filtered = await svc.execute(summit.id, event.id, view, {
+      state: "TX",
+      favorited: true,
+    });
+    assert.equal(filtered.total, 1);
+    assert.equal(filtered.counts.all, 5);
+  });
+
+  test("filters by graduation year", async ({ assert }) => {
+    const { dancers, view } = await seedRoster();
+    const [eve, dee, cal] = dancers;
+    await db.insert(eventDancerProfiles).values([
+      { rosterId: eve!.id, gradYear: 2027 },
+      { rosterId: dee!.id, gradYear: 2028 },
+      { rosterId: cal!.id, gradYear: 2027 },
+    ]);
+    const svc = new ListDancersService();
+
+    const result = await svc.execute(summit.id, event.id, view, {
+      year: 2027,
+    });
+
+    assert.deepEqual(
+      result.data.map((r) => r.firstName),
+      ["Eve", "Cal"]
+    );
+    assert.equal(result.total, 2);
+    assert.equal(result.counts.all, 5);
   });
 });

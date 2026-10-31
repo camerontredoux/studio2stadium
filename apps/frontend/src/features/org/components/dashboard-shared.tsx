@@ -84,7 +84,7 @@ export function PhaseBadge({
       >
         <LivePulse />
         <span className={cn(isActive ? "text-success" : "text-foreground")}>
-          Day {phase.liveDay} of {phase.totalDays}
+          Day {phase.day} of {phase.totalDays}
         </span>
       </span>
     );
@@ -220,8 +220,8 @@ export function SidebarSection({
 }
 
 export function phaseProgressPct(phase: EventPhaseInfo): number {
-  if (phase.phase === "live" && phase.liveDay) {
-    return Math.round((phase.liveDay / phase.totalDays) * 100);
+  if (phase.phase === "live" && phase.day) {
+    return Math.round((phase.day / phase.totalDays) * 100);
   }
   if (phase.phase === "wrapped") return 100;
   if (phase.phase === "upcoming" || phase.phase === "imminent") {
@@ -240,7 +240,7 @@ export function SidebarPhaseSection({ phase }: { phase: EventPhaseInfo }) {
     : "Approaching kickoff";
   const headline =
     phase.phase === "live"
-      ? `Day ${phase.liveDay}`
+      ? `Day ${phase.day}`
       : phase.phase === "wrapped"
         ? "Wrapped"
         : phase.daysUntilStart === 0
@@ -250,7 +250,9 @@ export function SidebarPhaseSection({ phase }: { phase: EventPhaseInfo }) {
     phase.phase === "live"
       ? `of ${phase.totalDays}`
       : phase.phase === "wrapped"
-        ? phase.label.toLowerCase().replace(/^wrapped\s*/, "")
+        ? phase.label === "Just wrapped"
+          ? "yesterday"
+          : phase.label.toLowerCase().replace(/^wrapped\s*/, "")
         : "until kickoff";
 
   return (

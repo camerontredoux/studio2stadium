@@ -59,7 +59,7 @@ export function SidebarLayout({ children, sidebar, tabs }: SidebarLayoutProps) {
       >
         <TabsList
           variant="underline"
-          className="**:data-[slot=tab-indicator]:bg-brand bg-background sticky top-12 z-50 -mt-2 w-full"
+          className="**:data-[slot=tab-indicator]:bg-brand bg-background top-header sticky z-50 -mt-2 w-full"
         >
           <TabsTab
             className="text-brand data-active:text-brand gap-1.5 text-sm"

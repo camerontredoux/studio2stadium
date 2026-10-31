@@ -71,3 +71,27 @@ export const profileViews = pg.pgTable(
   },
   (table) => [pg.uniqueIndex().on(table.dancerId, table.schoolId)]
 );
+
+/**
+ * The first time a dancer opened each school's program detail page. One row
+ * per (dancer, school); repeat views don't add rows. Feeds the Premium
+ * Recruiting Roadmap's "explore programs" step.
+ */
+export const programViews = pg.pgTable(
+  "dancer_program_views",
+  {
+    dancerId: pg
+      .uuid()
+      .notNull()
+      .references(() => dancerProfiles.id, { onDelete: "cascade" }),
+    schoolId: pg
+      .uuid()
+      .notNull()
+      .references(() => schoolProfiles.id, { onDelete: "cascade" }),
+    firstViewedAt: pg.timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    pg.primaryKey({ columns: [table.dancerId, table.schoolId] }),
+    pg.index().on(table.schoolId),
+  ]
+);

@@ -48,6 +48,10 @@ export function VideoCard({ video }: VideoCardProps) {
       {
         onSuccess: () => {
           queryClient.invalidateQueries(queries.videos());
+          // Also each category's "Load More" pages, a separate cache entry.
+          queryClient.invalidateQueries({
+            queryKey: ["get", "/library/{category}"],
+          });
           setAlertOpen(false);
           toastManager.add({
             title: "Deleted",

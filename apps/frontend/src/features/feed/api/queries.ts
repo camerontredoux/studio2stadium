@@ -6,10 +6,11 @@ export const feedQueries = {
     infiniteQueryOptions({
       queryKey: ["get", "/feed"],
       queryFn: async ({ pageParam }) => {
-        const { data } = await client.GET("/feed", {
+        const { data, error } = await client.GET("/feed", {
           params: { query: { cursor: pageParam } },
         });
-        return data!;
+        if (error) throw error;
+        return data;
       },
       getNextPageParam: (lastPage) => lastPage.nextCursor,
       initialPageParam: undefined as string | undefined,

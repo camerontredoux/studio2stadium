@@ -13,7 +13,9 @@ export default class CreateSelectionController {
     }
 
     const payload = await ctx.request.validateUsing(schema);
-    const settings = (ctx.org!.settings ?? {}) as { max_school_selections?: number };
+    const settings = (ctx.org!.settings ?? {}) as {
+      max_school_selections?: number;
+    };
     const maxSelections = settings.max_school_selections ?? 3;
     const result = await service.execute(
       ctx.orgEvent!.id,

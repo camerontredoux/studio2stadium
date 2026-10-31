@@ -11,8 +11,14 @@ const EditSchoolEventController = () =>
   import("#modules/admin/edit-school-event/controller");
 const EditGlobalEventController = () =>
   import("#modules/admin/edit-global-event/controller");
+const DeleteSchoolEventController = () =>
+  import("#modules/admin/delete-school-event/controller");
+const DeleteGlobalEventController = () =>
+  import("#modules/admin/delete-global-event/controller");
 const GetApplicationsController = () =>
   import("#modules/admin/get-applications/controller");
+const GetUnsubmittedSchoolsController = () =>
+  import("#modules/admin/get-unsubmitted-schools/controller");
 const GetSchoolsController = () =>
   import("#modules/admin/get-all-schools/controller");
 const GetDancersController = () =>
@@ -186,10 +192,28 @@ router
       description: "Updates a global event by ID",
     });
 
+    router.delete("events/school/:id", [DeleteSchoolEventController]).openapi({
+      summary: "Delete school event",
+      description: "Permanently deletes a school event by ID",
+    });
+
+    router.delete("events/global/:id", [DeleteGlobalEventController]).openapi({
+      summary: "Delete global event",
+      description: "Permanently deletes a global event by ID",
+    });
+
     router.get("applications", [GetApplicationsController]).openapi({
       summary: "Get all applications",
       description: "Returns all school applications for admin review",
     });
+
+    router
+      .get("unsubmitted-schools", [GetUnsubmittedSchoolsController])
+      .openapi({
+        summary: "Get schools that have not submitted an application",
+        description:
+          "Returns unverified, non-invited schools that signed up but have not submitted the application form",
+      });
 
     router.get("schools", [GetSchoolsController]).openapi({
       summary: "Get all schools",

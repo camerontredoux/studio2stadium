@@ -6,8 +6,10 @@ import { notificationQueries } from "@/features/notifications/api/queries";
 import { organizerRedirect } from "@/features/org/lib/org-destination";
 import { createAccess } from "@/lib/access/access";
 import { queries, SessionNetworkError } from "@/lib/session";
-import { useRealtime } from "@/lib/session/hooks/use-realtime";
-import { VideoProcessingProvider } from "@/lib/video-processing";
+import {
+  useWatchVideoUploads,
+  VideoProcessingProvider,
+} from "@/lib/video-processing";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import posthog from "posthog-js";
 
@@ -69,7 +71,15 @@ export const Route = createFileRoute("/_app")({
         }
       }
 
-      context.queryClient.ensureQueryData(notificationQueries.count());
+      context.queryClient.prefetchQuery(notificationQueries.count());
+
+      // Premium screens treat a dancer as unsubscribed until this loads, so
+      // load it before rendering rather than flash "Subscribe" at subscribers.
+      if (session.type === "dancer") {
+        await context.queryClient
+          .ensureQueryData(queries.subscribed())
+          .catch(() => undefined);
+      }
 
       const { id, firstName, lastName, displayEmail } = session
       posthog.identify(
@@ -106,7 +116,7 @@ function RouteComponent() {
 }
 
 function RealtimeWrapper() {
-  useRealtime();
+  useWatchVideoUploads();
 
   return (
     <AppLayout>

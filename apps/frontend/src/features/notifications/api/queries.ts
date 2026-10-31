@@ -10,7 +10,7 @@ export const notificationQueries = {
           params: { query: { cursor: pageParam } },
         });
         if (error) throw error;
-        return data!;
+        return data;
       },
       getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
       initialPageParam: undefined as string | undefined,

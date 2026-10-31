@@ -115,6 +115,11 @@ export {
   type EventTierOrgReadyEmailProps,
 } from "./templates/EventTierOrgReadyEmail.js";
 
+export {
+  ApplicationSubmittedEmail,
+  type ApplicationSubmittedEmailProps,
+} from "./templates/ApplicationSubmittedEmail.js";
+
 // Render utilities
 export { renderEmail, renderEmailText } from "./render.js";
 

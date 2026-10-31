@@ -1,5 +1,15 @@
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { dancerQueries } from "@/features/dancer/api/queries";
+import { toastApiError } from "@/lib/api/errors";
+import {
+  canSubmitCommonRecruitingVideo,
+  graduatingClass,
+} from "@/lib/common-recruiting";
+import { useSession } from "@/lib/session/hooks/use-session";
 import { getYouTubeId } from "@/utils/get-youtube-id";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
+import { GraduationCapIcon } from "lucide-react";
 import { useState } from "react";
 import { useSubmitVideo } from "../../api/mutations";
 import { ConfirmStep } from "./confirm";
@@ -12,6 +22,11 @@ import { VideoStep } from "./video";
 export function SubmitPage() {
   const navigate = useNavigate();
   const { mutate, isPending } = useSubmitVideo();
+
+  const { username } = useSession();
+  const { data: dancer } = useSuspenseQuery(dancerQueries.profile(username));
+  const seniors = graduatingClass();
+  const canSubmit = canSubmitCommonRecruitingVideo(dancer.gradYear);
 
   const [step, setStep] = useState<Step>("video");
   const [videoUrl, setVideoUrl] = useState("");
@@ -31,6 +46,7 @@ export function SubmitPage() {
       },
       {
         onSuccess: () => setSubmitted(true),
+        onError: toastApiError,
       },
     );
   };
@@ -41,6 +57,31 @@ export function SubmitPage() {
         schoolCount={selectedSchools.length}
         onViewSubmissions={() => navigate({ to: "/recruiting" })}
       />
+    );
+  }
+
+  if (!canSubmit) {
+    return (
+      <div className="mobile:pb-14 flex flex-col gap-4 lg:gap-6">
+        <div className="flex flex-col gap-0.5 max-sm:pl-1">
+          <h1 className="text-2xl leading-none font-bold tracking-tight">
+            Submit Video
+          </h1>
+          <p className="text-muted-foreground text-sm">
+            Share your talent with dance programs across the country
+          </p>
+        </div>
+
+        <Alert variant="warning">
+          <GraduationCapIcon />
+          <AlertTitle>Only graduating seniors and older can submit</AlertTitle>
+          <AlertDescription>
+            Common recruiting video submissions are open to graduating seniors
+            (class of {seniors}) and older. Because you graduate after {seniors}
+            , you can't submit a video right now.
+          </AlertDescription>
+        </Alert>
+      </div>
     );
   }
 

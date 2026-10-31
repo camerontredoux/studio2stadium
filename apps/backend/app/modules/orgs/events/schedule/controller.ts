@@ -10,17 +10,14 @@ export default class ScheduleController {
       .select({ schedulePdfUrl: orgEvents.schedulePdfUrl })
       .from(orgEvents)
       .where(
-        and(
-          eq(orgEvents.id, ctx.params.id),
-          eq(orgEvents.orgId, ctx.org!.id),
-        ),
+        and(eq(orgEvents.id, ctx.params.id), eq(orgEvents.orgId, ctx.org!.id))
       );
 
     if (!event?.schedulePdfUrl) {
       return ctx.response.notFound({ message: "No schedule uploaded." });
     }
 
-    const disk = drive.use("r2");
+    const disk = drive.use();
     const url = await disk.getSignedUrl(event.schedulePdfUrl, {
       expiresIn: "1 hour",
     });

@@ -144,10 +144,12 @@ async function orgWithEvents(
       eventTiers.map((eventTier, index) => ({
         orgId: org!.id,
         name: `${slug} ${index} ${eventTier}`,
-        // Already started, so check-in is open at every event.
+        // Already started and taking self check-in, so a Dancer's own
+        // check-in is open at every event and only the capability gates it.
         startDate: dateFromToday(-1),
         endDate: dateFromToday(2),
         isActive: index === 0,
+        selfCheckIn: true,
         eventTier,
       }))
     )
@@ -190,6 +192,7 @@ async function orgWithEvents(
         eventId: event.id,
         dancerRosterId: dancerRoster!.id,
         coachRosterId: selectedCoach.id,
+        rank: 1,
       })
       .returning();
     const [category, emptyCategory] = await db

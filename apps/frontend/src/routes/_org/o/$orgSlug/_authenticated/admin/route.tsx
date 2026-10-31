@@ -1,24 +1,14 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
-import { Separator } from "@/components/ui/separator";
 import { adminQueries } from "@/features/org/api/admin-queries";
-import { AdminCommandPalette } from "@/features/org/components/admin-command-palette";
-import { AdminSidebar } from "@/features/org/components/admin-sidebar";
-import { OrgEventSwitcher } from "@/features/org/components/org-event-switcher";
 import { AdminEventProvider } from "@/features/org/context/admin-event-provider";
 import { useAdminEvent } from "@/features/org/context/use-admin-event";
-import { AdminCommandsProvider } from "@/features/org/hooks/use-admin-commands";
+import { AdminAreaShell } from "@/features/org/live/admin/admin-shell";
 import { orgQueries } from "@/features/org/api/queries";
 import { queries } from "@/lib/session";
 import {
   ORG_AREA_ROUTES,
   resolveOrgArea,
-  type OrgAccess,
 } from "@/features/org/lib/org-destination";
 
 export const Route = createFileRoute("/_org/o/$orgSlug/_authenticated/admin")({
@@ -28,9 +18,9 @@ export const Route = createFileRoute("/_org/o/$orgSlug/_authenticated/admin")({
     );
     if (session?.role === "admin") return;
 
-    const data = (await context.queryClient.ensureQueryData(
+    const data = await context.queryClient.ensureQueryData(
       orgQueries.org(params.orgSlug),
-    )) as OrgAccess | null;
+    );
     const area = resolveOrgArea(data);
     if (area !== "admin") {
       throw redirect({
@@ -48,35 +38,17 @@ function AdminLayout() {
 
   return (
     <AdminEventProvider events={events}>
-      <AdminShell orgSlug={orgSlug} />
+      <AdminShell />
     </AdminEventProvider>
   );
 }
 
-function AdminShell({ orgSlug }: { orgSlug: string }) {
+function AdminShell() {
   const { selectedEvent } = useAdminEvent();
 
   return (
-    <AdminCommandsProvider>
-      <SidebarProvider className="h-svh">
-        <AdminSidebar />
-        <SidebarInset className="overflow-hidden">
-          <header className="bg-sidebar text-sidebar-foreground flex h-12 shrink-0 items-center gap-2 border-b px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
-            <span className="text-muted-foreground text-sm font-medium 2xl:text-base">
-              Admin
-            </span>
-            <div className="ml-auto flex min-w-0 justify-end">
-              <OrgEventSwitcher orgSlug={orgSlug} />
-            </div>
-          </header>
-          <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
-            <Outlet key={selectedEvent?.id ?? "no-event"} />
-          </div>
-        </SidebarInset>
-        <AdminCommandPalette />
-      </SidebarProvider>
-    </AdminCommandsProvider>
+    <AdminAreaShell>
+      <Outlet key={selectedEvent?.id ?? "no-event"} />
+    </AdminAreaShell>
   );
 }

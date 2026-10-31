@@ -40,7 +40,7 @@ export class Service {
       return { error: "Image not found" };
     }
 
-    const disk = drive.use("r2");
+    const disk = drive.use();
     const exists = await disk.exists(image.mediaUrl);
     if (exists) {
       await disk.delete(image.mediaUrl);

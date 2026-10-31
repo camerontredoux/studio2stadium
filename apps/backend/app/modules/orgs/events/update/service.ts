@@ -8,12 +8,15 @@ import type { AuditContext } from "#database/audit";
 import { assertEventTierWrite } from "#shared/org/event-tier-authority";
 import { markTierManagedIfBelowEnterprise } from "#shared/org/self-serve";
 import { tierChangeAuditMetadata } from "./tier-change-audit.ts";
+import { assertEventSchedule } from "../event-schedule.ts";
 
-export class StartTimePairError extends Error {
-  constructor() {
-    super("startTime and timezone must be provided together or not at all.");
-  }
-}
+const SCHEDULE_KEYS = [
+  "startDate",
+  "endDate",
+  "startTime",
+  "endTime",
+  "timezone",
+] as const;
 
 /**
  * An Organizer tried to reactivate an Org Event whose purchase was refunded or
@@ -63,17 +66,24 @@ export class UpdateEventService {
         .where(and(eq(orgEvents.id, eventId), eq(orgEvents.orgId, orgId)))
         .for("update");
 
-      // Validate startTime + timezone are provided together or not at all
-      const newStartTime =
-        patch.startTime !== undefined
-          ? patch.startTime
-          : (before?.startTime ?? null);
-      const newTimezone =
-        patch.timezone !== undefined
-          ? patch.timezone
-          : (before?.timezone ?? null);
-      if ((newStartTime && !newTimezone) || (!newStartTime && newTimezone)) {
-        throw new StartTimePairError();
+      // The schedule rules apply to the event as it will be, not to the patch
+      // alone. They run only when the patch touches the schedule, so a stored
+      // row from before these rules can still be renamed or activated. A
+      // missing event falls through to the 404 below.
+      const touchesSchedule = SCHEDULE_KEYS.some(
+        (key) => patch[key] !== undefined
+      );
+      if (before && touchesSchedule) {
+        const merged = <K extends "startTime" | "endTime" | "timezone">(
+          key: K
+        ) => (patch[key] !== undefined ? patch[key] || null : before[key]);
+        assertEventSchedule({
+          startDate: patch.startDate ?? before.startDate,
+          endDate: patch.endDate ?? before.endDate,
+          startTime: merged("startTime"),
+          endTime: merged("endTime"),
+          timezone: merged("timezone"),
+        });
       }
 
       if (patch.isActive === true && !by.isStaff) {
@@ -119,10 +129,20 @@ export class UpdateEventService {
           ...(patch.schedulePdfUrl !== undefined && {
             schedulePdfUrl: patch.schedulePdfUrl,
           }),
-          ...(patch.startTime !== undefined && { startTime: patch.startTime }),
-          ...(patch.timezone !== undefined && { timezone: patch.timezone }),
+          ...(patch.startTime !== undefined && {
+            startTime: patch.startTime || null,
+          }),
+          ...(patch.endTime !== undefined && {
+            endTime: patch.endTime || null,
+          }),
+          ...(patch.timezone !== undefined && {
+            timezone: patch.timezone || null,
+          }),
           ...(patch.isActive !== undefined && { isActive: patch.isActive }),
           ...(patch.eventTier !== undefined && { eventTier: patch.eventTier }),
+          ...(patch.selfCheckIn !== undefined && {
+            selfCheckIn: patch.selfCheckIn,
+          }),
         })
         .where(and(eq(orgEvents.id, eventId), eq(orgEvents.orgId, orgId)))
         .returning();

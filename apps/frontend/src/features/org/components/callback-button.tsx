@@ -1,5 +1,6 @@
-import { $api } from "@/lib/api/client";
+import { $api, type ApiSchemas } from "@/lib/api/client";
 import { useQueryClient } from "@tanstack/react-query";
+import { updateDancerLists } from "@/features/org/api/scouting-mutations";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { Megaphone } from "lucide-react";
 import { useOrg } from "@/features/org/context/use-org";
@@ -29,12 +30,8 @@ export function CallbackButton({
   const dancersPrefix = ["get", "/orgs/{slug}/dancers"] as const;
 
   function setCalledBackInList(value: boolean) {
-    qc.setQueriesData({ queryKey: [...dancersPrefix] }, (old: any) =>
-      Array.isArray(old)
-        ? old.map((d: any) =>
-            d.rosterId === dancerRosterId ? { ...d, isCalledBack: value } : d,
-          )
-        : old,
+    updateDancerLists(qc, (d) =>
+      d.rosterId === dancerRosterId ? { ...d, isCalledBack: value } : d,
     );
   }
 
@@ -44,7 +41,7 @@ export function CallbackButton({
       await qc.cancelQueries({ queryKey: [...dancersPrefix] });
       await qc.cancelQueries({ queryKey: callbacksKey });
       const previousDancer = qc.getQueryData(dancerKey);
-      qc.setQueryData(dancerKey, (old: any) => {
+      qc.setQueryData<ApiSchemas["OrgsIdDancersIdResponse"]>(dancerKey, (old) => {
         if (!old) return old;
         return { ...old, isCalledBack: true };
       });
@@ -74,10 +71,13 @@ export function CallbackButton({
         await qc.cancelQueries({ queryKey: [...dancersPrefix] });
         await qc.cancelQueries({ queryKey: callbacksKey });
         const previousDancer = qc.getQueryData(dancerKey);
-        qc.setQueryData(dancerKey, (old: any) => {
-          if (!old) return old;
-          return { ...old, isCalledBack: false };
-        });
+        qc.setQueryData<ApiSchemas["OrgsIdDancersIdResponse"]>(
+          dancerKey,
+          (old) => {
+            if (!old) return old;
+            return { ...old, isCalledBack: false };
+          },
+        );
         setCalledBackInList(false);
         return { previousDancer };
       },

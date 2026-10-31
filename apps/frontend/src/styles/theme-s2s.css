@@ -1,0 +1,1649 @@
+/*
+  S2S Live theme, scoped to `.theme-s2s`. Part of the app's single Tailwind compile:
+  src/styles/app.css imports index.css and then this file, and main.tsx imports app.css.
+
+  It registers the S2S colours with `@theme inline reference` (utilities, no :root
+  variables), defines the bp-* variants, and adds plain CSS that only matches inside
+  `.theme-s2s` or on shell class names. Nothing here changes a page that lacks the
+  `.theme-s2s` class.
+
+  Colour utilities (bg-*, text-*, border-*, ring-*, fill-*, …), one per token:
+    bg-000 bg-100 bg-150 bg-200 bg-300
+    surface surface-head surface-hover surface-raised surface-chip surface-active
+    surface-raised-hover surface-pressed
+    line-soft line line-control line-dashed line-hover line-check line-focus
+    track track-upcoming
+    fg fg-strong fg-media fg-2 fg-3 fg-disabled fill-done fill-bar
+    live amber sky event-accent count danger on-fg scrim glass veil dot-grid
+  e.g. bg-surface-raised, text-fg-3, border-line-control, text-event-accent.
+  The design's `accent` token is `--event-accent` here, because `--accent` is the
+  hover surface components/ui reads (it maps to surface-pressed inside .theme-s2s).
+
+  Spacing, radius, shadow and size tokens are plain variables; use Tailwind's variable
+  shorthand: p-(--space-14), rounded-(--radius-10), shadow-(--shadow-pop), h-(--control-sm).
+  The expanded sidebar width is `--sidebar-w` (not `--sidebar`, which components/ui reads
+  as a colour).
+
+  Typography utilities (font family, size, line height, weight, tracking; never colour):
+    type-display-day type-display-stat type-bib-hero type-bib-lg type-rank
+    type-title type-title-sm type-nav type-body type-body-strong type-body-long
+    type-control type-caption type-caption-sm
+    type-data type-data-sm type-meta type-label type-tag
+  Mono styles use tabular figures. Nothing is uppercased (the user's rule): labels
+  and tags show their sentence-case text as written.
+
+  Breakpoint variants: bp-sidebar: (≤1360) bp-board: (≤1180) bp-rail: (≤1000)
+  bp-phone: (≤800) bp-small: (≤480) desk: (≥801). Inclusive, unlike max-[1000px].
+
+  Other utilities: s2s-ground (the bg-100 page ground), s2s-focus (the 2px fg focus
+  outline), s2s-input-size (16px on phones, 12.5px above).
+
+  Shell layout (sidebar, header, body grid, rail, widget board, widget, dock) and every
+  breakpoint live at the end of this file, under "Shell". Breakpoints: 1360 (sidebar),
+  1180 (two-row boards to 3 columns), 1000 (rail wraps), 800 (phone), 480 (small).
+*/
+
+@theme inline reference {
+  --color-bg-000: var(--bg-000);
+  --color-bg-100: var(--bg-100);
+  --color-bg-150: var(--bg-150);
+  --color-bg-200: var(--bg-200);
+  --color-bg-300: var(--bg-300);
+  --color-surface: var(--surface);
+  --color-surface-head: var(--surface-head);
+  --color-surface-hover: var(--surface-hover);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-chip: var(--surface-chip);
+  --color-surface-active: var(--surface-active);
+  --color-surface-raised-hover: var(--surface-raised-hover);
+  --color-surface-pressed: var(--surface-pressed);
+  --color-range-band: var(--range-band);
+  --color-line-soft: var(--line-soft);
+  --color-line-chip: var(--line-chip);
+  --color-line: var(--line);
+  --color-line-control: var(--line-control);
+  --color-line-dashed: var(--line-dashed);
+  --color-line-hover: var(--line-hover);
+  --color-line-check: var(--line-check);
+  --color-line-focus: var(--line-focus);
+  --color-track: var(--track);
+  --color-track-upcoming: var(--track-upcoming);
+  --color-fg: var(--fg);
+  --color-fg-strong: var(--fg-strong);
+  --color-fg-media: var(--fg-media);
+  --color-fg-2: var(--fg-2);
+  --color-fg-3: var(--fg-3);
+  --color-fg-disabled: var(--fg-disabled);
+  --color-fill-done: var(--fill-done);
+  --color-fill-bar: var(--fill-bar);
+  --color-live: var(--live);
+  --color-amber: var(--amber);
+  --color-star: var(--star);
+  --color-sky: var(--sky);
+  --color-event-accent: var(--event-accent);
+  --color-count: var(--count);
+  --color-danger: var(--danger);
+  --color-on-fg: var(--on-fg);
+  --color-scrim: var(--scrim);
+  --color-glass: var(--glass);
+  --color-veil: var(--veil);
+  --color-dot-grid: var(--dot-grid);
+}
+
+/*
+  Breakpoint variants (inclusive, like the design's "≤ 1000"). Tailwind's own max-[1000px]
+  means "< 1000px", so use these instead:
+    bp-sidebar: ≤1360   bp-board: ≤1180   bp-rail: ≤1000   bp-phone: ≤800   bp-small: ≤480
+    desk: ≥801 (everything above the phone layout)
+*/
+@custom-variant bp-sidebar (@media (max-width: 1360px));
+@custom-variant bp-board (@media (max-width: 1180px));
+@custom-variant bp-rail (@media (max-width: 1000px));
+@custom-variant bp-phone (@media (max-width: 800px));
+@custom-variant bp-small (@media (max-width: 480px));
+@custom-variant desk (@media (min-width: 801px));
+
+/*
+  ── Tokens (tokens.json is the source of truth) ──
+  These are the dark values (tokens.json theme `dark`). The light values follow under
+  "Light palette". `.s2s-keep-dark` (the live camera viewfinder) gets the dark values
+  again in either theme.
+*/
+.theme-s2s,
+.theme-s2s .s2s-keep-dark {
+  color-scheme: dark;
+
+  --bg-000: #0c0c0c;
+  --bg-100: #121212;
+  --bg-150: #141414;
+  --bg-200: #151515;
+  --bg-300: #161616;
+  --surface: #1a1a1a;
+  --surface-head: #1d1d1d;
+  --surface-hover: #1e1e1e;
+  --surface-raised: #202020;
+  --surface-chip: #222222;
+  --surface-active: #252525;
+  --surface-raised-hover: #282828;
+  --surface-pressed: #2a2a2a;
+  /* The band between the start and end days of a date range. */
+  --range-band: #272727;
+  --line-soft: #262626;
+  --line: #2b2b2b;
+  /* Border of a date or time chip in a range field. */
+  --line-chip: #2e2e2e;
+  --line-control: #333333;
+  --line-dashed: #3a3a3a;
+  --line-hover: #404040;
+  --line-check: #444444;
+  --line-focus: #555555;
+  --track: #2e2e2e;
+  --track-upcoming: #313131;
+  --fg: #ededed;
+  --fg-strong: #ffffff;
+  --fg-media: #c4c4c4;
+  --fg-2: #a3a3a3;
+  --fg-3: #929292;
+  --fg-disabled: #6b6b6b;
+  --fill-done: #d4d4d4;
+  --fill-bar: #e5e5e5;
+  --live: #6ee7a0;
+  --amber: #d6ae62;
+  /* Rating stars. Same as amber in dark; brighter than text amber in light (graphics need 3:1, not 4.5:1). */
+  --star: var(--amber);
+  --sky: #7dd3fc;
+  /* The design's `accent`. An event may set it to var(--amber), var(--sky) or var(--fg). */
+  --event-accent: var(--live);
+  --count: #d6ae62;
+  --danger: #f87171;
+  --on-fg: var(--bg-100);
+  --scrim: rgba(0, 0, 0, 0.6);
+  --glass: rgba(26, 26, 26, 0.88);
+  --veil: rgba(12, 12, 12, 0.8);
+  --dot-grid: rgba(255, 255, 255, 0.035);
+
+  --space-2: 2px;
+  --space-4: 4px;
+  --space-6: 6px;
+  --space-8: 8px;
+  --space-10: 10px;
+  --space-12: 12px;
+  --space-14: 14px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+
+  --radius-2: 2px;
+  --radius-3: 3px;
+  --radius-4: 4px;
+  --radius-5: 5px;
+  --radius-6: 6px;
+  --radius-7: 7px;
+  --radius-8: 8px;
+  --radius-10: 10px;
+  --radius-11: 11px;
+  --radius-12: 12px;
+  --radius-pill: 13px;
+  --radius-16: 16px;
+  --radius-round: 50%;
+
+  --shadow-panel: 0 4px 12px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-pop: 0 12px 32px rgba(0, 0, 0, 0.5);
+  --shadow-dialog: 0 24px 64px rgba(0, 0, 0, 0.6);
+  --shadow-dock: 0 10px 30px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-paper: 0 4px 24px rgba(0, 0, 0, 0.4);
+
+  --control-sm: 24px;
+  --control: 28px;
+  --control-lg: 32px;
+  --row: 44px;
+  --row-head: 32px;
+  --panel-head: 40px;
+  --header: 56px;
+  --sidebar-w: 232px;
+  --sidebar-collapsed: 56px;
+  --rail: 300px;
+  --icon: 16px;
+  --icon-sm: 14px;
+  --tile-open: 640px;
+  --tile-peek-m: 148px;
+  --bp-sidebar: 1360px;
+  --bp-board: 1180px;
+  --bp-rail: 1000px;
+  --bp-phone: 800px;
+  --bp-small: 480px;
+
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  --text-display-day: 600 32px/1 var(--font-sans);
+  --text-display-stat: 600 32px/1 var(--font-sans);
+  --text-bib-hero: 500 56px/1 var(--font-mono);
+  --text-bib-lg: 500 32px/1 var(--font-mono);
+  --text-rank: 500 18px/1 var(--font-mono);
+  --text-title: 600 15px/1.4 var(--font-sans);
+  --text-title-sm: 600 14px/1.4 var(--font-sans);
+  --text-nav: 500 13.5px/1.4 var(--font-sans);
+  --text-body: 400 13px/1.4 var(--font-sans);
+  --text-body-strong: 500 13px/1.4 var(--font-sans);
+  --text-body-long: 400 13px/1.55 var(--font-sans);
+  --text-control: 500 12.5px/1.4 var(--font-sans);
+  --text-caption: 400 12px/1.4 var(--font-sans);
+  --text-caption-sm: 400 11.5px/1.4 var(--font-sans);
+  --text-data: 400 13px/1.4 var(--font-mono);
+  --text-data-sm: 400 12px/1.4 var(--font-mono);
+  --text-meta: 400 11.5px/1.4 var(--font-mono);
+  --text-label: 400 11px/1.4 var(--font-mono);
+  --text-tag: 400 10.5px/1.4 var(--font-mono);
+
+  /* The variables components/ui reads, mapped onto S2S tokens. */
+  --background: var(--bg-100);
+  --foreground: var(--fg);
+  --card: var(--surface);
+  --card-foreground: var(--fg);
+  --popover: var(--surface-raised);
+  --popover-foreground: var(--fg);
+  --sheet: var(--surface);
+  --primary: var(--fg);
+  --primary-foreground: var(--on-fg);
+  --secondary: var(--surface-raised);
+  --secondary-foreground: var(--fg);
+  --muted: var(--surface-chip);
+  --muted-foreground: var(--fg-3);
+  --accent: var(--surface-pressed);
+  --accent-foreground: var(--fg);
+  --destructive: var(--danger);
+  --destructive-foreground: var(--danger);
+  --border: var(--line-control);
+  --input: var(--line-control);
+  --ring: var(--fg);
+  --radius: 6px;
+  /* Transparent so the page ground shows through. */
+  --sidebar: transparent;
+  --sidebar-foreground: var(--fg-2);
+  --sidebar-primary: var(--fg);
+  --sidebar-primary-foreground: var(--on-fg);
+  --sidebar-accent: var(--surface-active);
+  --sidebar-accent-foreground: var(--fg);
+  --sidebar-border: var(--line);
+  --sidebar-ring: var(--fg);
+  --info: var(--sky);
+  --info-foreground: var(--sky);
+  --success: var(--live);
+  --success-foreground: var(--live);
+  --warning: var(--amber);
+  --warning-foreground: var(--amber);
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/*
+  ── Light palette (tokens.json theme `light`) ──
+  The org theme setting (useOrgTheme: Light, Dark or System) puts `.dark` on <html>.
+  Without it, the same token names take these values, so no component needs a light
+  variant. The depth ladder is inverted: the page is the lightest neutral and each rung
+  (inset field, panel, head, hover, raised, chip, active, pressed) is a step darker.
+  `bg-000` and `fg-media` keep their dark values: they sit on camera and video, which
+  look the same in both themes.
+  Where the main site (index.css `:root`) has a matching light token, the value here is
+  that token, flattened onto white where it is a black alpha: panels are white cards,
+  text is zinc, borders are black/12%. The other rungs keep the depth ladder between them.
+*/
+html:not(.dark) .theme-s2s {
+  color-scheme: light;
+
+  --bg-100: #ffffff;
+  --bg-150: #f2f2f2;
+  --bg-200: #fdfdfd;
+  --bg-300: #fcfcfc;
+  /* --card */
+  --surface: #ffffff;
+  /* --sidebar (zinc-50) */
+  --surface-head: #fafafa;
+  /* --accent, black/4% */
+  --surface-hover: #f5f5f5;
+  /* --muted, black/4% */
+  --surface-raised: #f5f5f5;
+  --surface-chip: #efefef;
+  /* --secondary (black/8%, #ebebeb), the main site's selected nav item, one step
+     lighter so --fg-disabled keeps 4.5:1 on it. */
+  --surface-active: #ececec;
+  --surface-raised-hover: #e9e9e9;
+  --surface-pressed: #e6e6e6;
+  --range-band: #eaeaea;
+  --line-soft: #ebebeb;
+  /* --border, black/12% */
+  --line: #e0e0e0;
+  /* --input, black/12% */
+  --line-chip: #e0e0e0;
+  --line-control: #e0e0e0;
+  --line-dashed: #cccccc;
+  --line-hover: #c4c4c4;
+  --line-check: #bdbdbd;
+  --line-focus: #a5a5a5;
+  --track: #e3e3e3;
+  --track-upcoming: #dcdcdc;
+  /* --foreground and --primary (zinc-800) */
+  --fg: #27272a;
+  --fg-strong: #000000;
+  /* zinc-600, the foreground's family */
+  --fg-2: #52525b;
+  /* --muted-foreground */
+  --fg-3: #66666e;
+  --fg-disabled: #6b6b6b;
+  --fill-done: #5c5c5c;
+  /* --primary */
+  --fill-bar: #27272a;
+  --live: #12753a;
+  --amber: #875c06;
+  --star: #a87800;
+  --sky: #0369a1;
+  --count: #875c06;
+  --danger: #c42b2b;
+  --scrim: rgba(0, 0, 0, 0.32);
+  --glass: rgba(255, 255, 255, 0.82);
+  --veil: rgba(255, 255, 255, 0.85);
+  --dot-grid: rgba(0, 0, 0, 0.04);
+
+  /* --popover: menus and popovers are white cards, as on the main site. */
+  --popover: var(--surface);
+
+  --shadow-panel: 0 4px 12px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-pop: 0 12px 32px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-dialog: 0 24px 64px rgba(0, 0, 0, 0.18);
+  --shadow-dock: 0 10px 30px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-paper: 0 4px 24px rgba(0, 0, 0, 0.12);
+}
+
+/* ── Typography (tokens.json `type`) ── */
+@utility type-display-day {
+  font-family: var(--font-sans);
+  font-size: 32px;
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums;
+}
+@utility type-display-stat {
+  font-family: var(--font-sans);
+  font-size: 32px;
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+@utility type-bib-hero {
+  font-family: var(--font-mono);
+  font-size: 56px;
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+@utility type-bib-lg {
+  font-family: var(--font-mono);
+  font-size: 32px;
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+@utility type-rank {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+@utility type-title {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+@utility type-title-sm {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+@utility type-nav {
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+@utility type-body {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+@utility type-body-strong {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+@utility type-body-long {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.55;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+@utility type-control {
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+@utility type-caption {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+@utility type-caption-sm {
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  line-height: 1.4;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+@utility type-data {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 400;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+@utility type-data-sm {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 400;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+@utility type-meta {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 1.4;
+  font-weight: 400;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+@utility type-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  font-weight: 400;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+@utility type-tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  font-weight: 400;
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Helpers ── */
+@utility s2s-ground {
+  background-color: var(--bg-100);
+}
+/* Keyboard focus: a solid 2px fg outline with a 2px offset. */
+@utility s2s-focus {
+  &:focus-visible {
+    outline: 2px solid var(--fg);
+    outline-offset: 2px;
+  }
+}
+/* Text inputs: 12.5px on desktop, 16px on phones so iOS doesn't zoom. */
+@utility s2s-input-size {
+  font-size: 12.5px;
+  @media (max-width: 800px) {
+    font-size: 16px;
+  }
+}
+/* The open panel's settled size, which WidgetBoard writes on each panel. Not inherited,
+   so a new size restyles only the panel, not the hundreds of elements inside it. */
+@property --open-panel-w {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+@property --open-panel-h {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Shell: sidebar, header, body grid, rail, widget board, widget, phone dock.
+   Ported from docs/s2s-live/mockup/shared/shell.css. Every layout breakpoint for the
+   dashboard lives here (and in the bp-* variants above); views never redefine them.
+     > 1360  sidebar open, rail beside the widgets
+     ≤ 1360  sidebar collapses on its own (ShellSidebar)
+     ≤ 1180  widget boards with a second row go to 3 columns
+     ≤ 1000  rail wraps below the widgets; LIVE badge moves to the header
+     ≤  800  phone: sidebar becomes the floating dock, widgets stack
+   In @layer components, so a utility class on the same element still wins.
+   ═══════════════════════════════════════════════════════════════════════ */
+@layer components {
+  /* ── Root ── */
+  .s2s-shell {
+    display: flex;
+    flex-wrap: wrap;
+    min-height: 100vh;
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.4;
+    background-color: var(--bg-100);
+  }
+
+  /* ── Sidebar ── */
+  .s2s-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+    height: 40px;
+    padding: 0 8px;
+    border: 0;
+    border-radius: var(--radius-8);
+    background: transparent;
+    color: var(--fg);
+    font: inherit;
+    text-align: left;
+    box-sizing: border-box;
+  }
+  button.s2s-brand {
+    cursor: pointer;
+  }
+  button.s2s-brand:hover,
+  button.s2s-brand[data-popup-open] {
+    background: var(--surface-active);
+  }
+  .s2s-brand-mark {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius-6);
+    background: var(--fg);
+    color: var(--on-fg);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 500;
+    overflow: hidden;
+  }
+  .s2s-brand-name {
+    flex: 1;
+    min-width: 0;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .s2s-avatar {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-round);
+    background: var(--line);
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: 11px;
+  }
+  .s2s-side-foot-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+  }
+  .s2s-side-foot-name {
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .s2s-side-foot-email {
+    font-size: 11.5px;
+    color: var(--fg-3);
+  }
+  .s2s-side-foot-name,
+  .s2s-side-foot-email {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ── Phone brand row: the event switcher above the header at 800px and under ── */
+  .s2s-phone-top {
+    display: none;
+  }
+
+  /* ── Content column and header ── */
+  .s2s-content {
+    flex: 999 1 560px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .s2s-header {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 12px;
+    min-height: var(--header);
+    padding: 8px 8px 8px 12px;
+    box-sizing: border-box;
+    position: relative;
+  }
+  .s2s-header-title {
+    flex: 0 1 auto;
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  .s2s-header-crumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: none;
+  }
+  .s2s-header-crumb-link {
+    font-size: 15px;
+    color: var(--fg-3);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .s2s-header-crumb-link:hover {
+    color: var(--fg);
+  }
+  .s2s-header-crumb-slash {
+    color: var(--line-focus);
+  }
+  /* --line-focus is too pale for text on the light page (2.5:1). */
+  html:not(.dark) .theme-s2s .s2s-header-crumb-slash {
+    color: var(--fg-3);
+  }
+  .s2s-header-status {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+  .s2s-header-status > :first-child {
+    flex: none;
+  }
+  /* Pages without the rail (sub-pages) show the status at every width. */
+  .s2s-header-status[data-always] {
+    display: flex;
+  }
+  .s2s-header-spacer {
+    flex: 1;
+  }
+  .s2s-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: none;
+  }
+
+  /* No vertical trackpad rubber-band on the dashboard page (the board is sized
+     to the window, so the bounce only jiggles it). Horizontal stays free so a
+     trackpad swipe still goes back and forward. Touch screens keep theirs.
+     Only the page itself: on a widget's scroll area it would stop the wheel
+     passing on to the page once the widget reaches its end. */
+  @media (pointer: fine) {
+    html:has(.s2s-board),
+    html:has(.s2s-board) body {
+      overscroll-behavior-y: none;
+    }
+  }
+
+  /* ── Body grid: main column + right rail ── */
+  .s2s-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--rail);
+    gap: 8px;
+    padding: 0 8px 8px 0;
+    flex: 1;
+    min-height: 0;
+  }
+  .s2s-body[data-full] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .s2s-main {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+    container-type: inline-size;
+  }
+  .s2s-main > * {
+    flex-shrink: 0;
+  }
+  .s2s-rail {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-10);
+    box-shadow: var(--shadow-panel);
+    box-sizing: border-box;
+  }
+  .s2s-rail-sec {
+    border-bottom: 1px solid var(--line);
+  }
+  .s2s-rail-sec:last-child {
+    border-bottom: 0;
+  }
+
+  /* ── Widget board ── */
+  .s2s-board {
+    display: grid;
+    gap: 8px;
+    grid-template-rows: minmax(0, 1fr);
+    scroll-margin-top: 8px;
+  }
+  .s2s-board[data-anim] {
+    transition:
+      grid-template-columns 0.5s var(--ease),
+      grid-template-rows 0.5s var(--ease),
+      height 0.5s var(--ease);
+  }
+  .s2s-board[data-anim][data-first] {
+    transition:
+      grid-template-columns 0.5s var(--ease),
+      grid-template-rows 0.5s var(--ease),
+      height 0.5s var(--ease),
+      margin-right 0.5s var(--ease),
+      row-gap 0.5s var(--ease);
+  }
+
+  /* ── Board track lists (generated: one rule per widget count and open widget, written out in full) ── */
+  /* Desktop (> 800): square peeks; opening one folds the rest into 44px strips. */
+  @media (min-width: 801px) {
+    .s2s-board {
+      --open-h: clamp(400px, calc(100vh - 72px), 640px);
+    }
+    .s2s-board[data-open] {
+      height: var(--open-h);
+    }
+    .s2s-board[data-n="3"]:not([data-first]):not([data-open]) {
+      grid-template-columns:
+        calc((100cqw - 16px) / 3) calc((100cqw - 16px) / 3)
+        calc((100cqw - 16px) / 3);
+      height: calc((100cqw - 16px) / 3);
+    }
+    .s2s-board[data-n="4"]:not([data-first]):not([data-open]) {
+      grid-template-columns:
+        calc((100cqw - 24px) / 4) calc((100cqw - 24px) / 4)
+        calc((100cqw - 24px) / 4) calc((100cqw - 24px) / 4);
+      height: calc((100cqw - 24px) / 4);
+    }
+    /* One or two widgets (the dashboards leave out the ones an org lacks): keep a three-wide
+       tile size and leave the rest of the row empty. */
+    .s2s-board[data-n="1"]:not([data-open]),
+    .s2s-board[data-n="2"]:not([data-open]) {
+      height: calc((100cqw - 16px) / 3);
+    }
+    .s2s-board[data-n="1"]:not([data-open]) {
+      grid-template-columns: calc((100cqw - 16px) / 3);
+    }
+    .s2s-board[data-n="2"]:not([data-open]) {
+      grid-template-columns: calc((100cqw - 16px) / 3) calc((100cqw - 16px) / 3);
+    }
+    .s2s-board[data-n="1"][data-open="0"] {
+      grid-template-columns: 100cqw;
+    }
+    .s2s-board[data-n="2"][data-open="0"] {
+      grid-template-columns: calc(100cqw - 52px) 44px;
+    }
+    .s2s-board[data-n="2"][data-open="1"] {
+      grid-template-columns: 44px calc(100cqw - 52px);
+    }
+    .s2s-board[data-n="3"][data-open="0"] {
+      grid-template-columns: calc(100cqw - 104px) 44px 44px;
+    }
+    .s2s-board[data-n="3"][data-open="1"] {
+      grid-template-columns: 44px calc(100cqw - 104px) 44px;
+    }
+    .s2s-board[data-n="3"][data-open="2"] {
+      grid-template-columns: 44px 44px calc(100cqw - 104px);
+    }
+    .s2s-board[data-n="4"][data-open="0"] {
+      grid-template-columns: calc(100cqw - 156px) 44px 44px 44px;
+    }
+    .s2s-board[data-n="4"][data-open="1"] {
+      grid-template-columns: 44px calc(100cqw - 156px) 44px 44px;
+    }
+    .s2s-board[data-n="4"][data-open="2"] {
+      grid-template-columns: 44px 44px calc(100cqw - 156px) 44px;
+    }
+    .s2s-board[data-n="4"][data-open="3"] {
+      grid-template-columns: 44px 44px 44px calc(100cqw - 156px);
+    }
+    .s2s-board[data-n="5"][data-open="0"] {
+      grid-template-columns: calc(100cqw - 208px) 44px 44px 44px 44px;
+    }
+    .s2s-board[data-n="5"][data-open="1"] {
+      grid-template-columns: 44px calc(100cqw - 208px) 44px 44px 44px;
+    }
+    .s2s-board[data-n="5"][data-open="2"] {
+      grid-template-columns: 44px 44px calc(100cqw - 208px) 44px 44px;
+    }
+    .s2s-board[data-n="5"][data-open="3"] {
+      grid-template-columns: 44px 44px 44px calc(100cqw - 208px) 44px;
+    }
+    .s2s-board[data-n="5"][data-open="4"] {
+      grid-template-columns: 44px 44px 44px 44px calc(100cqw - 208px);
+    }
+    .s2s-board[data-n="6"][data-open="0"] {
+      grid-template-columns: calc(100cqw - 260px) 44px 44px 44px 44px 44px;
+    }
+    .s2s-board[data-n="6"][data-open="1"] {
+      grid-template-columns: 44px calc(100cqw - 260px) 44px 44px 44px 44px;
+    }
+    .s2s-board[data-n="6"][data-open="2"] {
+      grid-template-columns: 44px 44px calc(100cqw - 260px) 44px 44px 44px;
+    }
+    .s2s-board[data-n="6"][data-open="3"] {
+      grid-template-columns: 44px 44px 44px calc(100cqw - 260px) 44px 44px;
+    }
+    .s2s-board[data-n="6"][data-open="4"] {
+      grid-template-columns: 44px 44px 44px 44px calc(100cqw - 260px) 44px;
+    }
+    .s2s-board[data-n="6"][data-open="5"] {
+      grid-template-columns: 44px 44px 44px 44px 44px calc(100cqw - 260px);
+    }
+    /* Two-row boards: the second row joins the strips (last) when a widget opens. */
+    .s2s-board[data-first]:not([data-open]) {
+      grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+    }
+    .s2s-board[data-first][data-open] {
+      grid-template-rows: minmax(0, 1fr) minmax(0, 0fr);
+      row-gap: 0;
+      margin-right: 0;
+    }
+    .s2s-board[data-n="5"][data-first="3"]:not([data-open]) {
+      grid-template-columns:
+        calc((100cqw - 16px) / 3) calc((100cqw - 16px) / 3)
+        calc((100cqw - 16px) / 3) 0px 0px;
+      height: calc(2 * calc((100cqw - 16px) / 3) + 8px);
+      margin-right: -16px;
+    }
+    .s2s-board[data-n="5"][data-first="4"]:not([data-open]) {
+      grid-template-columns:
+        calc((100cqw - 24px) / 4) calc((100cqw - 24px) / 4)
+        calc((100cqw - 24px) / 4) calc((100cqw - 24px) / 4) 0px;
+      height: calc(2 * calc((100cqw - 24px) / 4) + 8px);
+      margin-right: -8px;
+    }
+    .s2s-board[data-n="6"][data-first="3"]:not([data-open]) {
+      grid-template-columns:
+        calc((100cqw - 16px) / 3) calc((100cqw - 16px) / 3)
+        calc((100cqw - 16px) / 3) 0px 0px 0px;
+      height: calc(2 * calc((100cqw - 16px) / 3) + 8px);
+      margin-right: -24px;
+    }
+    .s2s-board[data-n="6"][data-first="4"]:not([data-open]) {
+      grid-template-columns:
+        calc((100cqw - 24px) / 4) calc((100cqw - 24px) / 4)
+        calc((100cqw - 24px) / 4) calc((100cqw - 24px) / 4) 0px 0px;
+      height: calc(2 * calc((100cqw - 24px) / 4) + 8px);
+      margin-right: -16px;
+    }
+    .s2s-board[data-first="3"]:not([data-open]) > [data-index="3"] {
+      grid-row: 2;
+      grid-column: 1;
+    }
+    .s2s-board[data-first="3"]:not([data-open]) > [data-index="4"] {
+      grid-row: 2;
+      grid-column: 2;
+    }
+    .s2s-board[data-first="3"]:not([data-open]) > [data-index="5"] {
+      grid-row: 2;
+      grid-column: 3;
+    }
+    .s2s-board[data-first="4"]:not([data-open]) > [data-index="4"] {
+      grid-row: 2;
+      grid-column: 1;
+    }
+    .s2s-board[data-first="4"]:not([data-open]) > [data-index="5"] {
+      grid-row: 2;
+      grid-column: 2;
+    }
+    .s2s-board[data-first][data-open] > [data-index="0"] {
+      grid-row: 1;
+      grid-column: 1;
+    }
+    .s2s-board[data-first][data-open] > [data-index="1"] {
+      grid-row: 1;
+      grid-column: 2;
+    }
+    .s2s-board[data-first][data-open] > [data-index="2"] {
+      grid-row: 1;
+      grid-column: 3;
+    }
+    .s2s-board[data-first][data-open] > [data-index="3"] {
+      grid-row: 1;
+      grid-column: 4;
+    }
+    .s2s-board[data-first][data-open] > [data-index="4"] {
+      grid-row: 1;
+      grid-column: 5;
+    }
+    .s2s-board[data-first][data-open] > [data-index="5"] {
+      grid-row: 1;
+      grid-column: 6;
+    }
+  }
+  /* Narrow desktop (801-1180): two-row boards go to 3 columns. Trailing 0px tracks keep the
+     open-state animation; the negative margin cancels their gaps. */
+  @media (min-width: 801px) and (max-width: 1180px) {
+    .s2s-board[data-n="5"][data-first]:not([data-open]) {
+      grid-template-columns:
+        calc((100cqw - 16px) / 3) calc((100cqw - 16px) / 3)
+        calc((100cqw - 16px) / 3) 0px 0px;
+      height: calc(2 * calc((100cqw - 16px) / 3) + 8px);
+      margin-right: -16px;
+    }
+    .s2s-board[data-n="6"][data-first]:not([data-open]) {
+      grid-template-columns:
+        calc((100cqw - 16px) / 3) calc((100cqw - 16px) / 3)
+        calc((100cqw - 16px) / 3) 0px 0px 0px;
+      height: calc(2 * calc((100cqw - 16px) / 3) + 8px);
+      margin-right: -24px;
+    }
+    .s2s-board[data-first]:not([data-open]) > [data-index="3"] {
+      grid-row: 2;
+      grid-column: 1;
+    }
+    .s2s-board[data-first]:not([data-open]) > [data-index="4"] {
+      grid-row: 2;
+      grid-column: 2;
+    }
+    .s2s-board[data-first]:not([data-open]) > [data-index="5"] {
+      grid-row: 2;
+      grid-column: 3;
+    }
+  }
+  /* Phone (<= 800): widgets stack; every peek is 148px. An open board is 640px tall in total
+     (mockup shell.css, Main/Dancer .dc.html): 44px strips, the open widget takes the rest
+     (3: 536px, 4: 484px, 5: 432px, 6: 380px). */
+  @media (max-width: 800px) {
+    .s2s-board {
+      --peek-h: var(--tile-peek-m);
+    }
+    .s2s-board[data-n="1"] {
+      grid-template-columns: 100%;
+      grid-template-rows: var(--peek-h);
+      height: var(--peek-h);
+    }
+    .s2s-board[data-n="1"][data-open="0"] {
+      grid-template-rows: 640px;
+    }
+    .s2s-board[data-n="2"] {
+      grid-template-columns: 100%;
+      grid-template-rows: var(--peek-h) var(--peek-h);
+      height: calc(2 * var(--peek-h) + 8px);
+    }
+    .s2s-board[data-n="2"][data-open="0"] {
+      grid-template-rows: 588px 44px;
+    }
+    .s2s-board[data-n="2"][data-open="1"] {
+      grid-template-rows: 44px 588px;
+    }
+    .s2s-board[data-n="3"] {
+      grid-template-columns: 100%;
+      grid-template-rows: var(--peek-h) var(--peek-h) var(--peek-h);
+      height: calc(3 * var(--peek-h) + 16px);
+    }
+    .s2s-board[data-n="3"][data-open="0"] {
+      grid-template-columns: 100%;
+      grid-template-rows: 536px 44px 44px;
+    }
+    .s2s-board[data-n="3"][data-open="1"] {
+      grid-template-columns: 100%;
+      grid-template-rows: 44px 536px 44px;
+    }
+    .s2s-board[data-n="3"][data-open="2"] {
+      grid-template-columns: 100%;
+      grid-template-rows: 44px 44px 536px;
+    }
+    .s2s-board[data-n="4"] {
+      grid-template-columns: 100%;
+      grid-template-rows: var(--peek-h) var(--peek-h) var(--peek-h) var(
+          --peek-h
+        );
+      height: calc(4 * var(--peek-h) + 24px);
+    }
+    .s2s-board[data-n="4"][data-open="0"] {
+      grid-template-columns: 100%;
+      grid-template-rows: 484px 44px 44px 44px;
+    }
+    .s2s-board[data-n="4"][data-open="1"] {
+      grid-template-columns: 100%;
+      grid-template-rows: 44px 484px 44px 44px;
+    }
+    .s2s-board[data-n="4"][data-open="2"] {
+      grid-template-columns: 100%;
+      grid-template-rows: 44px 44px 484px 44px;
+    }
+    .s2s-board[data-n="4"][data-open="3"] {
+      grid-template-columns: 100%;
+      grid-template-rows: 44px 44px 44px 484px;
+    }
+    .s2s-board[data-n="5"] {
+      grid-template-columns: 100%;
+      grid-template-rows:
+        var(--peek-h) var(--peek-h) var(--peek-h) var(--peek-h)
+        var(--peek-h);
+      height: calc(5 * var(--peek-h) + 32px);
+    }
+    .s2s-board[data-n="5"][data-open="0"] {
+      grid-template-columns: 100%;
+      grid-template-rows: 432px 44px 44px 44px 44px;
+    }
+    .s2s-board[data-n="5"][data-open="1"] {
+      grid-template-columns: 100%;
+      grid-template-rows: 44px 432px 44px 44px 44px;
+    }
+    .s2s-board[data-n="5"][data-open="2"] {
+      grid-template-columns: 100%;
+      grid-template-rows: 44px 44px 432px 44px 44px;
+    }
+    .s2s-board[data-n="5"][data-open="3"] {
+      grid-template-columns: 100%;
+      grid-template-rows: 44px 44px 44px 432px 44px;
+    }
+    .s2s-board[data-n="5"][data-open="4"] {
+      grid-template-columns: 100%;
+      grid-template-rows: 44px 44px 44px 44px 432px;
+    }
+    .s2s-board[data-n="6"] {
+      grid-template-columns: 100%;
+      grid-template-rows:
+        var(--peek-h) var(--peek-h) var(--peek-h) var(--peek-h)
+        var(--peek-h) var(--peek-h);
+      height: calc(6 * var(--peek-h) + 40px);
+    }
+    .s2s-board[data-n="6"][data-open="0"] {
+      grid-template-columns: 100%;
+      grid-template-rows: 380px 44px 44px 44px 44px 44px;
+    }
+    .s2s-board[data-n="6"][data-open="1"] {
+      grid-template-columns: 100%;
+      grid-template-rows: 44px 380px 44px 44px 44px 44px;
+    }
+    .s2s-board[data-n="6"][data-open="2"] {
+      grid-template-columns: 100%;
+      grid-template-rows: 44px 44px 380px 44px 44px 44px;
+    }
+    .s2s-board[data-n="6"][data-open="3"] {
+      grid-template-columns: 100%;
+      grid-template-rows: 44px 44px 44px 380px 44px 44px;
+    }
+    .s2s-board[data-n="6"][data-open="4"] {
+      grid-template-columns: 100%;
+      grid-template-rows: 44px 44px 44px 44px 380px 44px;
+    }
+    .s2s-board[data-n="6"][data-open="5"] {
+      grid-template-columns: 100%;
+      grid-template-rows: 44px 44px 44px 44px 44px 380px;
+    }
+    .s2s-board[data-n][data-open] {
+      height: var(--tile-open);
+    }
+  }
+
+  /* ── Widget: three stacked layers (peek, folded strip, open) that crossfade ── */
+  .s2s-widget {
+    position: relative;
+    isolation: isolate;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-10);
+    box-shadow: var(--shadow-panel);
+    transition: border-color 0.2s;
+    scroll-margin-top: 8px;
+    /* The board resizes every widget on each frame of an open or close; keep that layout and paint inside the widget. */
+    contain: layout paint;
+  }
+  .s2s-widget[data-state="peek"]:hover,
+  .s2s-widget[data-state="strip"]:hover {
+    border-color: var(--line-hover);
+  }
+  /* Hidden layers skip rendering once faded out, so the board's animation doesn't lay out their content every frame. */
+  .s2s-widget-layer {
+    position: absolute;
+    inset: 0;
+    box-sizing: border-box;
+    opacity: 0;
+    visibility: hidden;
+    content-visibility: hidden;
+    transition:
+      opacity 0.15s ease,
+      visibility 0s linear 0.15s,
+      content-visibility 0s linear 0.15s;
+    transition-behavior: allow-discrete;
+  }
+  .s2s-widget[data-state="peek"] > .s2s-widget-peek,
+  .s2s-widget[data-state="strip"] > .s2s-widget-strip,
+  .s2s-widget[data-state="open"] > .s2s-widget-full {
+    opacity: 1;
+    visibility: visible;
+    content-visibility: visible;
+    transition:
+      opacity 0.3s ease 0.25s,
+      visibility 0s,
+      content-visibility 0s;
+    transition-behavior: allow-discrete;
+  }
+  /* While the board animates, the open panel keeps the size it last settled at (set by
+     WidgetBoard) and the widget clips it, so its content lays out once instead of every frame. */
+  .s2s-board[data-anim][data-open-size] .s2s-widget-full {
+    inset: 0 auto auto 0;
+    width: var(--open-panel-w);
+    height: var(--open-panel-h);
+  }
+  button.s2s-widget-layer {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  button.s2s-widget-layer:focus-visible {
+    outline: 2px solid var(--fg);
+    outline-offset: -2px;
+    border-radius: var(--radius-10);
+  }
+  .s2s-widget-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: var(--row);
+    flex: none;
+    padding: 0 8px 0 14px;
+    box-sizing: border-box;
+    width: 100%;
+  }
+  .s2s-widget-exp {
+    margin-left: auto;
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-6);
+    color: var(--fg-3);
+    transition:
+      background 0.15s,
+      color 0.15s;
+  }
+  .s2s-widget-peek:hover .s2s-widget-exp {
+    background: var(--surface-active);
+    color: var(--fg);
+  }
+  .s2s-widget-label {
+    color: var(--fg-3);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .s2s-widget-fcount {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    color: var(--fg-2);
+  }
+  .s2s-widget-factions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+    flex: none;
+  }
+  .s2s-widget-pbody {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 0 14px 14px;
+    overflow: hidden;
+  }
+  .s2s-widget-head,
+  .s2s-widget-pbody {
+    position: relative;
+    z-index: 1;
+  }
+  button.s2s-widget-strip {
+    align-items: center;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 14px 0;
+    color: var(--fg-2);
+  }
+  button.s2s-widget-strip:hover {
+    color: var(--fg);
+  }
+  .s2s-widget-strip-count {
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    font-variant-numeric: tabular-nums;
+    color: var(--fg);
+  }
+  .s2s-widget-strip-label {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  .s2s-widget-full {
+    display: flex;
+    flex-direction: column;
+  }
+  .s2s-widget-fhead {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: var(--row);
+    min-height: 0;
+    flex: none;
+    box-sizing: border-box;
+    padding: 0 8px 0 14px;
+    border-bottom: 1px solid var(--line);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .s2s-widget-fhead:hover {
+    background: var(--surface-hover);
+  }
+  .s2s-widget-fbody {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+  }
+  /* `visibility` inherits, so each open or close of the layer restyled every element in
+     the body (hundreds of Callbacks chips). Setting it here stops that at the body. The
+     layer's `content-visibility: hidden` flips with its `visibility`, so a hidden layer's
+     body still isn't rendered, clickable or focusable; without that support, keep the
+     inherited `visibility` doing the hiding. */
+  @supports (content-visibility: hidden) {
+    .s2s-widget-fbody {
+      visibility: visible;
+    }
+  }
+  .s2s-widget[data-state="open"] {
+    overflow: clip;
+  }
+  .s2s-widget[data-state="open"] .s2s-widget-fhead {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    background: var(--surface);
+    border-radius: 9px 9px 0 0;
+  }
+  .s2s-widget[data-state="open"] .s2s-widget-fhead:hover {
+    background: var(--surface-hover);
+  }
+
+  /* The schedule's blurred page behind a peek (same in every view). */
+  .s2s-doc-bg {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    /* The widget's rounded overflow doesn't clip filtered children; this does. */
+    clip-path: inset(0 round calc(var(--radius-10) - 1px));
+    pointer-events: none;
+    background: var(--surface);
+  }
+  /* Fades the page out under the head row, so the label stays readable. */
+  .s2s-doc-bg::after {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: calc(var(--row) * 2.4);
+    /* Starts a little see-through and eases out, so no edge shows where it ends. */
+    background: linear-gradient(
+      color-mix(in srgb, var(--surface) 88%, transparent),
+      color-mix(in srgb, var(--surface) 70%, transparent) 25%,
+      color-mix(in srgb, var(--surface) 42%, transparent) 50%,
+      color-mix(in srgb, var(--surface) 18%, transparent) 75%,
+      transparent
+    );
+  }
+  .s2s-doc-sheet {
+    position: absolute;
+    inset: -16px;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    padding: 40px 36px;
+    background: var(--fill-bar);
+    filter: blur(4px) contrast(0.65) brightness(0.17);
+    transform: scale(1.04);
+    transition: filter 0.3s ease;
+  }
+  .s2s-widget-peek:hover .s2s-doc-sheet {
+    filter: blur(3px) contrast(0.65) brightness(0.22);
+  }
+  /* Light theme: fill-bar is dark there, so the page is white paper, faded instead of dimmed. */
+  html:not(.dark) .theme-s2s .s2s-doc-sheet {
+    background: var(--bg-100);
+    filter: blur(4px) contrast(0.4) brightness(1.45);
+  }
+  html:not(.dark) .theme-s2s .s2s-widget-peek:hover .s2s-doc-sheet {
+    filter: blur(3px) contrast(0.5) brightness(1.35);
+  }
+  /* The schedule's real first page: lighter blur and tint than the sheet.
+     It covers the whole card at any page shape, anchored to the top left,
+     where a schedule's title sits. */
+  .s2s-doc-page {
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    width: calc(100% + 16px);
+    height: calc(100% + 16px);
+    object-fit: cover;
+    object-position: left top;
+    opacity: 0;
+    filter: blur(1.5px) contrast(0.65) brightness(0.35);
+    transition:
+      opacity 0.3s ease,
+      filter 0.3s ease;
+  }
+  .s2s-doc-page[data-drawn] {
+    opacity: 1;
+  }
+  .s2s-widget-peek:hover .s2s-doc-page {
+    filter: blur(1px) contrast(0.65) brightness(0.42);
+  }
+  html:not(.dark) .theme-s2s .s2s-doc-page {
+    filter: blur(1.5px) contrast(0.4) brightness(1.45);
+  }
+  html:not(.dark) .theme-s2s .s2s-widget-peek:hover .s2s-doc-page {
+    filter: blur(1px) contrast(0.5) brightness(1.35);
+  }
+  .s2s-doc-line {
+    display: block;
+    border-radius: var(--radius-2);
+    background: var(--fg-disabled);
+  }
+  .s2s-doc-row {
+    display: flex;
+    gap: 10px;
+  }
+  .s2s-doc-row > span {
+    display: block;
+    height: 6px;
+    border-radius: var(--radius-2);
+    background: #a0a0a0;
+  }
+
+  /* ── Phone dock: hidden above 800px ── */
+  .s2s-dock {
+    display: none;
+    position: fixed;
+    z-index: 40;
+    box-sizing: border-box;
+  }
+  .s2s-dock-item {
+    text-decoration: none;
+  }
+
+  /* ═══ Breakpoints ═══ */
+
+  /* Desktop (> 800): a fixed-height app; the body scrolls, never sideways. */
+  @media (min-width: 801px) {
+    .s2s-shell {
+      height: 100vh;
+      min-height: 0;
+      overflow: hidden;
+      flex-wrap: nowrap;
+    }
+    .s2s-content {
+      height: 100vh;
+      min-height: 0;
+    }
+    .s2s-header {
+      flex: none;
+      height: var(--header);
+    }
+    .s2s-body {
+      flex: 1 1 0;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    /* Collapsed sidebar: a 56px icon strip. */
+  }
+  @media (pointer: fine) {
+    .s2s-body {
+      overscroll-behavior-y: none;
+    }
+  }
+
+  /* Rail beside the widgets (> 1000): it sticks while the main column scrolls. */
+  @media (min-width: 1001px) {
+    .s2s-body {
+      align-items: start;
+    }
+    .s2s-rail {
+      position: sticky;
+      top: 0;
+      max-height: calc(100vh - 64px);
+      overflow-y: auto;
+    }
+  }
+  /* Rail wraps below the widgets (≤ 1000); its event card moves into the header.
+     Rows take their content height, or the rail would collapse to its border. */
+  @media (max-width: 1000px) {
+    .s2s-body {
+      grid-template-columns: minmax(0, 1fr);
+      align-content: start;
+      grid-auto-rows: max-content;
+    }
+    .s2s-rail-event {
+      display: none;
+    }
+    .s2s-header-status {
+      display: flex;
+    }
+  }
+
+  /* Phone (≤ 800) */
+  @media (max-width: 800px) {
+    .s2s-phone-top {
+      display: flex;
+      flex: 1 1 100%;
+      /* A long event name truncates instead of widening the row. */
+      min-width: 0;
+      padding: 8px;
+      box-sizing: border-box;
+    }
+    .s2s-shell {
+      align-content: flex-start;
+      padding-bottom: calc(84px + env(safe-area-inset-bottom) / 2);
+    }
+    .s2s-header {
+      min-height: 0;
+      padding: 0 8px 8px 12px;
+    }
+    .s2s-header-status {
+      display: contents;
+    }
+    .s2s-header-status > :first-child {
+      order: -1;
+    }
+    .s2s-header-crumb {
+      display: none;
+    }
+    .s2s-body {
+      padding: 0 8px 8px 8px;
+    }
+    button.s2s-widget-strip {
+      flex-direction: row;
+      padding: 0 14px;
+    }
+    .s2s-widget-strip-label {
+      writing-mode: horizontal-tb;
+      transform: none;
+    }
+    /* Floating dock; the current page widens into a labelled pill. */
+    .s2s-dock {
+      display: flex;
+      left: max(12px, env(safe-area-inset-left));
+      right: max(12px, env(safe-area-inset-right));
+      bottom: calc(12px + env(safe-area-inset-bottom) / 2);
+      height: 56px;
+      padding: 6px;
+      gap: 4px;
+      align-items: stretch;
+      justify-content: space-between;
+      background: var(--glass);
+      -webkit-backdrop-filter: blur(16px) saturate(140%);
+      backdrop-filter: blur(16px) saturate(140%);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-16);
+      box-shadow: var(--shadow-dock);
+    }
+    .s2s-dock-item {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 1 1 0;
+      min-width: 0;
+      padding: 0;
+      border-radius: var(--radius-11);
+      color: var(--fg-3);
+      transition:
+        flex-grow 0.35s var(--ease),
+        background-color 0.2s,
+        color 0.2s;
+    }
+    .s2s-dock-item:hover {
+      color: var(--fg);
+    }
+    .s2s-dock-item[data-current] {
+      flex-grow: 2.6;
+      background-color: var(--line-soft);
+      color: var(--fg);
+    }
+    .s2s-dock-icon {
+      display: grid;
+      place-items: center;
+      flex: none;
+      width: 20px;
+      height: 20px;
+    }
+    .s2s-dock-icon svg {
+      width: 20px;
+      height: 20px;
+    }
+    .s2s-dock-label {
+      display: grid;
+      white-space: nowrap;
+      grid-template-columns: 0fr;
+      margin-left: 0;
+      opacity: 0;
+      font-family: var(--font-sans);
+      font-size: 12.5px;
+      font-weight: 500;
+      color: inherit;
+      transition:
+        grid-template-columns 0.35s var(--ease),
+        margin-left 0.35s var(--ease),
+        opacity 0.35s var(--ease);
+    }
+    .s2s-dock-label > span {
+      min-width: 0;
+      overflow: hidden;
+      white-space: nowrap;
+    }
+    .s2s-dock-item[data-current] .s2s-dock-label {
+      grid-template-columns: 1fr;
+      margin-left: 8px;
+      opacity: 1;
+    }
+  }
+
+  /* Reduced motion: the board, dock and sidebar change instantly. */
+  @media (prefers-reduced-motion: reduce) {
+    .s2s-board[data-anim],
+    .s2s-board[data-anim][data-first],
+    .s2s-widget-layer,
+    .s2s-widget[data-state] > .s2s-widget-layer,
+    .s2s-dock-item,
+    .s2s-dock-label {
+      transition: none;
+    }
+  }
+}
+
+/* ── Sidebar: components/ui/sidebar, restyled ──
+   Unlayered, so these beat the primitive's own utilities (transition-[width] duration-200
+   ease-linear on the gap and container; hidden md:block on the root). Widths come from
+   SidebarProvider's --sidebar-width / --sidebar-width-icon (232px / 56px, set by EventShell);
+   colours from the --sidebar-* variables in the .theme-s2s block above. */
+.theme-s2s [data-slot="sidebar-gap"],
+.theme-s2s [data-slot="sidebar-container"] {
+  transition-duration: 0.15s;
+  transition-timing-function: ease;
+}
+/* Phones use the PhoneDock; the primitive's Sheet stays closed. */
+@media (max-width: 800px) {
+  .theme-s2s [data-slot="sidebar"] {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .theme-s2s [data-slot="sidebar-gap"],
+  .theme-s2s [data-slot="sidebar-container"],
+  .theme-s2s [data-slot="sidebar-group-label"],
+  .theme-s2s [data-slot="sidebar-menu-button"] {
+    transition: none;
+  }
+}

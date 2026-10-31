@@ -28,6 +28,7 @@ import { verifyPreviewToken } from "#shared/org/preview-token";
 import { and, eq, inArray } from "drizzle-orm";
 import logger from "@adonisjs/core/services/logger";
 import { rosterTypeMembershipConflict } from "#shared/org/membership";
+import { tierExpiryFrom } from "#utils/event-time";
 
 function randomToken(): string {
   return randomBytes(32).toString("base64url");
@@ -221,11 +222,9 @@ export class UploadDancersService {
             const userId = byEmail.get(r.email.toLowerCase()) ?? null;
 
             const rowExpiration = userId
-              ? (() => {
-                  const d = new Date(event!.endDate);
-                  d.setMonth(d.getMonth() + tierExpiryMonths);
-                  return d.toISOString().split("T")[0]!;
-                })()
+              ? tierExpiryFrom(event!.endDate, tierExpiryMonths)
+                  .toISOString()
+                  .slice(0, 10)
               : null;
 
             const [existing] = await tx

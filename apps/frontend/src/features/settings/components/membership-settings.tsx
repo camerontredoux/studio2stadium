@@ -8,7 +8,9 @@ import {
   FrameTitle,
 } from "@/components/ui/frame";
 import { Spinner } from "@/components/ui/spinner";
+import { toastManager } from "@/components/ui/toast-manager";
 import { formatDate } from "@/components/utils/format";
+import { handleApiError } from "@/lib/api/errors";
 import { useSubscribed } from "@/lib/session/hooks/use-subscribed";
 import { useNavigate } from "@tanstack/react-router";
 import { CheckIcon, CreditCardIcon, XIcon } from "lucide-react";
@@ -21,11 +23,37 @@ export function MembershipSettings() {
 
   const navigate = useNavigate();
 
-  const { mutateAsync, isPending } = useManage();
+  const { mutate, isPending } = useManage();
 
-  const handleManage = async () => {
+  const handleManage = () => {
     if (subscribed) {
-      await mutateAsync({}).then((data) => (window.location.href = data.url));
+      mutate(
+        {},
+        {
+          onSuccess: (data) => {
+            // Without a Stripe subscription the backend redirects this request
+            // to /checkout, which arrives here as a success with no url.
+            if (!data?.url) {
+              toastManager.add({
+                title: "Error",
+                description: "Couldn't open billing. Please try again later.",
+                type: "error",
+              });
+              return;
+            }
+            window.location.href = data.url;
+          },
+          onError: handleApiError({
+            onError: (error) => {
+              toastManager.add({
+                title: "Error",
+                description: error.message,
+                type: "error",
+              });
+            },
+          }),
+        },
+      );
     } else {
       navigate({ to: "/checkout" });
     }

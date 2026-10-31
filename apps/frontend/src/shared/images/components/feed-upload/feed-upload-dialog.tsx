@@ -81,6 +81,15 @@ export function FeedUploadDialog({
                     });
                     setIsOpen(false);
                   },
+                  onError: handleApiError({
+                    onError: (error) => {
+                      toastManager.add({
+                        title: "Error",
+                        description: error.message,
+                        type: "error",
+                      });
+                    },
+                  }),
                 },
               );
             })

@@ -1,19 +1,96 @@
-import { $api } from "@/lib/api/client";
+import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
+
+import { $api, client } from "@/lib/api/client";
+import type { paths } from "@/lib/api/types";
+
+export type DancerListParams = NonNullable<
+  paths["/orgs/{slug}/dancers"]["get"]["parameters"]["query"]
+>;
+
+/** Bib chips per page of a showcase's callbacks. */
+const CALLBACK_PAGE_SIZE = 100;
+
+/** Schools per page of the dancer's Top choices list. */
+export const SCHOOL_PAGE_SIZE = 50;
+
+/** Every paged schools query's key starts with this. */
+export const SCHOOL_PAGES_KEY_PREFIX = [
+  "get",
+  "/orgs/{slug}/schools/page",
+] as const;
+
+/** Every admin callback-board query's key starts with this. */
+export const ADMIN_CALLBACKS_KEY_PREFIX = [
+  "get",
+  "/orgs/{slug}/admin/callbacks",
+] as const;
+
+/** Rows per page of the coach's dancer list. */
+export const DANCER_PAGE_SIZE = 50;
 
 export const scoutingQueries = {
-  dancers: (
-    slug: string,
-    params: {
-      search?: string;
-      bib?: number;
-      interested?: boolean;
-      eventId?: string;
-    } = {},
-  ) =>
+  /** One page of the coach's dancers (the first, unless `page` is set). */
+  dancers: (slug: string, params: DancerListParams = {}) =>
     $api.queryOptions("get", "/orgs/{slug}/dancers", {
       params: {
         path: { slug },
         query: params,
+      },
+    }),
+  /**
+   * The coach's dancers a page at a time. The key extends `dancers`' key, so
+   * every patch and invalidation aimed at the dancer lists reaches it too.
+   */
+  dancerPages: (
+    slug: string,
+    params: Omit<DancerListParams, "page" | "limit"> = {},
+  ) => {
+    const query = { ...params, limit: DANCER_PAGE_SIZE };
+    return infiniteQueryOptions({
+      queryKey: [
+        "get",
+        "/orgs/{slug}/dancers",
+        { params: { path: { slug }, query } },
+        "pages",
+      ] as const,
+      queryFn: async ({ pageParam, signal }) => {
+        const { data, error } = await client.GET("/orgs/{slug}/dancers", {
+          params: { path: { slug }, query: { ...query, page: pageParam } },
+          signal,
+        });
+        if (error) throw error;
+        return data;
+      },
+      initialPageParam: 0,
+      getNextPageParam: (lastPage, pages) =>
+        pages.length * DANCER_PAGE_SIZE < lastPage.total
+          ? pages.length
+          : undefined,
+    });
+  },
+  /**
+   * The coach's roster sidebar: review progress, talent pool and recent marks,
+   * for the same filters as `dancerPages`. The key extends the dancer lists'
+   * key too, so every invalidation aimed at them refreshes it.
+   */
+  dancerSummary: (
+    slug: string,
+    params: Omit<DancerListParams, "page" | "limit"> = {},
+  ) =>
+    queryOptions({
+      queryKey: [
+        "get",
+        "/orgs/{slug}/dancers",
+        { params: { path: { slug }, query: params } },
+        "summary",
+      ] as const,
+      queryFn: async ({ signal }) => {
+        const { data, error } = await client.GET(
+          "/orgs/{slug}/dancer-summary",
+          { params: { path: { slug }, query: params }, signal },
+        );
+        if (error) throw error;
+        return data;
       },
     }),
   dancer: (slug: string, rosterId: string, eventId?: string) =>
@@ -32,6 +109,36 @@ export const scoutingQueries = {
     $api.queryOptions("get", "/orgs/{slug}/schools", {
       params: { path: { slug }, query: { eventId } },
     }),
+  /** The org's schools a page at a time, by name, narrowed by `search`. */
+  schoolPages: (slug: string, eventId?: string, search = "") =>
+    infiniteQueryOptions({
+      queryKey: [
+        ...SCHOOL_PAGES_KEY_PREFIX,
+        { params: { path: { slug }, query: { eventId, search } } },
+        "pages",
+      ] as const,
+      queryFn: async ({ pageParam, signal }) => {
+        const { data, error } = await client.GET("/orgs/{slug}/schools/page", {
+          params: {
+            path: { slug },
+            query: {
+              eventId,
+              search: search || undefined,
+              page: pageParam,
+              limit: SCHOOL_PAGE_SIZE,
+            },
+          },
+          signal,
+        });
+        if (error) throw error;
+        return data;
+      },
+      initialPageParam: 0,
+      getNextPageParam: (lastPage, pages) =>
+        pages.length * SCHOOL_PAGE_SIZE < lastPage.total
+          ? pages.length
+          : undefined,
+    }),
   mySelections: (slug: string, eventId?: string) =>
     $api.queryOptions("get", "/orgs/{slug}/my-selections", {
       params: { path: { slug }, query: { eventId } },
@@ -40,9 +147,38 @@ export const scoutingQueries = {
     $api.queryOptions("get", "/orgs/{slug}/callbacks", {
       params: { path: { slug } },
     }),
-  adminCallbacks: (slug: string) =>
-    $api.queryOptions("get", "/orgs/{slug}/admin/callbacks", {
+  /** The coach's callbacks by showcase on the active event, newest showcase first. */
+  callbackHistory: (slug: string) =>
+    $api.queryOptions("get", "/orgs/{slug}/callbacks/history", {
       params: { path: { slug } },
+    }),
+  /** The current showcase's called-back dancers a page at a time, in bib order. */
+  adminCallbackPages: (slug: string) =>
+    infiniteQueryOptions({
+      queryKey: [
+        ...ADMIN_CALLBACKS_KEY_PREFIX,
+        { params: { path: { slug } } },
+        "pages",
+      ] as const,
+      queryFn: async ({ pageParam, signal }) => {
+        const { data, error } = await client.GET(
+          "/orgs/{slug}/admin/callbacks",
+          {
+            params: {
+              path: { slug },
+              query: { page: pageParam, limit: CALLBACK_PAGE_SIZE },
+            },
+            signal,
+          },
+        );
+        if (error) throw error;
+        return data;
+      },
+      initialPageParam: 0,
+      getNextPageParam: (lastPage, pages) =>
+        pages.length * CALLBACK_PAGE_SIZE < lastPage.uniqueCallbacks
+          ? pages.length
+          : undefined,
     }),
   showcases: (slug: string) =>
     $api.queryOptions("get", "/orgs/{slug}/showcases", {
@@ -64,8 +200,48 @@ export const scoutingQueries = {
         params: { path: { slug, dancerRosterId } },
       },
     ),
-  publishedCallbacks: (slug: string, showcaseId: string) =>
-    $api.queryOptions("get", "/orgs/{slug}/showcases/{showcaseId}/callbacks", {
-      params: { path: { slug, showcaseId } },
+  // A coach's own-program view of a dancer's callbacks — scoped server-side to
+  // the requesting coach, so it never reveals other programs' callbacks.
+  // eventId re-resolves the coach's roster for a past event being browsed.
+  coachDancerCallbackDetail: (
+    slug: string,
+    dancerRosterId: string,
+    eventId?: string,
+  ) =>
+    $api.queryOptions(
+      "get",
+      "/orgs/{slug}/dancers/{dancerRosterId}/callbacks",
+      {
+        params: { path: { slug, dancerRosterId }, query: { eventId } },
+      },
+    ),
+  /** A published showcase's dancers a page at a time, in bib order. */
+  publishedCallbackPages: (slug: string, showcaseId: string) =>
+    infiniteQueryOptions({
+      queryKey: [
+        "get",
+        "/orgs/{slug}/showcases/{showcaseId}/callbacks",
+        { params: { path: { slug, showcaseId } } },
+        "pages",
+      ] as const,
+      queryFn: async ({ pageParam, signal }) => {
+        const { data, error } = await client.GET(
+          "/orgs/{slug}/showcases/{showcaseId}/callbacks",
+          {
+            params: {
+              path: { slug, showcaseId },
+              query: { page: pageParam, limit: CALLBACK_PAGE_SIZE },
+            },
+            signal,
+          },
+        );
+        if (error) throw error;
+        return data;
+      },
+      initialPageParam: 0,
+      getNextPageParam: (lastPage, pages) =>
+        pages.length * CALLBACK_PAGE_SIZE < lastPage.total
+          ? pages.length
+          : undefined,
     }),
 };

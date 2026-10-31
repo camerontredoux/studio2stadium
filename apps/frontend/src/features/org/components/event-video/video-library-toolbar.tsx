@@ -44,7 +44,8 @@ export function VideoLibraryToolbar({
           <SearchIcon />
         </InputGroupAddon>
         <InputGroupInput
-          placeholder="Search videos..."
+          placeholder="Search"
+          aria-label="Search videos"
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           data-size="sm"

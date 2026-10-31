@@ -14,6 +14,7 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
 import { useUpdateProgram } from "@/features/school/api/mutations";
+import { toastApiError } from "@/lib/api/errors";
 import * as React from "react";
 import {
   ProgramDetailsForm,
@@ -40,6 +41,7 @@ export function ProgramDetailsDialog({ username }: ProgramDetailsDialogProps) {
           });
           setOpen(false);
         },
+        onError: toastApiError,
       },
     );
   };

@@ -1,5 +1,5 @@
 import "nprogress/nprogress.css";
-import "./index.css";
+import "./styles/app.css";
 
 import { QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider } from "@tanstack/react-router";

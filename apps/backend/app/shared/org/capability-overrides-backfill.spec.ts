@@ -12,18 +12,24 @@ import {
 import { sql } from "drizzle-orm";
 import { readFileSync } from "node:fs";
 
-const MIGRATION = "app/database/drizzle/20260923150801_foamy_stephen_strange";
+const MIGRATION = "app/database/drizzle/20261031180550_event_tier_purchases";
 
 /**
- * Every statement of the migration that moved capability overrides onto the
+ * The statements of the migration that moved capability overrides onto the
  * Org Event, read from the migration itself — a backfill test asserting against
- * its own copy of the SQL would prove nothing.
+ * its own copy of the SQL would prove nothing. The migration carries the rest
+ * of the Event Tier purchase schema too, so only the statements that add,
+ * fill or strip the overrides are replayed.
  */
 function migrationStatements(): string[] {
   return readFileSync(`${MIGRATION}/migration.sql`, "utf8")
     .split("--> statement-breakpoint")
     .map((statement) => statement.trim())
-    .filter((statement) => statement.length > 0);
+    .filter(
+      (statement) =>
+        statement.includes('"capability_overrides"') ||
+        statement.includes('SET "features"')
+    );
 }
 
 /**

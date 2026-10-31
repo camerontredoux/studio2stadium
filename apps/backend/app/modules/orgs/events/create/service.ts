@@ -5,6 +5,7 @@ import { inject } from "@adonisjs/core";
 import type { Validator } from "./validator.ts";
 import { AuditCollector } from "#database/audit";
 import { desc, eq } from "drizzle-orm";
+import { assertEventSchedule } from "../event-schedule.ts";
 import { organizations } from "#database/schema/organizations";
 import type { Transaction } from "#database/service";
 import {
@@ -43,6 +44,14 @@ export class CreateEventService {
       eventTier: input.eventTier,
       mode: "create",
     });
+    const schedule = {
+      startDate: input.startDate,
+      endDate: input.endDate,
+      startTime: input.startTime || null,
+      endTime: input.endTime || null,
+      timezone: input.timezone || null,
+    };
+    assertEventSchedule(schedule);
 
     // Create the event first in a transaction, then log the audit entry
     // using the new event's id as the eventId context
@@ -61,6 +70,9 @@ export class CreateEventService {
           name: input.name,
           startDate: input.startDate,
           endDate: input.endDate,
+          startTime: schedule.startTime,
+          endTime: schedule.endTime,
+          timezone: schedule.timezone,
           venueName: input.venueName,
           venueAddress: input.venueAddress,
           contactEmail: input.contactEmail,

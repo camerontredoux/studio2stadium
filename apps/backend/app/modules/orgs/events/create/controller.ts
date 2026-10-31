@@ -9,6 +9,8 @@ import {
   EventTierRequiredError,
   isEventTierStaff,
 } from "#shared/org/event-tier-authority";
+import { orgDefaultTimezone, withEventInstants } from "#utils/event-time";
+import { EventScheduleError } from "../event-schedule.ts";
 
 export default class CreateEventController {
   @inject()
@@ -19,8 +21,13 @@ export default class CreateEventController {
       const ev = await service.execute(ctx.org!.id, payload, user.id, {
         isStaff: isEventTierStaff(user),
       });
-      return ctx.response.created(ev);
+      return ctx.response.created(
+        withEventInstants(ev, orgDefaultTimezone(ctx.org!.settings))
+      );
     } catch (err: any) {
+      if (err instanceof EventScheduleError) {
+        return ctx.response.unprocessableEntity({ message: err.message });
+      }
       if (
         err instanceof EventTierForbiddenError ||
         err instanceof EventTierPurchaseRequiredError

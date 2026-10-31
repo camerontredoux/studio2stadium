@@ -26,7 +26,7 @@ export const Route = createFileRoute("/_admin/(routes)/admin/dancers")({
   validateSearch: searchSchema,
   loaderDeps: ({ search }) => ({ search }),
   loader: ({ context: { queryClient }, deps: { search } }) => {
-    queryClient.ensureQueryData(adminQueries.dancers(search));
+    queryClient.prefetchQuery(adminQueries.dancers(search));
   },
   component: DancersPage,
 });

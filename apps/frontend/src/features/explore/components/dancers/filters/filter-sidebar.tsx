@@ -23,7 +23,8 @@ export function DancerFiltersSidebar() {
   const navigate = useNavigate();
   const filtering = useSearch({
     from: "/_app/(routes)/dancers",
-    select: (search) => Object.keys(search).length > 0,
+    // The page number is pagination, not a filter.
+    select: (search) => Object.keys(search).some((k) => k !== "page"),
   });
 
   const clearFilters = () => {

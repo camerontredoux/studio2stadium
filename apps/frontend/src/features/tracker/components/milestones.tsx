@@ -1,0 +1,224 @@
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Menu, MenuItem, MenuPopup, MenuTrigger } from "@/components/ui/menu";
+import { Toggle } from "@/components/ui/toggle";
+import { cn } from "@/components/utils/cn";
+import {
+  CheckIcon,
+  EllipsisIcon,
+  FlagIcon,
+  PencilIcon,
+  PlusIcon,
+  Trash2Icon,
+} from "lucide-react";
+import { useEffect, useId, useRef, useState } from "react";
+import type { TrackerMilestone as Milestone } from "../api/mutations";
+import { AddMilestoneDialog } from "./add-milestone-dialog";
+
+type School = { id: string; name: string; avatar: string | null };
+
+// A chip's round indicator. On hover it fills with gold, tilts, and pulses,
+// like the stage stepper did.
+const INDICATOR =
+  "flex size-6 shrink-0 items-center justify-center rounded-full border-2 transition-[transform,background-color,border-color,color] duration-200 ease-out group-hover/milestone:border-brand group-hover/milestone:bg-brand group-hover/milestone:animate-stage-pulse group-hover/milestone:scale-115 group-hover/milestone:-rotate-12 group-hover/milestone:text-white motion-reduce:transition-none motion-reduce:group-hover/milestone:transform-none motion-reduce:group-hover/milestone:animate-none";
+
+const MAX_TITLE = 80;
+
+const TOGGLE_COOLDOWN_MS = 1000;
+
+// Used by renaming. Input styles its wrapper with className, so
+// reach the field inside to fill it and keep the text clear of its rounded ends.
+const FIELD =
+  "h-9 w-48 rounded-2xl before:rounded-[calc(var(--radius-2xl)-1px)] sm:h-9 *:data-[slot=input]:h-full *:data-[slot=input]:px-4";
+
+function Indicator({ done }: { done: boolean }) {
+  return (
+    <span
+      aria-hidden
+      className={cn(
+        INDICATOR,
+        done ? "border-brand bg-brand text-white" : "text-muted-foreground",
+      )}
+    >
+      {done ? (
+        <CheckIcon className="size-3.5" />
+      ) : (
+        <FlagIcon className="size-3" />
+      )}
+    </span>
+  );
+}
+
+function MilestoneChip({
+  milestone,
+  onToggle,
+  onRename,
+  onDelete,
+}: {
+  milestone: Milestone;
+  onToggle: () => void;
+  onRename: (title: string) => void;
+  onDelete: () => void;
+}) {
+  const done = !!milestone.completedAt;
+  const [renaming, setRenaming] = useState(false);
+  // The hover preview fills the icon gold, so after a click it holds off until
+  // the pointer leaves; otherwise an unchecked chip still looks checked.
+  const [quiet, setQuiet] = useState(false);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  const refocus = useRef(false);
+  // Rapid clicks would otherwise each send a request against the API's shared
+  // limit of 60 milestone changes a minute, so a chip rests briefly after one.
+  const [cooling, setCooling] = useState(false);
+
+  useEffect(() => {
+    if (!cooling) return;
+    const timer = setTimeout(() => setCooling(false), TOGGLE_COOLDOWN_MS);
+    return () => clearTimeout(timer);
+  }, [cooling]);
+
+  // Enter and Escape hand focus back to the chip; a blur leaves it where the
+  // dancer moved it.
+  useEffect(() => {
+    if (!renaming && refocus.current) toggleRef.current?.focus();
+    refocus.current = false;
+  }, [renaming]);
+
+  const finish = (title: string | null, keyboard: boolean) => {
+    const next = title?.trim();
+    if (next && next !== milestone.title) onRename(next);
+    refocus.current = keyboard;
+    setRenaming(false);
+  };
+
+  if (renaming) {
+    return (
+      <Input
+        autoFocus
+        size="sm"
+        className={FIELD}
+        aria-label={`Rename ${milestone.title}`}
+        defaultValue={milestone.title}
+        maxLength={MAX_TITLE}
+        onBlur={(e) => finish(e.currentTarget.value, false)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            // Focus moves to the chip before the keypress lands, which
+            // would otherwise click it and undo the check.
+            e.preventDefault();
+            finish(e.currentTarget.value, true);
+          }
+          if (e.key === "Escape") finish(null, true);
+        }}
+      />
+    );
+  }
+
+  return (
+    // Long titles truncate so a chip never runs past the card.
+    <div className="bg-background flex h-9 max-w-[min(100%,24rem)] items-center gap-0.5 rounded-2xl border pe-1">
+      <Toggle
+        ref={toggleRef}
+        pressed={done}
+        title={milestone.title}
+        onClick={() => {
+          setQuiet(true);
+          if (cooling) return;
+          setCooling(true);
+          onToggle();
+        }}
+        // aria-disabled rather than disabled, so keyboard focus stays put.
+        aria-disabled={cooling || undefined}
+        onPointerLeave={() => setQuiet(false)}
+        className={cn(
+          !quiet && "group/milestone",
+          cooling && "cursor-default opacity-64",
+          "h-full min-w-0 shrink rounded-2xl ps-1 pe-2 before:rounded-2xl data-pressed:bg-transparent sm:h-full",
+        )}
+      >
+        <Indicator done={done} />
+        <span className="truncate">{milestone.title}</span>
+      </Toggle>
+      <Menu>
+        <MenuTrigger
+          render={
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              className="rounded-full before:rounded-full"
+              aria-label={`Options for ${milestone.title}`}
+            />
+          }
+        >
+          <EllipsisIcon />
+        </MenuTrigger>
+        <MenuPopup align="end">
+          <MenuItem onClick={() => setRenaming(true)}>
+            <PencilIcon /> Rename
+          </MenuItem>
+          <MenuItem variant="destructive" onClick={onDelete}>
+            <Trash2Icon /> Delete
+          </MenuItem>
+        </MenuPopup>
+      </Menu>
+    </div>
+  );
+}
+
+function AddMilestone({ school }: { school: School }) {
+  return (
+    <AddMilestoneDialog
+      school={school}
+      maxLength={MAX_TITLE}
+      trigger={
+        <Button
+          variant="ghost"
+          className="group/milestone text-muted-foreground border-border h-9 rounded-2xl border-dashed ps-1 pe-3 before:rounded-[calc(var(--radius-2xl)-1px)] sm:h-9"
+        >
+          <span aria-hidden className={cn(INDICATOR, "border-transparent")}>
+            <PlusIcon className="size-3.5" />
+          </span>
+          Add milestone
+        </Button>
+      }
+    />
+  );
+}
+
+export function Milestones({
+  school,
+  milestones,
+  onToggle,
+  onRename,
+  onDelete,
+}: {
+  school: School;
+  milestones: Milestone[];
+  onToggle: (milestone: Milestone) => void;
+  onRename: (milestone: Milestone, title: string) => void;
+  onDelete: (milestone: Milestone) => void;
+}) {
+  const labelId = useId();
+  return (
+    <div className="flex flex-col gap-2">
+      <p id={labelId} className="text-sm font-medium">
+        Your milestones
+      </p>
+      <ul aria-labelledby={labelId} className="flex flex-wrap gap-2">
+        {milestones.map((milestone) => (
+          <li key={milestone.id} className="max-w-full min-w-0">
+            <MilestoneChip
+              milestone={milestone}
+              onToggle={() => onToggle(milestone)}
+              onRename={(title) => onRename(milestone, title)}
+              onDelete={() => onDelete(milestone)}
+            />
+          </li>
+        ))}
+        <li>
+          <AddMilestone school={school} />
+        </li>
+      </ul>
+    </div>
+  );
+}

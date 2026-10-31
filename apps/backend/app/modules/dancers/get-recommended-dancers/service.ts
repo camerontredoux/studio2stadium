@@ -1,7 +1,10 @@
+import { premiumGrants } from "#database/schema/organizations";
+import { subscriptions } from "#database/schema/subscriptions";
 import { DatabaseService } from "#database/service";
 import { SCHOOL_CENTRIC_SCORING } from "#modules/schools/get-recommended-programs/school-centric-algorithm";
 import { imageUrl } from "#utils/image-url";
 import { inject } from "@adonisjs/core";
+import { and, eq, gt, isNull } from "drizzle-orm";
 
 // Cap the school-facing dancer recommendations to a focused top-N list,
 // mirroring the dancer-facing program recommender. Applied when the caller
@@ -115,6 +118,38 @@ export class Service {
     };
   }
 
+  /**
+   * User IDs with premium entitlement — an active subscription or an active,
+   * unrevoked premium grant. Mirrors the `subscribed` middleware (minus the
+   * admin bypass, which doesn't apply to recommendable dancers).
+   */
+  private async getPremiumUserIds(): Promise<Set<string>> {
+    const now = new Date();
+    const [subs, grants] = await Promise.all([
+      this.db.use((db) =>
+        db
+          .select({ userId: subscriptions.userId })
+          .from(subscriptions)
+          .where(
+            and(
+              eq(subscriptions.status, "active"),
+              gt(subscriptions.currentPeriodEnd, now)
+            )
+          )
+      ),
+      this.db.use((db) =>
+        db
+          .select({ userId: premiumGrants.userId })
+          .from(premiumGrants)
+          .where(
+            and(gt(premiumGrants.expiresAt, now), isNull(premiumGrants.revokedAt))
+          )
+      ),
+    ]);
+
+    return new Set([...subs, ...grants].map((r) => r.userId));
+  }
+
   private async getDancers(schoolProfileId: string) {
     // Exclude dancers the school has already favorited.
     const favorited = await this.db.use((db) =>
@@ -125,6 +160,9 @@ export class Service {
     );
     const favoritedIds = new Set(favorited.map((f) => f.dancerId));
 
+    // Only premium dancers are surfaced to schools.
+    const premiumUserIds = await this.getPremiumUserIds();
+
     const dancers = await this.db.use((db) =>
       db.query.dancerProfiles.findMany({
         where: {
@@ -132,6 +170,7 @@ export class Service {
         },
         columns: {
           id: true,
+          userId: true,
           location: true,
           gpa: true,
           gradYear: true,
@@ -154,7 +193,13 @@ export class Service {
     );
 
     return dancers.flatMap((dancer) => {
-      if (!dancer.user || favoritedIds.has(dancer.id)) return [];
+      if (
+        !dancer.user ||
+        favoritedIds.has(dancer.id) ||
+        !premiumUserIds.has(dancer.userId)
+      ) {
+        return [];
+      }
       return [{ ...dancer, user: dancer.user }];
     });
   }

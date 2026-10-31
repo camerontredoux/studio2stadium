@@ -1,6 +1,10 @@
 import { test } from "@japa/runner";
 import { DateTime } from "luxon";
-import { mostRecentAugustFirst, PROSPECT_TZ } from "./cutoff.ts";
+import {
+  graduatingClass,
+  mostRecentAugustFirst,
+  PROSPECT_TZ,
+} from "./cutoff.ts";
 
 function denver(iso: string): Date {
   return DateTime.fromISO(iso, { zone: PROSPECT_TZ }).toJSDate();
@@ -54,5 +58,21 @@ test.group("mostRecentAugustFirst", () => {
     const local = DateTime.fromJSDate(cutoff, { zone: PROSPECT_TZ });
     assert.equal(local.hour, 0);
     assert.equal(local.minute, 0);
+  });
+});
+
+test.group("graduatingClass", () => {
+  test("spring of a year is that year's class", async ({ assert }) => {
+    assert.equal(graduatingClass(denver("2027-05-15T12:00:00")), 2027);
+  });
+
+  test("fall of a year is the next year's class", async ({ assert }) => {
+    assert.equal(graduatingClass(denver("2026-10-12T12:00:00")), 2027);
+    assert.equal(graduatingClass(denver("2027-09-01T12:00:00")), 2028);
+  });
+
+  test("rolls over at August 1 midnight Denver", async ({ assert }) => {
+    assert.equal(graduatingClass(denver("2027-07-31T23:59:00")), 2027);
+    assert.equal(graduatingClass(denver("2027-08-01T00:00:00")), 2028);
   });
 });

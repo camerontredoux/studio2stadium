@@ -241,12 +241,19 @@ test.group("org role middlewares", (group) => {
     assert.isTrue(state.nextCalled);
   });
 
-  test("orgDancer forbids type=coach even if role=admin", async ({
-    assert,
-  }) => {
+  test("orgDancer allows admins even if type=coach", async ({ assert }) => {
     const { ctx, state, next } = mockCtx({
       user: { id: "u7" },
       membership: { role: "admin", type: "coach" },
+    });
+    await new OrgDancerMiddleware().handle(ctx, next);
+    assert.isTrue(state.nextCalled);
+  });
+
+  test("orgDancer forbids plain coach members", async ({ assert }) => {
+    const { ctx, state, next } = mockCtx({
+      user: { id: "u8" },
+      membership: { role: "member", type: "coach" },
     });
     await new OrgDancerMiddleware().handle(ctx, next);
     assert.isFalse(state.nextCalled);

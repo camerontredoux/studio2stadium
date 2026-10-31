@@ -1,6 +1,7 @@
 import { feed } from "#database/schema/feed";
 import { videoUploads, videos } from "#database/schema/media";
 import { DatabaseService } from "#database/service";
+import { E_NOT_FOUND } from "#exceptions/not-found";
 import env from "#start/env";
 import { inject } from "@adonisjs/core";
 import { and, eq } from "drizzle-orm";
@@ -10,11 +11,12 @@ import { Validator } from "./validator.ts";
 export class DeleteProfileVideoService {
   constructor(private db: DatabaseService) {}
 
-  async execute({ params }: Validator) {
+  async execute(userId: string, { params }: Validator) {
     const video = await this.db.use((db) =>
       db.query.videos.findFirst({
         where: {
           id: params.id,
+          userId,
         },
         columns: {
           id: true,
@@ -25,7 +27,7 @@ export class DeleteProfileVideoService {
     );
 
     if (!video) {
-      return { error: "Video not found" };
+      throw new E_NOT_FOUND("Video not found");
     }
 
     // Delete from Cloudflare if it's a Cloudflare video

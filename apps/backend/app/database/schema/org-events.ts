@@ -61,8 +61,16 @@ export const orgEvents = pg.pgTable(
       .notNull()
       .default({}),
     schedulePdfUrl: pg.text(),
+    // The event's daily hours: `startTime` to `endTime` ("HH:mm") on every day
+    // from `startDate` to `endDate`, local to `timezone`. `endTime` needs both of
+    // the others and is after `startTime`; the rules are in
+    // `orgs/events/event-schedule.ts`.
     startTime: pg.text(),
+    endTime: pg.text(),
     timezone: pg.text(),
+    // Dancers check themselves in from their dashboard instead of showing
+    // their pass QR at the desk.
+    selfCheckIn: pg.boolean().notNull().default(false),
     ...timestamps,
   },
   (table) => [

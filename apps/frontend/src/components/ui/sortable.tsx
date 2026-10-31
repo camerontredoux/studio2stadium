@@ -157,9 +157,12 @@ function SortableRoot<T>(props: SortableRootProps<T>) {
 
   const onDragStart = React.useCallback(
     (event: DragStartEvent) => {
+      // Sensors (e.g. the keyboard sensor) may already have prevented the
+      // activator event, so only skip when the callback itself prevented it.
+      const wasPrevented = event.activatorEvent.defaultPrevented;
       onDragStartProp?.(event);
 
-      if (event.activatorEvent.defaultPrevented) return;
+      if (!wasPrevented && event.activatorEvent.defaultPrevented) return;
 
       setActiveId(event.active.id);
     },
@@ -168,9 +171,10 @@ function SortableRoot<T>(props: SortableRootProps<T>) {
 
   const onDragEnd = React.useCallback(
     (event: DragEndEvent) => {
+      const wasPrevented = event.activatorEvent.defaultPrevented;
       onDragEndProp?.(event);
 
-      if (event.activatorEvent.defaultPrevented) return;
+      if (!wasPrevented && event.activatorEvent.defaultPrevented) return;
 
       const { active, over } = event;
       if (over && active.id !== over?.id) {
@@ -194,9 +198,10 @@ function SortableRoot<T>(props: SortableRootProps<T>) {
 
   const onDragCancel = React.useCallback(
     (event: DragEndEvent) => {
+      const wasPrevented = event.activatorEvent.defaultPrevented;
       onDragCancelProp?.(event);
 
-      if (event.activatorEvent.defaultPrevented) return;
+      if (!wasPrevented && event.activatorEvent.defaultPrevented) return;
 
       setActiveId(null);
     },
@@ -483,7 +488,7 @@ function SortableItemHandle(props: SortableItemHandleProps) {
   const isDisabled = disabled ?? itemContext.disabled;
 
   const composedRef = useComposedRefs(ref, (node) => {
-    if (!isDisabled) return;
+    if (isDisabled) return;
     itemContext.setActivatorNodeRef(node);
   });
 

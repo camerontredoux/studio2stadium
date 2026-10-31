@@ -14,16 +14,25 @@ import {
   csvUploads,
 } from "#database/schema/org-events";
 import { DatabaseService } from "#database/service";
+import { eq } from "drizzle-orm";
 import { GetMyOrgsService } from "./service.ts";
 
 const PAST = new Date("2020-01-01T00:00:00.000Z");
 const FUTURE = new Date("2099-01-01T00:00:00.000Z");
 
+/** A `YYYY-MM-DD` date `months` from today (negative for the past). */
+function monthsFromNow(months: number) {
+  const d = new Date();
+  d.setMonth(d.getMonth() + months);
+  return d.toISOString().split("T")[0]!;
+}
+
 async function createUser(
   email: string,
   type: "dancer" | "school",
   tier: "standard" | "limited" | null,
-  expiresAt: Date | null
+  expiresAt: Date | null,
+  role: "admin" | "prodigy_admin" | "user" = "user"
 ) {
   const [u] = await db
     .insert(users)
@@ -34,7 +43,7 @@ async function createUser(
       firstName: "Test",
       lastName: "User",
       password: "x",
-      role: "user",
+      role,
       type,
       verified: true,
       orgAccountTier: tier,
@@ -72,16 +81,33 @@ test.group("GetMyOrgsService", (group) => {
       .values({
         orgId: org.id,
         name: "Event",
-        startDate: "2026-08-22",
-        endDate: "2026-08-23",
+        startDate: monthsFromNow(0),
+        endDate: monthsFromNow(0),
         isActive: true,
       })
       .returning();
   });
 
-  async function roster(userId: string, type: "dancer" | "coach") {
+  async function pastEvent(endedMonthsAgo: number) {
+    const [e] = await db
+      .insert(orgEvents)
+      .values({
+        orgId: org.id,
+        name: `Event ${endedMonthsAgo}`,
+        startDate: monthsFromNow(-endedMonthsAgo),
+        endDate: monthsFromNow(-endedMonthsAgo),
+      })
+      .returning();
+    return e!.id;
+  }
+
+  async function roster(
+    userId: string,
+    type: "dancer" | "coach",
+    eventId = event.id
+  ) {
     await db.insert(eventRosters).values({
-      eventId: event.id,
+      eventId,
       userId,
       type,
       email: `${userId}@x.co`,
@@ -154,5 +180,95 @@ test.group("GetMyOrgsService", (group) => {
     });
 
     assert.lengthOf(await service().execute(dancer.id), 0);
+  });
+
+  test("hides the org once its own window has passed", async ({ assert }) => {
+    // Her account window is held open by another org, but this org's 3 months
+    // from her last event here are over.
+    const dancer = await createUser(
+      "orgexp@x.co",
+      "dancer",
+      "standard",
+      FUTURE
+    );
+    await roster(dancer.id, "dancer", await pastEvent(4));
+
+    assert.lengthOf(await service().execute(dancer.id), 0);
+  });
+
+  test("uses the org's configured window length", async ({ assert }) => {
+    await db
+      .update(organizations)
+      .set({ settings: { tierExpiryMonths: 1 } })
+      .where(eq(organizations.id, org.id));
+    const lapsed = await createUser("onemonth@x.co", "dancer", null, null);
+    await roster(lapsed.id, "dancer", await pastEvent(2));
+
+    // Two months ago is past a 1-month window, even with no account tier.
+    assert.lengthOf(await service().execute(lapsed.id), 0);
+
+    await db
+      .update(organizations)
+      .set({ settings: { tierExpiryMonths: 3 } })
+      .where(eq(organizations.id, org.id));
+    assert.lengthOf(await service().execute(lapsed.id), 1);
+  });
+
+  test("shows the org again once she is uploaded to a newer event", async ({
+    assert,
+  }) => {
+    const dancer = await createUser("refresh@x.co", "dancer", null, null);
+    await roster(dancer.id, "dancer", await pastEvent(6));
+    assert.lengthOf(await service().execute(dancer.id), 0);
+
+    await roster(dancer.id, "dancer");
+    const result = await service().execute(dancer.id);
+    assert.lengthOf(result, 1);
+    assert.equal(result[0]!.slug, "theorg");
+  });
+
+  test("never hides the org from a platform admin with only an expired dancer entry", async ({
+    assert,
+  }) => {
+    // Staff test the dancer experience by rostering themselves as a dancer.
+    // Neither the account window nor the org's own window hides it from them.
+    for (const role of ["admin", "prodigy_admin"] as const) {
+      const admin = await createUser(
+        `${role}@x.co`,
+        "dancer",
+        "standard",
+        PAST,
+        role
+      );
+      await roster(admin.id, "dancer", await pastEvent(12));
+
+      const result = await service().execute(admin.id);
+      assert.lengthOf(result, 1, role);
+      assert.equal(result[0]!.slug, "theorg");
+    }
+  });
+
+  test("never hides the org from its admin with only an expired dancer entry", async ({
+    assert,
+  }) => {
+    const admin = await createUser("orgadmin@x.co", "dancer", "standard", PAST);
+    await db.insert(orgMemberships).values({
+      userId: admin.id,
+      orgId: org.id,
+      type: "dancer",
+      role: "admin",
+    });
+    await roster(admin.id, "dancer", await pastEvent(12));
+
+    const result = await service().execute(admin.id);
+    assert.lengthOf(result, 1);
+    assert.equal(result[0]!.role, "admin");
+  });
+
+  test("keeps a coach rostered on an old event", async ({ assert }) => {
+    const coach = await createUser("oldcoach@x.co", "school", null, null);
+    await roster(coach.id, "coach", await pastEvent(12));
+
+    assert.lengthOf(await service().execute(coach.id), 1);
   });
 });

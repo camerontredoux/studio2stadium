@@ -1,6 +1,6 @@
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
-import { eventCallbacks } from "#database/schema/event-features";
+import { eventCallbacks, eventRatings } from "#database/schema/event-features";
 import { eventRosters, eventDancerProfiles } from "#database/schema/org-events";
 import { dancerProfiles } from "#database/schema/dancers";
 import { and, eq, sql } from "drizzle-orm";
@@ -28,6 +28,8 @@ export class ListCallbacksService {
           gpa: sql<
             number | null
           >`COALESCE(${eventDancerProfiles.gpa}, ${dancerProfiles.gpa})`,
+          // The coach's own rating, so the dashboard needn't load the roster for it.
+          rating: eventRatings.rating,
         })
         .from(eventCallbacks)
         .innerJoin(
@@ -41,6 +43,14 @@ export class ListCallbacksService {
         .leftJoin(
           dancerProfiles,
           eq(dancerProfiles.userId, eventRosters.userId)
+        )
+        .leftJoin(
+          eventRatings,
+          and(
+            eq(eventRatings.dancerRosterId, eventRosters.id),
+            eq(eventRatings.coachRosterId, coachRosterId),
+            eq(eventRatings.eventId, eventRosters.eventId)
+          )
         )
         .where(
           and(

@@ -9,18 +9,26 @@ const PRODUCT_ORIGINS = [
 ];
 
 /**
- * The S2S Live marketing site calls the Event Tier checkout endpoints from the
- * buyer's browser (`POST /event-tiers/checkout` and
- * `GET /event-tiers/checkout/:sessionId`) and nothing else, so its origin is
- * allowed on those paths only. Nobody signs in there, so it has no business
- * with any route a product session could reach.
+ * Two marketing surfaces call the API from a visitor's browser, each on its
+ * own paths only. Nobody signs in on either, so neither has any business with
+ * a route a product session could reach.
  *
- * Its origin is the one in `MARKETING_SITE_URL` (where Checkout returns the
- * buyer), plus any listed in the optional, comma-separated
- * `MARKETING_SITE_ORIGINS` — for a site served from both the apex and `www`,
- * or a preview deployment.
+ * - The marketing homepage reads `GET /stats/public`.
+ * - The S2S Live site calls the Event Tier checkout endpoints
+ *   (`POST /event-tiers/checkout` and `GET /event-tiers/checkout/:sessionId`).
+ *   Its origin is the one in `MARKETING_SITE_URL` (where Checkout returns the
+ *   buyer), plus any listed in the optional, comma-separated
+ *   `MARKETING_SITE_ORIGINS`, for a site served from both the apex and `www`,
+ *   or a preview deployment.
  */
-const MARKETING_ORIGINS = [
+const STATS_ORIGINS = [
+  "https://studio2stadium.com",
+  "https://www.studio2stadium.com",
+];
+
+const STATS_PATH = /^\/stats\/public(\?.*)?$/;
+
+const CHECKOUT_ORIGINS = [
   new URL(env.get("MARKETING_SITE_URL")).origin,
   ...(env.get("MARKETING_SITE_ORIGINS") ?? "")
     .split(",")
@@ -29,12 +37,14 @@ const MARKETING_ORIGINS = [
     .map((origin) => new URL(origin).origin),
 ];
 
-const MARKETING_PATH = /^\/event-tiers\/checkout(\/[^/?]+)?(\?.*)?$/;
+const CHECKOUT_PATH = /^\/event-tiers\/checkout(\/[^/?]+)?(\?.*)?$/;
 
 export function allowsOrigin(origin: string, path: string) {
   if (PRODUCT_ORIGINS.includes(origin)) return true;
 
-  return MARKETING_ORIGINS.includes(origin) && MARKETING_PATH.test(path);
+  if (STATS_ORIGINS.includes(origin) && STATS_PATH.test(path)) return true;
+
+  return CHECKOUT_ORIGINS.includes(origin) && CHECKOUT_PATH.test(path);
 }
 
 /**

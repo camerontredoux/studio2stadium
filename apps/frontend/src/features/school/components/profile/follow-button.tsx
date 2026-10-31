@@ -1,4 +1,5 @@
 import { useCountdown } from "@/components/hooks/use-countdown";
+import { FollowConfirmDialog } from "@/components/shared/follow-confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { toastManager } from "@/components/ui/toast-manager";
 import { handleApiError } from "@/lib/api/errors";
@@ -8,6 +9,7 @@ import {
 } from "@/shared/engagement/api/mutations";
 import type { FollowedSchool } from "@/shared/types";
 import { HeartIcon } from "lucide-react";
+import { useState } from "react";
 
 export function FollowButton({
   school,
@@ -22,9 +24,19 @@ export function FollowButton({
   const { mutate: unfollow } = useUnfollowSchool(school);
 
   const [retryAfter, startCountdown] = useCountdown();
+  const [confirming, setConfirming] = useState(false);
 
+  // Following sends the dancer's profile to the coach, so it needs
+  // confirmation first. Unfollowing doesn't.
   const handleClick = () => {
-    const mutate = isFollowing ? unfollow : follow;
+    if (isFollowing) {
+      submit(unfollow);
+    } else {
+      setConfirming(true);
+    }
+  };
+
+  const submit = (mutate: typeof follow) => {
     mutate(
       { params: { path: { id: school.id } } },
       {
@@ -45,19 +57,27 @@ export function FollowButton({
   };
 
   return (
-    <Button
-      size={size}
-      variant={isFollowing ? "destructive-outline" : "outline"}
-      disabled={!!retryAfter}
-      onClick={handleClick}
-      className="flex-1"
-    >
-      <HeartIcon className={isFollowing ? "fill-current" : undefined} />
-      {retryAfter
-        ? `Retry in ${retryAfter}s`
-        : isFollowing
-          ? "Unfollow"
-          : "Follow"}
-    </Button>
+    <>
+      <Button
+        size={size}
+        variant={isFollowing ? "destructive-outline" : "outline"}
+        disabled={!!retryAfter}
+        onClick={handleClick}
+        className="flex-1"
+      >
+        <HeartIcon className={isFollowing ? "fill-current" : undefined} />
+        {retryAfter
+          ? `Retry in ${retryAfter}s`
+          : isFollowing
+            ? "Unfollow"
+            : "Follow"}
+      </Button>
+      <FollowConfirmDialog
+        open={confirming}
+        onOpenChange={setConfirming}
+        school={school}
+        onConfirm={() => submit(follow)}
+      />
+    </>
   );
 }

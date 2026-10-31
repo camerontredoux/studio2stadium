@@ -4,7 +4,11 @@ import { orgEvents, eventRosters } from "#database/schema/org-events";
 import { organizations } from "#database/schema/organizations";
 import { users } from "#database/schema/users";
 import { eq } from "drizzle-orm";
-import { CheckInService, CheckInNotOpenError, NotOnRosterError } from "./service.ts";
+import {
+  CheckInService,
+  CheckInNotOpenError,
+  NotOnRosterError,
+} from "./service.ts";
 
 test.group("CheckInService", (group) => {
   let orgId: string;
@@ -17,10 +21,14 @@ test.group("CheckInService", (group) => {
     await db.delete(users).execute();
 
     const [org] = await db
-      .select()
-      .from(organizations)
-      .limit(1);
-    orgId = org.id;
+      .insert(organizations)
+      .values({
+        name: "Check-in Org",
+        slug: `check-in-org-${Date.now()}`,
+        features: { check_in: true },
+      })
+      .returning();
+    orgId = org!.id;
 
     const ts = Date.now();
     const [dancer] = await db
@@ -49,63 +57,74 @@ test.group("CheckInService", (group) => {
         startTime: "09:00",
         timezone: "America/New_York",
         isActive: true,
+        selfCheckIn: true,
       })
       .returning();
     eventId = ev.id;
 
-    await db
-      .insert(eventRosters)
-      .values({
-        eventId,
-        userId: dancerUserId,
-        type: "dancer",
-        email: "dancer@test.com",
-        firstName: "Test",
-        lastName: "Dancer",
-      });
+    await db.insert(eventRosters).values({
+      eventId,
+      userId: dancerUserId,
+      type: "dancer",
+      email: "dancer@test.com",
+      firstName: "Test",
+      lastName: "Dancer",
+    });
   });
 
   test("checks in a dancer when event has started", async ({ assert }) => {
     const svc = new CheckInService();
-    const result = await svc.execute(eventId, dancerUserId);
-    assert.isNotNull(result.checkedInAt);
+    const result = await svc.execute(orgId, eventId, dancerUserId);
+    assert.equal(result.result, "checked_in");
+    assert.isNotNull(result.roster.checkedInAt);
   });
 
-  test("is idempotent — second call returns same timestamp", async ({ assert }) => {
+  test("is idempotent — second call returns same timestamp", async ({
+    assert,
+  }) => {
     const svc = new CheckInService();
-    const first = await svc.execute(eventId, dancerUserId);
-    const second = await svc.execute(eventId, dancerUserId);
-    assert.equal(
-      first.checkedInAt?.toISOString(),
-      second.checkedInAt?.toISOString(),
-    );
+    const first = await svc.execute(orgId, eventId, dancerUserId);
+    const second = await svc.execute(orgId, eventId, dancerUserId);
+    assert.equal(second.result, "already_checked_in");
+    assert.equal(first.roster.checkedInAt, second.roster.checkedInAt);
   });
 
-  test("allows check-in when event has no startTime but date is past", async ({ assert }) => {
+  test("allows check-in when event has no startTime but date is past", async ({
+    assert,
+  }) => {
     await db
       .update(orgEvents)
       .set({ startTime: null, timezone: null })
       .where(eq(orgEvents.id, eventId));
 
     const svc = new CheckInService();
-    const result = await svc.execute(eventId, dancerUserId);
-    assert.isNotNull(result.checkedInAt);
+    const result = await svc.execute(orgId, eventId, dancerUserId);
+    assert.equal(result.result, "checked_in");
+    assert.isNotNull(result.roster.checkedInAt);
   });
 
-  test("throws CheckInNotOpenError when event has not started", async ({ assert }) => {
+  test("throws CheckInNotOpenError when event has not started", async ({
+    assert,
+  }) => {
     await db
       .update(orgEvents)
-      .set({ startDate: "2099-12-31", startTime: "23:59", timezone: "America/New_York" })
+      .set({
+        startDate: "2099-12-31",
+        startTime: "23:59",
+        timezone: "America/New_York",
+      })
       .where(eq(orgEvents.id, eventId));
 
     const svc = new CheckInService();
     await assert.rejects(
-      () => svc.execute(eventId, dancerUserId),
-      CheckInNotOpenError.prototype.message,
+      () => svc.execute(orgId, eventId, dancerUserId),
+      CheckInNotOpenError.prototype.message
     );
   });
 
-  test("throws NotOnRosterError when user is not a dancer on this event", async ({ assert }) => {
+  test("throws NotOnRosterError when user is not a dancer on this event", async ({
+    assert,
+  }) => {
     const ts2 = Date.now();
     const [other] = await db
       .insert(users)
@@ -124,8 +143,8 @@ test.group("CheckInService", (group) => {
 
     const svc = new CheckInService();
     await assert.rejects(
-      () => svc.execute(eventId, other.id),
-      NotOnRosterError.prototype.message,
+      () => svc.execute(orgId, eventId, other.id),
+      NotOnRosterError.prototype.message
     );
   });
 });

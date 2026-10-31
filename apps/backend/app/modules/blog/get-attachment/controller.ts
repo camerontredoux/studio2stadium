@@ -22,7 +22,7 @@ export default class GetBlogAttachmentController {
       throw new E_NOT_FOUND("Attachment not found.");
     }
 
-    const disk = drive.use("r2");
+    const disk = drive.use();
     if (!(await disk.exists(attachment.key))) {
       throw new E_NOT_FOUND("Attachment file is no longer available.");
     }

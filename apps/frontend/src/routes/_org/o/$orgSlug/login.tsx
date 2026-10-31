@@ -3,10 +3,7 @@ import { OrgAuthLayout } from "@/features/org/components/org-auth-layout";
 import { OrgLoginForm } from "@/features/org/components/org-login-form";
 import { orgQueries } from "@/features/org/api/queries";
 import { isReservedOrgSlug } from "@/features/org/lib/reserved-slugs";
-import {
-  resolveOrgDestination,
-  type OrgAccess,
-} from "@/features/org/lib/org-destination";
+import { resolveOrgDestination } from "@/features/org/lib/org-destination";
 import { useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 
@@ -35,9 +32,7 @@ function OrgLoginPage() {
       <OrgLoginForm
         onSuccess={async () => {
           queryClient.clear();
-          const org = (await queryClient.fetchQuery(
-            orgQueries.org(orgSlug),
-          )) as OrgAccess;
+          const org = await queryClient.fetchQuery(orgQueries.org(orgSlug));
 
           const destination = redirect ?? resolveOrgDestination(orgSlug, org);
 

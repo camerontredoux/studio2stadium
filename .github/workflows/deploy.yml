@@ -13,6 +13,10 @@ on:
       - '.github/workflows/deploy.yml'
     branches: [main]
 
+concurrency:
+  group: backend-deploy
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest

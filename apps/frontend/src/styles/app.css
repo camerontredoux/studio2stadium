@@ -1,0 +1,6 @@
+/*
+  The app's one Tailwind entry: the site's styles, then the S2S dashboard theme in the same
+  compile (so utilities are generated once, in one ordered layer). index.css is unchanged.
+*/
+@import "../index.css";
+@import "./theme-s2s.css";

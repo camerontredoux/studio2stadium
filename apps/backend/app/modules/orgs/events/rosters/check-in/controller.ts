@@ -1,5 +1,6 @@
 import { inject } from "@adonisjs/core";
 import type { HttpContext } from "@adonisjs/core/http";
+import transmit from "@adonisjs/transmit/services/main";
 import { AdminCheckInService, RosterNotFoundError } from "./service.ts";
 
 export default class AdminCheckInController {
@@ -12,6 +13,7 @@ export default class AdminCheckInController {
         ctx.params.rosterId,
         actorId,
       );
+      transmit.broadcast(`orgs/${ctx.org!.slug}/check-in`, {});
       return ctx.response.ok(result);
     } catch (err) {
       if (err instanceof RosterNotFoundError) {

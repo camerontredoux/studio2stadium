@@ -19,7 +19,7 @@ export default class GetDancerController {
 
       const user = await cache.getOrSet({
         key: `dancers:profile:${params.username}`,
-        factory: () => service.execute(params.username),
+        factory: () => service.executeForSchool(params.username),
         ttl: "10m",
       });
 

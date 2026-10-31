@@ -9,6 +9,7 @@ import {
 } from "#database/schema/skills";
 import { dancerSports, sports } from "#database/schema/sports";
 import { dancerStyles, schoolStyles, styles } from "#database/schema/styles";
+import { subscriptions } from "#database/schema/subscriptions";
 import { users } from "#database/schema/users";
 import { DatabaseService } from "#database/service";
 import { normalizeEmail } from "#utils/normalize-email";
@@ -41,7 +42,7 @@ async function seedCatalog() {
   await db.insert(sports).values([{ slug: "cheer", name: "Cheer" }]);
 }
 
-async function createDancer() {
+async function createDancer(options: { premium?: boolean } = {}) {
   const displayEmail = faker.internet.email().toLowerCase();
   const email = await normalizeEmail(displayEmail);
   const [user] = await db
@@ -58,6 +59,21 @@ async function createDancer() {
       verified: true,
     })
     .returning();
+
+  if (options.premium) {
+    // Raw insert of only the columns the feature reads, to stay resilient to
+    // additive columns on user_subscriptions.
+    const periodEnd = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    await db.execute(sql`
+      insert into ${subscriptions} (user_id, source, status, subscription_id, customer_id, current_period_end)
+      values (
+        ${user.id}, 'stripe', 'active',
+        ${`sub_${faker.string.alphanumeric(16)}`},
+        ${`cus_${faker.string.alphanumeric(16)}`},
+        ${periodEnd.toISOString()}
+      )
+    `);
+  }
 
   const [profile] = await db
     .insert(dancerProfiles)
@@ -215,5 +231,30 @@ test.group("Recommended programs skill gating", (group) => {
     const results = await service.execute(profile.id, { limit: 10 });
 
     assert.lengthOf(results, 0);
+  });
+
+  test("caps free dancers at 3 recommendations and gives premium the full list", async ({
+    assert,
+  }) => {
+    // Five real matches so the cap is what limits the list, not supply.
+    for (let i = 0; i < 5; i += 1) {
+      await createSchool({
+        name: `Matching U ${i}`,
+        location: "CA",
+        gpa: 3.0,
+        skillSlugs: DANCER_SKILLS.slice(0, 5),
+        styleSlugs: ["jazz"],
+      });
+    }
+
+    const service = new Service(new DatabaseService());
+
+    const freeDancer = await createDancer({ premium: false });
+    const freeResults = await service.execute(freeDancer.id);
+    assert.lengthOf(freeResults, 3);
+
+    const premiumDancer = await createDancer({ premium: true });
+    const premiumResults = await service.execute(premiumDancer.id);
+    assert.lengthOf(premiumResults, 5);
   });
 });

@@ -1,15 +1,34 @@
-import { Button } from "@/components/ui/button";
+import {
+  ArrowsClockwiseIcon,
+  CheckIcon,
+  CloudArrowUpIcon,
+  EnvelopeSimpleIcon,
+  FileCsvIcon,
+  UserCheckIcon,
+  WarningIcon,
+  XCircleIcon,
+  type Icon as PhosphorIcon,
+} from "@phosphor-icons/react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import Papa from "papaparse";
+import { useCallback, useMemo, useRef, useState } from "react";
+
+import { Button } from "@/components/event/button";
 import {
   Dialog,
-  DialogContent,
+  DialogBody,
   DialogDescription,
   DialogFooter,
   DialogHeader,
+  DialogPopup,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Spinner } from "@/components/ui/spinner";
+} from "@/components/event/dialog";
+import { Icon } from "@/components/event/icon";
+import { Tag } from "@/components/event/tag";
+import { BusyLabel } from "@/features/org/live/shared/busy-label";
 import { toastManager } from "@/components/ui/toast-manager";
 import { cn } from "@/components/utils/cn";
+import { useOrg } from "@/features/org/context/use-org";
 import type { CsvSchema } from "@/features/org/lib/csv-schemas";
 import {
   schemaFor,
@@ -17,21 +36,7 @@ import {
   type CsvRosterType,
   type ParseResult,
 } from "@/features/org/lib/csv-schemas";
-import { useOrg } from "@/features/org/context/use-org";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  AlertTriangleIcon,
-  CheckCircle2Icon,
-  FileSpreadsheetIcon,
-  FileTextIcon,
-  MailIcon,
-  MousePointerClickIcon,
-  RefreshCwIcon,
-  UserCheckIcon,
-  XCircleIcon,
-} from "lucide-react";
-import Papa from "papaparse";
-import { useCallback, useMemo, useRef, useState } from "react";
+import type { ApiSchemas } from "@/lib/api/client";
 
 const ERROR_REASON_LABELS: Record<string, string> = {
   "cross-role-school":
@@ -64,22 +69,7 @@ type UploadResult = {
   errors: Array<{ row: number; reason: string }>;
 };
 
-type ServerPreview = {
-  totalRows: number;
-  /** Rows the server will process (after parser + account checks). */
-  acceptedRows: number;
-  /** Net-new rows that match an existing S2S account (will activate). */
-  willMatch: number;
-  /** Net-new rows that will trigger an invite email. */
-  willInvite: number;
-  /** Rows already on this event's roster (will be refreshed in place). */
-  willUpdate: number;
-  willError: number;
-  errors?: Array<{ row: number; reason: string }>;
-  /** CSV row indices that will update existing roster entries. */
-  updateRows?: number[];
-  previewToken?: string;
-};
+type ServerPreview = ApiSchemas["OrgsIdEventsIdUploadIdPreviewResponse"];
 
 function previewRowCounts(
   parse: ParseResult,
@@ -305,20 +295,40 @@ export function CsvUploadDialog({
   const title =
     step.name === "done" ? "Upload complete" : `Upload ${schema.label} roster`;
 
+  const uploadBlocked =
+    step.name === "preview" &&
+    (() => {
+      const { acceptedRows } = previewRowCounts(
+        step.parse,
+        step.serverPreview,
+        step.serverPreviewPending,
+      );
+      const sp = step.serverPreview;
+      const pending = step.serverPreviewPending;
+      const previewFailed = !sp && !pending;
+      return (
+        acceptedRows === 0 ||
+        step.parse.duplicates.length > 0 ||
+        pending ||
+        previewFailed ||
+        (sp !== null && sp.willError > 0)
+      );
+    })();
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogPopup className="max-h-[min(720px,100%)] max-w-[640px]">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           {step.name === "preview" || step.name === "error" ? (
-            <DialogDescription>
+            <DialogDescription className="type-meta text-fg-3 truncate">
               {step.file.name} · {step.parse.totalRows.toLocaleString()} rows
               detected · {formatBytes(step.fileSize)}
             </DialogDescription>
           ) : null}
         </DialogHeader>
 
-        <div className="flex flex-1 flex-col gap-5 overflow-hidden px-6 pb-6">
+        <DialogBody className="min-h-0 flex-1">
           <StepIndicator step={step.name} />
 
           {step.name === "idle" && (
@@ -346,25 +356,30 @@ export function CsvUploadDialog({
           {step.name === "preview" && (
             <PreviewView step={step} schema={schema} />
           )}
-          {step.name === "error" && (
-            <ErrorView step={step} schema={schema} onReset={reset} />
-          )}
+          {step.name === "error" && <ErrorView step={step} />}
           {step.name === "uploading" && <UploadingView />}
           {step.name === "done" && <ResultView result={step.result} />}
-        </div>
+        </DialogBody>
 
         <DialogFooter>
           {step.name === "idle" && (
-            <Button variant="ghost" onClick={() => handleOpenChange(false)}>
+            <Button
+              variant="ghost"
+              size="lg"
+              onClick={() => handleOpenChange(false)}
+            >
               Cancel
             </Button>
           )}
           {step.name === "preview" && (
             <>
-              <Button variant="ghost" onClick={reset}>
+              <Button variant="ghost" size="lg" onClick={reset}>
                 Choose different file
               </Button>
               <Button
+                variant="primary"
+                size="lg"
+                className="disabled:border-surface-pressed disabled:bg-surface-pressed disabled:text-fg-2 disabled:opacity-100"
                 onClick={() => {
                   setStep({ name: "uploading" });
                   upload.mutate({
@@ -372,23 +387,7 @@ export function CsvUploadDialog({
                     previewToken: step.serverPreview?.previewToken,
                   });
                 }}
-                disabled={(() => {
-                  const { acceptedRows } = previewRowCounts(
-                    step.parse,
-                    step.serverPreview,
-                    step.serverPreviewPending,
-                  );
-                  const sp = step.serverPreview;
-                  const pending = step.serverPreviewPending;
-                  const previewFailed = !sp && !pending;
-                  return (
-                    acceptedRows === 0 ||
-                    step.parse.duplicates.length > 0 ||
-                    pending ||
-                    previewFailed ||
-                    (sp !== null && sp.willError > 0)
-                  );
-                })()}
+                disabled={uploadBlocked}
               >
                 {(() => {
                   const dup = step.parse.duplicates.length;
@@ -420,24 +419,38 @@ export function CsvUploadDialog({
             </>
           )}
           {step.name === "error" && (
-            <Button variant="outline" onClick={reset}>
+            <Button variant="primary" size="lg" onClick={reset}>
               Choose different file
             </Button>
           )}
           {step.name === "uploading" && (
-            <Button disabled variant="outline">
-              <Spinner className="mr-2" />
-              Uploading...
+            <Button size="lg" disabled>
+              <BusyLabel label="Uploading…" />
             </Button>
           )}
           {step.name === "done" && (
-            <Button onClick={() => handleOpenChange(false)}>Done</Button>
+            <Button
+              variant="primary"
+              size="lg"
+              onClick={() => handleOpenChange(false)}
+            >
+              Done
+            </Button>
           )}
         </DialogFooter>
-      </DialogContent>
+      </DialogPopup>
     </Dialog>
   );
 }
+
+/** A mono heading over a block of the dialog ("Preview", "Rejected rows"). */
+function BlockLabel({ children }: { children: React.ReactNode }) {
+  return <span className="type-meta text-fg-3">{children}</span>;
+}
+
+const tableHead =
+  "type-meta text-fg-3 bg-surface-head sticky top-0 h-8 px-(--space-10) text-left font-normal";
+const tableCell = "h-8 px-(--space-10)";
 
 function PreviewView({
   step,
@@ -476,52 +489,38 @@ function PreviewView({
   const willAdd = sp ? sp.willMatch + sp.willInvite : 0;
 
   return (
-    <div className="flex min-h-0 flex-col gap-3 overflow-hidden">
+    <div className="flex min-h-0 flex-col gap-(--space-12)">
       {showImpactCards && <ImpactSummary pending={pending} preview={sp} />}
 
-      {sp && !pending && (
-        <div className="flex items-center gap-3 text-[11px]">
-          <span className="text-muted-foreground font-semibold tracking-wider uppercase">
-            Preview
-          </span>
+      {sp && !pending ? (
+        <div className="type-meta flex flex-wrap items-center gap-x-(--space-12) gap-y-(--space-4)">
+          <span className="text-fg-3">Preview</span>
           {willAdd > 0 && (
-            <span className="text-success-foreground font-medium tabular-nums">
-              {willAdd} will add
-            </span>
+            <span className="text-live tabular-nums">{willAdd} will add</span>
           )}
           {sp.willUpdate > 0 && (
-            <span className="text-muted-foreground tabular-nums">
+            <span className="text-fg-2 tabular-nums">
               {sp.willUpdate} will update
             </span>
           )}
           {sp.willError > 0 && (
-            <span className="text-destructive font-medium tabular-nums">
+            <span className="text-danger tabular-nums">
               {sp.willError} rejected
             </span>
           )}
         </div>
-      )}
-      {(!sp || pending) && (
-        <div className="text-muted-foreground text-[11px] font-semibold tracking-wider uppercase">
-          Preview · {rowTotal.toLocaleString()} rows
-        </div>
+      ) : (
+        <BlockLabel>Preview · {rowTotal.toLocaleString()} rows</BlockLabel>
       )}
 
-      <div className="min-h-0 flex-1 overflow-auto rounded-lg border">
-        <table className="w-full text-xs">
-          <thead className="bg-muted/40 sticky top-0">
+      <div className="border-line max-h-[320px] min-h-[120px] overflow-auto rounded-(--radius-8) border">
+        <table className="type-body w-full border-collapse">
+          <thead>
             <tr>
-              <th className="text-muted-foreground w-8 px-2 py-1.5 text-left font-medium">
-                #
-              </th>
-              <th className="text-muted-foreground w-20 px-2 py-1.5 text-left font-medium">
-                Status
-              </th>
+              <th className={cn(tableHead, "w-10")}>#</th>
+              <th className={cn(tableHead, "w-24")}>Status</th>
               {columns.map((col) => (
-                <th
-                  key={col}
-                  className="text-muted-foreground px-2 py-1.5 text-left font-medium"
-                >
+                <th key={col} className={tableHead}>
                   {col}
                 </th>
               ))}
@@ -535,47 +534,40 @@ function PreviewView({
                 <tr
                   key={row.index}
                   className={cn(
-                    "border-t transition-colors",
-                    hasError
-                      ? "bg-destructive/5 hover:bg-destructive/10"
-                      : "hover:bg-muted/30",
+                    "border-line-soft border-t",
+                    hasError ? "bg-danger/5" : "hover:bg-surface-hover",
                   )}
                 >
-                  <td className="text-muted-foreground w-8 px-2 py-1.5 font-mono">
+                  <td className={cn(tableCell, "type-data text-fg-3 w-10")}>
                     {row.index}
                   </td>
-                  <td className="w-20 px-2 py-1.5">
+                  <td className={cn(tableCell, "type-meta w-24")}>
                     {hasError ? (
                       <span
-                        className="text-destructive inline-flex items-center gap-1 text-[10px] font-medium"
+                        className="text-danger inline-flex items-center gap-(--space-4)"
                         title={combinedErrors.join("\n")}
                       >
-                        <AlertTriangleIcon className="size-3 shrink-0" />
+                        <Icon icon={WarningIcon} size="sm" />
                         Rejected
                       </span>
                     ) : pending ? (
-                      <span className="text-muted-foreground text-[10px] font-medium">
-                        Checking…
-                      </span>
+                      <span className="text-fg-3">Checking…</span>
                     ) : updateRowsSet.has(row.index) ? (
-                      <span className="text-muted-foreground text-[10px] font-medium">
-                        Will update
-                      </span>
+                      <span className="text-fg-2">Will update</span>
                     ) : (
-                      <span className="text-success-foreground text-[10px] font-medium">
-                        Will add
-                      </span>
+                      <span className="text-live">Will add</span>
                     )}
                   </td>
                   {columns.map((col) => (
                     <td
                       key={col}
-                      className="max-w-[180px] truncate px-2 py-1.5"
+                      className={cn(
+                        tableCell,
+                        "text-fg max-w-[180px] truncate",
+                      )}
                       title={row.values[col] ?? ""}
                     >
-                      {row.values[col] ?? (
-                        <span className="text-muted-foreground/50">—</span>
-                      )}
+                      {row.values[col] ?? <span className="text-fg-3">—</span>}
                     </td>
                   ))}
                 </tr>
@@ -586,7 +578,7 @@ function PreviewView({
       </div>
 
       {hasDuplicates && (
-        <p className="text-muted-foreground text-xs">
+        <p className="type-caption text-fg-2 m-0">
           Upload stays disabled until duplicate values are fixed.
         </p>
       )}
@@ -600,47 +592,41 @@ function PreviewView({
   );
 }
 
-function ErrorView({
-  step,
-  schema,
-  onReset,
-}: {
-  step: Extract<DialogStep, { name: "error" }>;
-  schema: CsvSchema;
-  onReset: () => void;
-}) {
-  void schema;
+function ErrorView({ step }: { step: Extract<DialogStep, { name: "error" }> }) {
   return (
-    <div className="border-destructive/30 bg-destructive/5 flex flex-col items-start gap-3 rounded-xl border p-4">
-      <div className="flex items-center gap-2">
-        <XCircleIcon className="text-destructive size-5" />
-        <span className="font-semibold">This file doesn't look right</span>
+    <div
+      role="alert"
+      className="border-danger/40 flex flex-col gap-(--space-10) rounded-(--radius-8) border p-(--space-14)"
+    >
+      <div className="flex items-center gap-(--space-8)">
+        <Icon icon={XCircleIcon} size="md" className="text-danger" />
+        <span className="type-body-strong text-fg">
+          This file doesn&rsquo;t look right
+        </span>
       </div>
-      <ul className="text-muted-foreground flex flex-col gap-1 text-sm">
+      <ul className="type-body text-fg-2 m-0 flex list-none flex-col gap-(--space-4) p-0">
         {step.parse.missingRequired.map((col) => (
           <li key={col}>
-            Missing required column: <code className="font-mono">{col}</code>
+            Missing required column:{" "}
+            <code className="type-data text-fg">{col}</code>
           </li>
         ))}
       </ul>
-      <p className="text-muted-foreground text-xs">
+      <p className="type-meta text-fg-3 m-0">
         Detected columns: {step.parse.detectedColumns.join(", ") || "none"}
       </p>
-      <Button size="sm" variant="outline" onClick={onReset}>
-        Choose different file
-      </Button>
     </div>
   );
 }
 
 function UploadingView() {
   return (
-    <div className="flex flex-col items-center justify-center gap-4 py-8">
-      <FileSpreadsheetIcon className="text-muted-foreground size-12 animate-pulse" />
-      <div className="bg-muted relative h-1.5 w-full max-w-sm overflow-hidden rounded-full">
-        <div className="bg-primary absolute inset-y-0 left-0 w-1/3 animate-[loading-bar_1.4s_infinite_ease-in-out] rounded-full" />
+    <div className="flex flex-col items-center justify-center gap-(--space-14) py-(--space-32)">
+      <Icon icon={FileCsvIcon} size={40} className="text-fg-3 animate-pulse" />
+      <div className="bg-track relative h-1 w-full max-w-[280px] overflow-hidden rounded-full">
+        <div className="bg-fg animate-loading-bar absolute inset-y-0 left-0 w-1/3 rounded-full" />
       </div>
-      <p className="text-muted-foreground text-sm">Uploading to server…</p>
+      <p className="type-body text-fg-2 m-0">Uploading to server…</p>
     </div>
   );
 }
@@ -658,38 +644,36 @@ function ResultView({ result }: { result: UploadResult }) {
   const summary = buildResultSummary(added, updated, errored);
 
   return (
-    <div className="flex min-h-0 flex-col gap-3 overflow-hidden">
-      <div className="flex flex-col gap-1 pb-1">
-        <h3 className="text-base leading-tight font-semibold tracking-tight">
-          Roster processed
-        </h3>
-        <p className="text-muted-foreground text-sm">{summary}</p>
+    <div className="flex min-h-0 flex-col gap-(--space-12)">
+      <div className="flex flex-col gap-(--space-4)">
+        <h3 className="type-body-strong text-fg m-0">Roster processed</h3>
+        <p className="type-body text-fg-2 m-0">{summary}</p>
       </div>
 
       <div
         className={cn(
-          "grid gap-2",
+          "grid gap-(--space-8)",
           hasBreakdown ? "sm:grid-cols-3" : "sm:grid-cols-2",
         )}
       >
         {hasBreakdown ? (
           <>
             <ImpactCard
-              icon={<UserCheckIcon className="size-4" />}
+              icon={UserCheckIcon}
               value={activated}
               label="activated"
               hint={activated > 0 ? "matched existing accounts" : "none"}
               tone={activated > 0 ? "success" : "muted"}
             />
             <ImpactCard
-              icon={<MailIcon className="size-4" />}
+              icon={EnvelopeSimpleIcon}
               value={pending}
               label="invited"
               hint={pending > 0 ? "pending signup" : "none sent"}
               tone={pending > 0 ? "warn" : "muted"}
             />
             <ImpactCard
-              icon={<RefreshCwIcon className="size-4" />}
+              icon={ArrowsClockwiseIcon}
               value={updated}
               label="updated"
               hint={updated > 0 ? "refreshed in place" : "none"}
@@ -699,14 +683,14 @@ function ResultView({ result }: { result: UploadResult }) {
         ) : (
           <>
             <ImpactCard
-              icon={<UserCheckIcon className="size-4" />}
+              icon={UserCheckIcon}
               value={added}
               label={added === 1 ? "row added" : "rows added"}
               hint={added > 0 ? "added to roster" : "none"}
               tone={added > 0 ? "success" : "muted"}
             />
             <ImpactCard
-              icon={<RefreshCwIcon className="size-4" />}
+              icon={ArrowsClockwiseIcon}
               value={updated}
               label={updated === 1 ? "row updated" : "rows updated"}
               hint={updated > 0 ? "refreshed in place" : "none"}
@@ -717,43 +701,35 @@ function ResultView({ result }: { result: UploadResult }) {
       </div>
 
       {errored > 0 && (
-        <div className="border-destructive/30 bg-destructive/5 flex items-center gap-2.5 rounded-xl border px-3 py-2.5">
-          <AlertTriangleIcon className="text-destructive size-4 shrink-0" />
-          <span className="text-destructive text-sm font-medium tabular-nums">
+        <div className="border-danger/40 flex items-center gap-(--space-8) rounded-(--radius-8) border px-(--space-12) py-(--space-10)">
+          <Icon icon={WarningIcon} className="text-danger shrink-0" />
+          <span className="type-body-strong text-danger tabular-nums">
             {errored.toLocaleString()} row{errored === 1 ? "" : "s"} rejected
           </span>
           {errors.length > 0 && (
-            <span className="text-muted-foreground text-xs">
-              see reasons below
-            </span>
+            <span className="type-meta text-fg-3">see reasons below</span>
           )}
         </div>
       )}
 
       {errors.length > 0 && (
-        <div className="flex min-h-0 flex-1 flex-col gap-2">
-          <div className="text-muted-foreground text-[11px] font-semibold tracking-wider uppercase">
-            Rejected rows
-          </div>
-          <div className="min-h-0 flex-1 overflow-auto rounded-lg border">
-            <table className="w-full text-xs">
-              <thead className="bg-muted/40 sticky top-0">
+        <div className="flex min-h-0 flex-col gap-(--space-8)">
+          <BlockLabel>Rejected rows</BlockLabel>
+          <div className="border-line max-h-[240px] overflow-auto rounded-(--radius-8) border">
+            <table className="type-body w-full border-collapse">
+              <thead>
                 <tr>
-                  <th className="text-muted-foreground w-12 px-2 py-1.5 text-left font-medium">
-                    #
-                  </th>
-                  <th className="text-muted-foreground px-2 py-1.5 text-left font-medium">
-                    Reason
-                  </th>
+                  <th className={cn(tableHead, "w-12")}>#</th>
+                  <th className={tableHead}>Reason</th>
                 </tr>
               </thead>
               <tbody>
                 {errors.map((err, i) => (
-                  <tr key={i} className="border-t">
-                    <td className="text-muted-foreground w-12 px-2 py-1.5 font-mono">
+                  <tr key={i} className="border-line-soft border-t">
+                    <td className={cn(tableCell, "type-data text-fg-3 w-12")}>
                       {err.row}
                     </td>
-                    <td className="px-2 py-1.5">
+                    <td className={cn(tableCell, "text-fg")}>
                       {formatErrorReason(err.reason)}
                     </td>
                   </tr>
@@ -791,51 +767,46 @@ function StepIndicator({ step }: { step: DialogStep["name"] }) {
     step === "error" ? 0 : steps.findIndex((s) => s.id === step);
 
   return (
-    <div className="flex items-center gap-2">
+    <ol className="type-meta bp-phone:gap-(--space-6) m-0 flex list-none flex-wrap items-center gap-(--space-8) p-0">
       {steps.map((s, i) => {
         const isActive = i === activeIndex;
         const isDone = i < activeIndex;
         return (
-          <div key={s.id} className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5">
-              <div
-                className={cn(
-                  "flex size-5 items-center justify-center rounded-full border text-[10px] font-semibold tabular-nums transition-colors",
-                  isActive &&
-                    "border-primary bg-primary text-primary-foreground",
-                  isDone && "border-success bg-success text-success-foreground",
-                  !isActive && !isDone && "border-border text-muted-foreground",
-                )}
-              >
-                {isDone ? (
-                  <CheckCircle2Icon className="size-3 text-white" />
-                ) : (
-                  i + 1
-                )}
-              </div>
+          <li
+            key={s.id}
+            aria-current={isActive ? "step" : undefined}
+            className="flex items-center gap-(--space-8)"
+          >
+            <span
+              className={cn(
+                "flex items-center gap-(--space-6)",
+                isActive ? "text-fg" : isDone ? "text-fg-2" : "text-fg-3",
+              )}
+            >
               <span
                 className={cn(
-                  "text-[11px] font-medium tracking-wide uppercase transition-colors",
-                  isActive && "text-foreground",
-                  isDone && "text-success-foreground",
-                  !isActive && !isDone && "text-muted-foreground/60",
+                  "grid size-[18px] place-items-center rounded-full border tabular-nums",
+                  isActive
+                    ? "border-fg bg-fg text-on-fg"
+                    : isDone
+                      ? "border-line-control text-fg-2"
+                      : "border-line-control text-fg-3",
                 )}
               >
-                {s.label}
+                {isDone ? <Icon icon={CheckIcon} size="sm" /> : i + 1}
               </span>
-            </div>
+              {s.label}
+            </span>
             {i < steps.length - 1 && (
-              <div
-                className={cn(
-                  "h-px w-6 transition-colors",
-                  i < activeIndex ? "bg-success/60" : "bg-border",
-                )}
+              <span
+                aria-hidden="true"
+                className="bg-line bp-phone:w-2 h-px w-6"
               />
             )}
-          </div>
+          </li>
         );
       })}
-    </div>
+    </ol>
   );
 }
 
@@ -855,77 +826,37 @@ function IdleView({
   onPickClick: () => void;
 }) {
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-(--space-16)">
+      {/* The S2S DropZone look; it keeps this dialog's own drop and picker
+          handlers so any dropped file is parsed as before. */}
       <div
-        role="button"
-        tabIndex={0}
-        onClick={onPickClick}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            onPickClick();
-          }
-        }}
         onDragOver={onDragOver}
         onDragLeave={onDragLeave}
         onDrop={onDrop}
+        onClick={onPickClick}
         className={cn(
-          "group relative flex min-h-[240px] w-full cursor-pointer flex-col items-center justify-center gap-4 overflow-hidden rounded-2xl border-2 border-dashed p-8 text-center transition-all duration-200",
-          "focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none",
-          isDragging
-            ? "border-primary bg-primary/5 scale-[1.01]"
-            : "border-border/80 from-muted/20 to-muted/40 hover:border-primary/50 hover:from-primary/5 hover:to-primary/10 bg-gradient-to-b",
+          "border-line-dashed flex min-h-[200px] cursor-pointer flex-col items-center justify-center gap-(--space-10) rounded-(--radius-8) border border-dashed p-(--space-16) text-center",
+          "hover:border-line-hover transition-[border-color,background-color] duration-150 ease-[ease]",
+          isDragging && "border-line-hover bg-surface-hover",
         )}
       >
-        <div
-          aria-hidden="true"
-          className={cn(
-            "bg-primary/5 pointer-events-none absolute inset-0 transition-opacity duration-300",
-            isDragging ? "opacity-100" : "opacity-0 group-hover:opacity-100",
+        <Icon icon={CloudArrowUpIcon} size="lg" className="text-fg-2" />
+        <span className="type-body text-fg-2 flex flex-wrap items-center justify-center gap-(--space-8)">
+          {isDragging ? "Release to upload" : "Drop a CSV file, or"}
+          {!isDragging && (
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                onPickClick();
+              }}
+            >
+              Browse
+            </Button>
           )}
-        />
-
-        <div
-          className={cn(
-            "relative h-16 w-20 transition-transform duration-300",
-            isDragging && "scale-110",
-            "group-hover:-translate-y-0.5",
-          )}
-        >
-          <div
-            className={cn(
-              "bg-card border-border/60 absolute inset-x-3 top-2 flex h-14 items-center justify-center rounded-lg border shadow-sm transition-transform duration-300",
-              "-rotate-6",
-              isDragging && "-translate-x-2 -rotate-12",
-            )}
-            aria-hidden="true"
-          >
-            <FileTextIcon className="text-muted-foreground/40 size-5" />
-          </div>
-          <div
-            className={cn(
-              "bg-card border-border/60 absolute inset-x-3 top-1 flex h-14 items-center justify-center rounded-lg border shadow-sm transition-transform duration-300",
-              "rotate-3",
-              isDragging && "translate-x-2 rotate-6",
-            )}
-            aria-hidden="true"
-          >
-            <FileTextIcon className="text-muted-foreground/60 size-5" />
-          </div>
-          <div className="bg-card border-primary/30 absolute inset-x-3 top-0 flex h-14 items-center justify-center rounded-lg border-2 shadow-md">
-            <FileSpreadsheetIcon className="text-primary size-6" />
-          </div>
-        </div>
-
-        <div className="relative flex flex-col gap-1">
-          <p className="text-base font-semibold">
-            {isDragging ? "Release to upload" : "Drop your CSV file here"}
-          </p>
-          <p className="text-muted-foreground flex items-center justify-center gap-1 text-xs">
-            <MousePointerClickIcon className="size-3" />
-            or click anywhere to browse
-          </p>
-        </div>
+        </span>
+        <span className="text-fg-3 font-mono text-[11px] leading-[1.4]">
+          Up to 500 rows
+        </span>
       </div>
 
       <ExpectedColumns schema={schema} />
@@ -933,41 +864,21 @@ function IdleView({
   );
 }
 
-function ExpectedColumns({
-  schema,
-  detected = [],
-}: {
-  schema: CsvSchema;
-  detected?: string[];
-}) {
+function ExpectedColumns({ schema }: { schema: CsvSchema }) {
   return (
-    <div className="flex flex-col gap-2">
-      <span className="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase">
-        Expected columns
-      </span>
-      <div className="flex flex-wrap gap-1.5">
-        {schema.columns.map((col) => {
-          const isMatched = detected.includes(col.key);
-          return (
-            <span
-              key={col.key}
-              className={cn(
-                "inline-flex h-5 items-center gap-1 rounded-full border px-2.5 font-mono text-[11px] leading-none transition-colors",
-                isMatched
-                  ? "border-success/40 bg-success/10 text-success-foreground"
-                  : col.required
-                    ? "border-border/80 bg-background text-foreground/80"
-                    : "border-border/60 text-muted-foreground border-dashed bg-transparent",
-              )}
-            >
-              {isMatched && <CheckCircle2Icon className="size-3" />}
-              {col.key}
-              {!col.required && (
-                <span className="text-muted-foreground/60">?</span>
-              )}
-            </span>
-          );
-        })}
+    <div className="flex flex-col gap-(--space-8)">
+      <BlockLabel>Expected columns</BlockLabel>
+      <div className="flex flex-wrap gap-(--space-6)">
+        {schema.columns.map((col) => (
+          <Tag
+            key={col.key}
+            tone={col.required ? "default" : "muted"}
+            className={col.required ? undefined : "border-dashed"}
+          >
+            {col.key}
+            {!col.required && <span className="text-fg-3">optional</span>}
+          </Tag>
+        ))}
       </div>
     </div>
   );
@@ -982,11 +893,14 @@ function ImpactSummary({
 }) {
   if (pending) {
     return (
-      <div className="border-border/60 bg-muted/20 flex items-center gap-3 rounded-xl border p-3">
-        <div className="bg-muted-foreground/20 size-8 animate-pulse rounded-lg" />
-        <div className="flex-1 space-y-1.5">
-          <div className="bg-muted-foreground/20 h-3 w-32 animate-pulse rounded" />
-          <div className="bg-muted-foreground/10 h-2 w-48 animate-pulse rounded" />
+      <div
+        aria-busy="true"
+        className="border-line flex items-center gap-(--space-12) rounded-(--radius-8) border p-(--space-12)"
+      >
+        <div className="bg-surface-pressed size-8 animate-pulse rounded-(--radius-6)" />
+        <div className="flex-1 space-y-(--space-6)">
+          <div className="bg-surface-pressed h-3 w-32 animate-pulse rounded" />
+          <div className="bg-surface-hover h-2 w-48 animate-pulse rounded" />
         </div>
       </div>
     );
@@ -1001,23 +915,23 @@ function ImpactSummary({
   const hasUpdates = preview.willUpdate > 0;
 
   return (
-    <div className="grid gap-2 sm:grid-cols-3">
+    <div className="grid gap-(--space-8) sm:grid-cols-3">
       <ImpactCard
-        icon={<UserCheckIcon className="size-4" />}
+        icon={UserCheckIcon}
         value={preview.willMatch}
         label={preview.willMatch === 1 ? "new match" : "new matches"}
         hint={hasMatches ? "will activate on upload" : "none"}
         tone={hasMatches ? "success" : "muted"}
       />
       <ImpactCard
-        icon={<MailIcon className="size-4" />}
+        icon={EnvelopeSimpleIcon}
         value={preview.willInvite}
         label={preview.willInvite === 1 ? "invite" : "invites"}
         hint={hasInvites ? "will send on upload" : "none needed"}
         tone={hasInvites ? "warn" : "muted"}
       />
       <ImpactCard
-        icon={<RefreshCwIcon className="size-4" />}
+        icon={ArrowsClockwiseIcon}
         value={preview.willUpdate}
         label={preview.willUpdate === 1 ? "update" : "updates"}
         hint={hasUpdates ? "already on roster" : "none"}
@@ -1034,43 +948,31 @@ function ImpactCard({
   hint,
   tone,
 }: {
-  icon: React.ReactNode;
+  icon: PhosphorIcon;
   value: number;
   label: string;
   hint: string;
   tone: "success" | "warn" | "muted" | "error";
 }) {
   return (
-    <div
-      className={cn(
-        "relative flex items-center gap-3 overflow-hidden rounded-xl border p-3",
-        tone === "success" && "border-success/30 bg-success/5",
-        tone === "warn" && "border-warning/40 bg-warning/5",
-        tone === "muted" && "border-border/60 bg-muted/20",
-        tone === "error" && "border-destructive/30 bg-destructive/5",
-      )}
-    >
-      <div
+    <div className="border-line flex items-center gap-(--space-10) rounded-(--radius-8) border p-(--space-12)">
+      <span
         className={cn(
-          "flex size-8 shrink-0 items-center justify-center rounded-lg",
-          tone === "success" && "bg-success/15 text-success-foreground",
-          tone === "warn" && "bg-warning/15 text-warning-foreground",
-          tone === "muted" && "text-muted-foreground bg-muted-foreground/10",
-          tone === "error" && "bg-destructive/15 text-destructive",
+          "bg-surface-chip grid size-8 shrink-0 place-items-center rounded-(--radius-6)",
+          tone === "success" && "text-live",
+          tone === "warn" && "text-amber",
+          tone === "muted" && "text-fg-3",
+          tone === "error" && "text-danger",
         )}
       >
-        {icon}
-      </div>
-      <div className="flex min-w-0 flex-col">
-        <span className="text-sm leading-none font-semibold tabular-nums">
-          {value.toLocaleString()}{" "}
-          <span className="text-muted-foreground text-xs font-normal">
-            {label}
-          </span>
+        <Icon icon={icon} />
+      </span>
+      <div className="flex min-w-0 flex-col gap-(--space-2)">
+        <span className="type-body text-fg-2">
+          <span className="type-data text-fg">{value.toLocaleString()}</span>{" "}
+          {label}
         </span>
-        <span className="text-muted-foreground mt-0.5 truncate text-[11px]">
-          {hint}
-        </span>
+        <span className="type-meta text-fg-3 truncate">{hint}</span>
       </div>
     </div>
   );
@@ -1086,29 +988,25 @@ function ColumnChips({
   warningsCount: number;
 }) {
   return (
-    <div className="flex flex-wrap items-center gap-1.5">
+    <div className="flex flex-wrap items-center gap-(--space-6)">
       {schema.columns.map((col) => {
         const isMatched = detectedColumns.includes(col.key);
         return (
-          <span
+          <Tag
             key={col.key}
-            className={cn(
-              "inline-flex h-5 items-center gap-1 rounded-full border px-2.5 font-mono text-[11px] leading-none",
-              isMatched
-                ? "border-success/40 bg-success/10 text-success-foreground"
-                : "border-border/60 text-muted-foreground",
-            )}
+            tone={isMatched ? "default" : "muted"}
+            aria-label={`${col.key}: ${isMatched ? "found" : "not in file"}`}
           >
-            {isMatched && <CheckCircle2Icon className="size-3" />}
+            {isMatched && <Icon icon={CheckIcon} className="text-live" />}
             {col.key}
-          </span>
+          </Tag>
         );
       })}
       {warningsCount > 0 && (
-        <span className="bg-warning/10 text-warning-foreground ml-auto inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-medium">
-          <AlertTriangleIcon className="size-3" />
+        <Tag className="text-amber ms-auto">
+          <Icon icon={WarningIcon} />
           {warningsCount} skipped
-        </span>
+        </Tag>
       )}
     </div>
   );

@@ -21,7 +21,7 @@ export function NotificationItem({
 
   const handleClick = () => {
     if (!notification.read) {
-      markRead.mutate(notification.id);
+      markRead.mutate({ params: { path: { id: notification.id } } });
     }
   };
 

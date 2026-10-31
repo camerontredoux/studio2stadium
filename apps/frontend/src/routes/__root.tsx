@@ -9,11 +9,14 @@ import posthog from "posthog-js";
 
 import "@stripe/stripe-js";
 
-import { useIsFetching, type QueryClient } from "@tanstack/react-query";
+import type { QueryClient } from "@tanstack/react-query";
 import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
 import { useEffect } from "react";
 import { Fragment } from "react/jsx-runtime";
-import { ORG_THEME_STORAGE_KEY } from "@/features/org/hooks/use-org-theme";
+import {
+  ORG_THEME_DEFAULT,
+  ORG_THEME_STORAGE_KEY,
+} from "@/features/org/hooks/use-org-theme";
 import { useTernaryDarkMode } from "usehooks-ts";
 
 import NProgress from "nprogress";
@@ -36,7 +39,7 @@ function RootComponent() {
   });
   const orgTheme = useTernaryDarkMode({
     localStorageKey: ORG_THEME_STORAGE_KEY,
-    defaultValue: "light",
+    defaultValue: ORG_THEME_DEFAULT,
   });
   const isDarkMode = isOrgRoute ? orgTheme.isDarkMode : appTheme.isDarkMode;
 
@@ -46,14 +49,11 @@ function RootComponent() {
 
   useEffect(() => {
     if (!import.meta.env.PROD) return;
-    posthog.init(
-      import.meta.env.VITE_POSTHOG_TOKEN,
-      {
-        api_host: "https://us.i.posthog.com",
-        person_profiles: "identified_only",
-      },
-    )
-  }, [])
+    posthog.init(import.meta.env.VITE_POSTHOG_TOKEN, {
+      api_host: "https://us.i.posthog.com",
+      person_profiles: "identified_only",
+    });
+  }, []);
 
   return (
     <Fragment>
@@ -83,16 +83,20 @@ NProgress.configure({
   trickleSpeed: 100,
 });
 
+// Wait this long before showing the bar so fast navigations don't flash it.
+const PROGRESS_DELAY_MS = 150;
+
 function RouterProgressBar() {
   const isPending = useRouterState({ select: (s) => s.status === "pending" });
-  const isFetching = useIsFetching();
-
-  const isLoading = isPending && isFetching > 0;
 
   useEffect(() => {
-    if (isLoading) NProgress.start();
-    else NProgress.done();
-  }, [isLoading]);
+    if (!isPending) {
+      NProgress.done();
+      return;
+    }
+    const timer = setTimeout(() => NProgress.start(), PROGRESS_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [isPending]);
 
   return null;
 }

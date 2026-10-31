@@ -29,6 +29,18 @@ export function useEditSchoolEvent(username: string) {
   });
 }
 
+export function useDeleteSchoolEvent(username: string) {
+  return $api.useMutation("delete", "/admin/events/school/{id}", {
+    meta: {
+      invalidateQueries: [adminQueries.schoolEvents(username).queryKey],
+    },
+  });
+}
+
+export function useDeleteGlobalEvent() {
+  return $api.useMutation("delete", "/admin/events/global/{id}");
+}
+
 export function useAdminUpdateSchoolProfile(username: string) {
   return $api.useMutation("patch", "/admin/schools/{username}/profile", {
     meta: {

@@ -1,9 +1,10 @@
 import * as tus from "tus-js-client";
+import { videoUploadErrorMessage } from "./video-duration";
 
 interface TusUploadOptions {
   file: File;
   onProgress: (percent: number) => void;
-  onSuccess: () => void;
+  onSuccess: (mediaId: string) => void;
   onError: (error: Error) => void;
   endpoint?: string;
 }
@@ -22,6 +23,8 @@ function extractTusErrorMessage(error: Error | tus.DetailedError): string {
   return error.message;
 }
 
+const TUS_CHUNK_SIZE = 10 * 1024 * 1024;
+
 // Use proxy in development to avoid cross-origin cookie issues
 const getTusEndpoint = () => {
   if (import.meta.env.DEV) {
@@ -37,7 +40,14 @@ export function uploadVideoTus({
   onError,
   endpoint,
 }: TusUploadOptions): tus.Upload {
+  // Our endpoint returns the Stream id on the creation response, which the
+  // caller needs to follow processing.
+  let mediaId = "";
+
   const upload = new tus.Upload(file, {
+    onAfterResponse: (_request, response) => {
+      mediaId ||= response.getHeader("stream-media-id") ?? "";
+    },
     onBeforeRequest: (request) => {
       const xhr = request.getUnderlyingObject();
       if (request.getURL().includes(import.meta.env.VITE_API_URL)) {
@@ -45,7 +55,13 @@ export function uploadVideoTus({
       }
     },
     endpoint: endpoint ?? getTusEndpoint(),
-    retryDelays: [0, 1000, 3000, 5000],
+    // Without a chunk size the whole file goes up in one PATCH, which mobile
+    // browsers drop on a network blip with no response, and a retry restarts
+    // from byte 0. Cloudflare needs chunks of at least 5 MiB in multiples of
+    // 256 KiB, and caps a chunk at 200 MiB.
+    chunkSize: TUS_CHUNK_SIZE,
+    // Long enough to ride out a phone switching networks.
+    retryDelays: [0, 1000, 3000, 5000, 10000, 20000, 30000],
     metadata: {
       filename: file.name,
       filetype: file.type,
@@ -54,14 +70,14 @@ export function uploadVideoTus({
       const message = extractTusErrorMessage(
         error instanceof Error ? error : new Error(String(error)),
       );
-      onError(new Error(message));
+      onError(new Error(videoUploadErrorMessage(message)));
     },
     onProgress: (bytesUploaded, bytesTotal) => {
       const percentage = Math.round((bytesUploaded / bytesTotal) * 100);
       onProgress(percentage);
     },
     onSuccess: () => {
-      onSuccess();
+      onSuccess(mediaId);
     },
   });
 

@@ -1,5 +1,6 @@
 import { useCountdown } from "@/components/hooks/use-countdown";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toastManager } from "@/components/ui/toast-manager";
 import { handleApiError } from "@/lib/api/errors";
 import {
@@ -11,7 +12,7 @@ import { HeartIcon } from "lucide-react";
 import { dancerQueries } from "../../api/queries";
 
 export function FavoriteButton({ dancerId }: { dancerId: string }) {
-  const { data } = useQuery(dancerQueries.metadata(dancerId));
+  const { data, isPending } = useQuery(dancerQueries.metadata(dancerId));
 
   const isFavorited = data?.favorited ?? false;
 
@@ -44,6 +45,10 @@ export function FavoriteButton({ dancerId }: { dancerId: string }) {
       },
     );
   };
+
+  if (isPending) {
+    return <Skeleton className="h-8 w-28 rounded-lg max-sm:flex-1 sm:h-7" />;
+  }
 
   return (
     <Button

@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/lib/session";
 import { useSubscribed } from "@/lib/session/hooks/use-subscribed";
+import { usePremiumRoadmap } from "@/shared/premium-roadmap/hooks";
 import { US_STATES } from "@/utils/constants/states";
 import { STYLES } from "@/utils/constants/styles";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -42,7 +43,14 @@ export function ProgramSpotlight() {
   const { data } = useSuspenseQuery(feedQueries.recommended());
   const spotlightIndex = useSpotlightIndex(data.length);
 
-  const showChecklist = subscription.subscribed || !session.orgAccountTier;
+  const { isLoading: roadmapLoading, roadmap } = usePremiumRoadmap();
+
+  // The Premium Roadmap replaces the checklist for eligible dancers. If the
+  // roadmap request fails, fall back to the checklist.
+  const showChecklist =
+    (subscription.subscribed || !session.orgAccountTier) &&
+    !roadmapLoading &&
+    !roadmap;
 
   if (data.length === 0) {
     return showChecklist ? <ProfileChecklist /> : null;

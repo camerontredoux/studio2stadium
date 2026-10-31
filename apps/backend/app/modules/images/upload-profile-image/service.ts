@@ -50,7 +50,7 @@ export class UploadProfileImageService {
       };
     }
 
-    const disk = drive.use("r2");
+    const disk = drive.use();
 
     const exists = await disk.exists(key);
 

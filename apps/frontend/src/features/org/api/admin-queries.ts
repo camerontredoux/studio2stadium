@@ -1,31 +1,16 @@
-import { queryOptions } from "@tanstack/react-query";
-import { client } from "@/lib/api/client";
-import type { EventTier } from "@/lib/event-tiers";
+import type { QueryClient } from "@tanstack/react-query";
+import { $api } from "@/lib/api/client";
+import type { components } from "@/lib/api/types";
 
-async function fetchJson<T>(path: string): Promise<T> {
-  const res = await (
-    client as unknown as Record<string, (p: string) => Promise<{ data: T }>>
-  )["GET"](path);
-  return res.data;
-}
-
-export type OrgEvent = {
-  id: string;
-  orgId: string;
-  name: string;
-  startDate: string;
-  endDate: string;
-  startTime: string | null;
-  timezone: string | null;
-  venueName: string | null;
-  venueAddress: string | null;
-  contactEmail: string | null;
-  schedulePdfUrl: string | null;
-  isActive: boolean;
-  eventTier: EventTier;
-  createdAt: string;
-  updatedAt: string;
-};
+/**
+ * An Org Event from `GET /orgs/{slug}/events`. `startTime`–`endTime` are the
+ * daily hours ("HH:mm", every day of the event) in `timezone`. `startsAt` and
+ * `endsAt` are the first day's start and the last day's end as ISO instants,
+ * and `effectiveTimezone` is the zone they were computed in (the event's, else
+ * the org default, else UTC). The backend computes them; read phase and time
+ * from them rather than from the dates.
+ */
+export type OrgEvent = components["schemas"]["OrgsIdEventsResponse"][number];
 
 export type CsvUploadSummary = {
   id: string;
@@ -64,22 +49,56 @@ export type ChecklistItem = {
   updatedAt: string;
 };
 
+// The spec types /stats with a different shape than the backend returns, so
+// this reads the data as the hand-written type above.
+const asOrgEventStats = (data: unknown) => data as OrgEventStats;
+
 export const adminQueries = {
   events: (slug: string) =>
-    queryOptions({
-      queryKey: ["orgs", slug, "events"],
-      queryFn: () => fetchJson<OrgEvent[]>(`/orgs/${slug}/events`),
+    $api.queryOptions("get", "/orgs/{slug}/events", {
+      params: { path: { slug } },
     }),
   stats: (slug: string, eventId: string) =>
-    queryOptions({
-      queryKey: ["orgs", slug, "events", eventId, "stats"],
-      queryFn: () =>
-        fetchJson<OrgEventStats>(`/orgs/${slug}/events/${eventId}/stats`),
-    }),
+    $api.queryOptions(
+      "get",
+      "/orgs/{slug}/events/{id}/stats",
+      { params: { path: { slug, id: eventId } } },
+      { select: asOrgEventStats },
+    ),
   checklist: (slug: string, eventId: string) =>
-    queryOptions({
-      queryKey: ["orgs", slug, "events", eventId, "checklist"],
-      queryFn: () =>
-        fetchJson<ChecklistItem[]>(`/orgs/${slug}/events/${eventId}/checklist`),
+    $api.queryOptions("get", "/orgs/{slug}/events/{id}/checklist", {
+      params: { path: { slug, id: eventId } },
     }),
 };
+
+// The event-scoped queries used to share the key prefix
+// ["orgs", slug, "events"], so invalidating the event list also refreshed
+// every event's stats, checklist, check-in status and videos. This keeps that.
+const ORG_EVENT_QUERY_PATHS = new Set<unknown>([
+  "/orgs/{slug}/events",
+  "/orgs/{slug}/events/{id}/stats",
+  "/orgs/{slug}/events/{id}/checklist",
+  "/orgs/{slug}/events/{id}/check-in/status",
+  "/orgs/{slug}/events/{id}/video-categories",
+  "/orgs/{slug}/events/{id}/videos",
+]);
+
+/**
+ * Refresh after the org's live Org Event changes. Many org routes resolve the
+ * live event on the server (the org's `myRoster`, schools, callbacks, claims,
+ * scouting), so their cached answers belong to the old event even when their
+ * key has no event id. Refreshing everything is simpler than tracking them.
+ */
+export function invalidateAfterLiveEventChange(qc: QueryClient) {
+  return qc.invalidateQueries();
+}
+
+export function invalidateOrgEvents(qc: QueryClient, slug: string) {
+  return qc.invalidateQueries({
+    predicate: ({ queryKey: [method, path, init] }) =>
+      method === "get" &&
+      ORG_EVENT_QUERY_PATHS.has(path) &&
+      (init as { params?: { path?: { slug?: string } } } | undefined)?.params
+        ?.path?.slug === slug,
+  });
+}

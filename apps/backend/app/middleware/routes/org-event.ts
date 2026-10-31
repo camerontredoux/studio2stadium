@@ -23,10 +23,21 @@ export default class OrgEventMiddleware {
   async handle(
     ctx: HttpContext,
     next: NextFn,
-    mode?: "coachDancerRead" | "dancerSelfRead"
+    mode?: "coachDancerRead" | "dancerSelfRead" | "scoped"
   ) {
     if (!ctx.org) {
       return ctx.response.notFound({ message: "Org not resolved." });
+    }
+
+    if (mode === "scoped") {
+      const event = await findOrgEvent(ctx.org.id, ctx.params.id);
+
+      if (!event) {
+        return ctx.response.notFound({ message: "No event found." });
+      }
+
+      ctx.orgEvent = event;
+      return next();
     }
 
     const [ev] = await db

@@ -4,7 +4,11 @@ import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app/(routes)/$username")({
   validateSearch: (search: Record<string, unknown>) =>
-    search as { mode?: "preview" | undefined },
+    search as {
+      mode?: "preview" | undefined;
+      // Opens the media upload dialog on the owner's profile.
+      upload?: "video" | undefined;
+    },
   beforeLoad: ({ context: { access }, params }) => {
     access.guard(access.is("core", "school"), access.self(params.username));
   },
@@ -13,7 +17,7 @@ export const Route = createFileRoute("/_app/(routes)/$username")({
       dancerQueries.profile(params.username),
     );
     if (session.type === "school") {
-      queryClient.ensureQueryData(dancerQueries.metadata(dancer.id));
+      queryClient.prefetchQuery(dancerQueries.metadata(dancer.id));
     }
   },
   component: RouteComponent,

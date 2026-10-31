@@ -17,18 +17,18 @@ import { VideoUploadDialog } from "./video-upload-dialog";
 
 interface MediaDialogProps {
   imageCount: number;
-  videoCount: number;
   youtubeCount: number;
   orgAccountTier?: string | null;
+  defaultOpen?: boolean;
 }
 
 export function MediaDialog({
   imageCount,
-  videoCount,
   youtubeCount,
   orgAccountTier,
+  defaultOpen = false,
 }: MediaDialogProps) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -56,7 +56,6 @@ export function MediaDialog({
               <div className="bg-border h-12 w-px" />
             </div>
             <VideoUploadDialog
-              videoCount={videoCount}
               youtubeCount={youtubeCount}
               orgAccountTier={orgAccountTier}
             />
