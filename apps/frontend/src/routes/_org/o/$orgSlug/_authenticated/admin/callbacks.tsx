@@ -1,6 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
 import { orgQueries } from "@/features/org/api/queries";
+import { hasOrgFeature } from "@/features/org/lib/entitlement";
 import { scoutingQueries } from "@/features/org/api/scouting-queries";
 import { CallbacksPage } from "@/features/org/live/admin/dashboard/callbacks-page";
 
@@ -11,8 +12,7 @@ export const Route = createFileRoute(
     const data = await context.queryClient.ensureQueryData(
       orgQueries.org(params.orgSlug),
     );
-    const features = (data?.features ?? {}) as Record<string, boolean>;
-    if (!features.callbacks) {
+    if (!hasOrgFeature(data, "callbacks")) {
       throw redirect({ to: "/o/$orgSlug/admin", params });
     }
   },

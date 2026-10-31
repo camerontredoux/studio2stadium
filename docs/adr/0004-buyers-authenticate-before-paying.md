@@ -1,5 +1,8 @@
 # Buyers create an account before checkout
 
+**Superseded by [ADR 0007](0007-buyer-account-created-at-provisioning.md).** Buyers no longer sign
+up before paying. Provisioning creates their account from the checkout email.
+
 `org_memberships` requires a `userId`, and `add-org-member` hard-fails when no user matches the
 given email. The pre-checkout form therefore ends in account creation, and the Checkout Session
 carries a real `userId` in its metadata.

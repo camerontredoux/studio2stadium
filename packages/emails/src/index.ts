@@ -106,6 +106,16 @@ export {
 } from "./templates/ProspectSubmissionsDigestEmail.js";
 
 export {
+  EventTierPurchaseDeactivatedEmail,
+  type EventTierPurchaseDeactivatedEmailProps,
+} from "./templates/EventTierPurchaseDeactivatedEmail.js";
+
+export {
+  EventTierOrgReadyEmail,
+  type EventTierOrgReadyEmailProps,
+} from "./templates/EventTierOrgReadyEmail.js";
+
+export {
   ApplicationSubmittedEmail,
   type ApplicationSubmittedEmailProps,
 } from "./templates/ApplicationSubmittedEmail.js";

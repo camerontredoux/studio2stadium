@@ -36,6 +36,12 @@ import { useAdminEvent } from "@/features/org/context/use-admin-event";
 import { useOrg } from "@/features/org/context/use-org";
 import { monogram } from "@/features/org/live/shared/monogram";
 import { $api } from "@/lib/api/client";
+import {
+  BUY_ANOTHER_EVENT_MESSAGE,
+  canCreateOrgEvent,
+  eventTierLabel,
+} from "@/lib/event-tiers";
+import { useSession } from "@/lib/session";
 
 /**
  * The admin event switcher: the sidebar brand (monogram + org name) opening an
@@ -45,11 +51,16 @@ import { $api } from "@/lib/api/client";
  */
 export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
   const queryClient = useQueryClient();
-  const { org } = useOrg();
+  const { org, selfServe, tierManaged } = useOrg();
   const { events, selectedEvent, selectEvent } = useAdminEvent();
   const [createOpen, setCreateOpen] = useState(false);
   const [confirmEvent, setConfirmEvent] = useState<OrgEvent | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const canCreate = canCreateOrgEvent({
+    session: useSession(),
+    orgSelfServe: selfServe,
+    orgTierManaged: tierManaged,
+  });
 
   const sortedEvents = useMemo(
     () =>
@@ -69,8 +80,16 @@ export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
       void invalidateAfterLiveEventChange(queryClient);
       toastManager.add({ title: "Live event updated", type: "success" });
     },
-    onError: () => {
-      toastManager.add({ title: "Couldn't make event live", type: "error" });
+    onError: (error) => {
+      // A refunded or disputed purchase can only be brought back by staff;
+      // the backend says so in its message.
+      const description =
+        (error as { message?: string } | undefined)?.message ?? undefined;
+      toastManager.add({
+        title: "Couldn't make event live",
+        description,
+        type: "error",
+      });
     },
   });
 
@@ -116,7 +135,8 @@ export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
                       >
                         {event.name}
                       </span>
-                      <span className="ms-auto flex shrink-0 items-center">
+                      <span className="ms-auto flex shrink-0 items-center gap-(--space-6)">
+                        <Tag>{eventTierLabel(event.eventTier)}</Tag>
                         {event.isActive ? (
                           <Tag tone="live">Live</Tag>
                         ) : (
@@ -141,9 +161,15 @@ export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
             )}
           </MenuGroup>
           <MenuSeparator />
-          <MenuItem icon={PlusIcon} onClick={() => setCreateOpen(true)}>
-            New event
-          </MenuItem>
+          {canCreate ? (
+            <MenuItem icon={PlusIcon} onClick={() => setCreateOpen(true)}>
+              New event
+            </MenuItem>
+          ) : (
+            <p className="type-body text-fg-3 m-0 px-(--space-8) py-(--space-6)">
+              {BUY_ANOTHER_EVENT_MESSAGE}
+            </p>
+          )}
         </MenuPopup>
       </Menu>
 
@@ -189,11 +215,13 @@ export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
         </DialogPopup>
       </Dialog>
 
-      <EventFormSheet
-        orgSlug={orgSlug}
-        open={createOpen}
-        onOpenChange={setCreateOpen}
-      />
+      {canCreate && (
+        <EventFormSheet
+          orgSlug={orgSlug}
+          open={createOpen}
+          onOpenChange={setCreateOpen}
+        />
+      )}
     </>
   );
 }

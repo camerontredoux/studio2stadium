@@ -1,4 +1,5 @@
 import { middleware } from "#start/kernel";
+import { unprocessableEntity } from "#utils/responses";
 import router from "@adonisjs/core/services/router";
 
 const CreateEventController = () => import("./create/controller.ts");
@@ -87,7 +88,10 @@ router
         middleware.org(),
         middleware.orgMember(),
         middleware.orgAdmin(),
-      ]);
+      ])
+      // Declared by hand: the generator infers only some of the statuses the
+      // controller returns and drops 422 (validation, Event Tier rules).
+      .openapi({ responses: { ...unprocessableEntity } });
     router
       .patch(":slug/events/:id", [UpdateEventController])
       .use([
@@ -95,7 +99,10 @@ router
         middleware.org(),
         middleware.orgMember(),
         middleware.orgAdmin(),
-      ]);
+      ])
+      // Declared by hand: the generator infers only some of the statuses the
+      // controller returns and drops 422 (validation, Event Tier rules).
+      .openapi({ responses: { ...unprocessableEntity } });
     router
       .delete(":slug/events/:id", [DeleteEventController])
       .use([
@@ -394,6 +401,8 @@ router
         middleware.org(),
         middleware.orgEvent("dancerSelfRead"),
         middleware.orgMember(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("check_in"),
       ]);
     router
       .post(":slug/events/:id/check-in", [CheckInController])
@@ -402,6 +411,8 @@ router
         middleware.org(),
         middleware.orgEvent(),
         middleware.orgMember(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("check_in"),
       ])
       .openapi({
         summary: "Check yourself in",
@@ -415,6 +426,8 @@ router
         middleware.org(),
         middleware.orgMember(),
         middleware.orgAdmin(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("check_in"),
       ]);
     router
       .post(":slug/events/:id/rosters/:rosterId/check-in", [
@@ -425,6 +438,8 @@ router
         middleware.org(),
         middleware.orgMember(),
         middleware.orgAdmin(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("check_in"),
       ]);
     router
       .get(":slug/events/:id/rosters/:rosterId/check-in-code", [
@@ -498,6 +513,8 @@ router
         middleware.orgEvent("scoped"),
         middleware.orgEvent("dancerSelfRead"),
         middleware.orgMember(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("video_library"),
       ]);
     router
       .post(":slug/events/:id/video-categories", [
@@ -509,6 +526,8 @@ router
         middleware.orgEvent("scoped"),
         middleware.orgMember(),
         middleware.orgAdmin(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("video_library"),
       ]);
     router
       .delete(":slug/events/:id/video-categories/:categoryId", [
@@ -520,6 +539,8 @@ router
         middleware.orgEvent("scoped"),
         middleware.orgMember(),
         middleware.orgAdmin(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("video_library"),
       ]);
 
     // Videos
@@ -531,6 +552,8 @@ router
         middleware.orgEvent("scoped"),
         middleware.orgEvent("dancerSelfRead"),
         middleware.orgMember(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("video_library"),
       ]);
     router
       .post(":slug/events/:id/videos", [CreateVideoController])
@@ -540,6 +563,8 @@ router
         middleware.orgEvent("scoped"),
         middleware.orgMember(),
         middleware.orgAdmin(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("video_library"),
       ]);
     router
       .patch(":slug/events/:id/videos/:videoId", [UpdateVideoController])
@@ -549,6 +574,8 @@ router
         middleware.orgEvent("scoped"),
         middleware.orgMember(),
         middleware.orgAdmin(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("video_library"),
       ]);
     router
       .delete(":slug/events/:id/videos/:videoId", [DeleteVideoController])
@@ -558,6 +585,8 @@ router
         middleware.orgEvent("scoped"),
         middleware.orgMember(),
         middleware.orgAdmin(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("video_library"),
       ]);
     router
       .post(":slug/events/:id/videos/audio-upload-url", [
@@ -569,6 +598,8 @@ router
         middleware.orgEvent("scoped"),
         middleware.orgMember(),
         middleware.orgAdmin(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("video_library"),
       ]);
   })
   .prefix("orgs");

@@ -17,4 +17,5 @@ export * from "./subscriptions.ts";
 export * from "./users.ts";
 export * from "./org-events.ts";
 export * from "./event-features.ts";
+export * from "./event-tier-purchases.ts";
 export * from "./tracker.ts";

@@ -158,15 +158,19 @@ test.group("coach cross-event scouting access", (group) => {
     assert.deepEqual(
       list
         .body()
-        .map((row: { firstName: string }) => row.firstName)
+        .data.map((row: { firstName: string }) => row.firstName)
         .sort(),
       ["Active", "Future"]
     );
     assert.isTrue(
-      list.body().every((row: { isFavorited: boolean }) => !row.isFavorited)
+      list
+        .body()
+        .data.every((row: { isFavorited: boolean }) => !row.isFavorited)
     );
     assert.isTrue(
-      list.body().every((row: { rating: number | null }) => row.rating === null)
+      list
+        .body()
+        .data.every((row: { rating: number | null }) => row.rating === null)
     );
 
     const detail = await client
@@ -181,7 +185,7 @@ test.group("coach cross-event scouting access", (group) => {
       .header("Authorization", `Bearer ${token}`);
     filtered.assertStatus(200);
     assert.deepEqual(
-      filtered.body().map((row: { rosterId: string }) => row.rosterId),
+      filtered.body().data.map((row: { rosterId: string }) => row.rosterId),
       [futureDancer!.id]
     );
     const [otherOrg] = await db
@@ -328,7 +332,7 @@ test.group("coach cross-event scouting access", (group) => {
     afterCallback.assertStatus(200);
     const calledBackRow = afterCallback
       .body()
-      .find((row: { rosterId: string }) => row.rosterId === dancer!.id);
+      .data.find((row: { rosterId: string }) => row.rosterId === dancer!.id);
     assert.isTrue(calledBackRow.isCalledBack);
     const calledBackSheet = await client
       .get(`/orgs/${org!.slug}/dancers/${dancer!.id}`)
@@ -448,7 +452,7 @@ test.group("coach cross-event scouting access", (group) => {
       .qs({ eventId: pastEvent!.id })
       .header("Authorization", `Bearer ${token}`);
     list.assertStatus(200);
-    const listed = list.body()[0];
+    const listed = list.body().data[0];
     assert.equal(listed.rosterId, pastDancer!.id);
     assert.isTrue(listed.isFavorited);
     assert.isTrue(listed.hasNote);
@@ -483,7 +487,9 @@ test.group("coach cross-event scouting access", (group) => {
     allEvents.assertStatus(200);
     const collapsed = allEvents
       .body()
-      .find((row: { rosterId: string }) => row.rosterId === pastDancer!.id);
+      .data.find(
+        (row: { rosterId: string }) => row.rosterId === pastDancer!.id
+      );
     assert.isFalse(collapsed.isFavorited);
     assert.isFalse(collapsed.hasNote);
 
@@ -568,7 +574,7 @@ test.group("coach cross-event scouting access", (group) => {
       .qs({ eventId: event!.id })
       .header("Authorization", `Bearer ${token}`);
     list.assertStatus(200);
-    assert.isFalse(list.body()[0].isCalledBack);
+    assert.isFalse(list.body().data[0].isCalledBack);
 
     const detail = await client
       .get(`/orgs/${org!.slug}/dancers/${dancer!.id}`)

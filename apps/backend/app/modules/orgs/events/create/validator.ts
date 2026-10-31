@@ -1,3 +1,4 @@
+import { EVENT_TIERS } from "#shared/org/event-tiers";
 import vine from "@vinejs/vine";
 import { type Infer } from "@vinejs/vine/types";
 import { dateField, timeField, timezoneField } from "../event-schedule.ts";
@@ -16,6 +17,8 @@ export const schema = vine.compile(
     endTime: timeField().optional(),
     timezone: timezoneField().optional(),
     isActive: vine.boolean().optional(),
+    /** S2S staff only — see `#shared/org/event-tier-authority`. */
+    eventTier: vine.enum(EVENT_TIERS).optional(),
   })
 );
 export type Validator = Infer<typeof schema>;

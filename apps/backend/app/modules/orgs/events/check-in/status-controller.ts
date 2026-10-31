@@ -43,10 +43,10 @@ export default class CheckInStatusController {
       : false;
 
     // The pass QR is only for the requester's own Roster Entry, on an event of
-    // this org that has check-in.
-    const features = (ctx.org?.features ?? {}) as Record<string, boolean>;
+    // this org. The route's `orgFeature("check_in")` gate has already checked
+    // that the event's Event Tier includes check-in.
     const checkInCode =
-      roster && event && event.orgId === ctx.org?.id && features.check_in
+      roster && event && event.orgId === ctx.org?.id
         ? signCheckInCode(roster.id, eventId)
         : null;
 

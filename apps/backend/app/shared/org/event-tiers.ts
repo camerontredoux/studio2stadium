@@ -10,9 +10,9 @@ import { DEFAULT_MAX_CALLBACKS_PER_COACH } from "./max-callbacks.ts";
  * that, and bare "tier" is ambiguous in this codebase. See CONTEXT.md.
  *
  * This module is the one place the mapping lives, so that what is sold on the
- * marketing page and what is enforced in the product are the same fact. Nothing
- * reads it yet: entitlement still resolves from `organizations.features` until
- * `OrgFeatureMiddleware` and the frontend guards move onto the active Org Event.
+ * marketing page and what is enforced in the product are the same fact.
+ * `OrgFeatureMiddleware` resolves every gated capability through it, from the
+ * Event Tier of the Org Event the request is against.
  */
 
 /** The sold names, ordered by what they include — see `enums.ts`. */
@@ -34,6 +34,20 @@ export const EVENT_TIER_CAPABILITIES = [
 ] as const;
 
 export type EventTierCapability = (typeof EVENT_TIER_CAPABILITIES)[number];
+
+const CAPABILITY_KEYS: ReadonlySet<string> = new Set(EVENT_TIER_CAPABILITIES);
+
+/**
+ * Whether a gated key is bought with the Org Event or configured on the Org.
+ *
+ * `OrgFeatureMiddleware` and the frontend guards gate on both kinds of key
+ * through one call, so something has to say which side of the line a key falls.
+ * A key that is not a capability — `freeTierUsers` today — keeps resolving from
+ * `organizations.features`.
+ */
+export function isEventTierCapability(key: string): key is EventTierCapability {
+  return CAPABILITY_KEYS.has(key);
+}
 
 /** Schools one Dancer may select at an event, as shipped today. */
 export const DEFAULT_MAX_SCHOOL_SELECTIONS = 3;

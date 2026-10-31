@@ -11,10 +11,15 @@ import { SplitButton } from "@/components/event/split-button";
 import type { OrgEvent } from "@/features/org/api/admin-queries";
 import { rosterClaimQueries } from "@/features/org/api/roster-claim-queries";
 import { EventFormSheet } from "@/features/org/components/event-form-sheet";
+import { InactiveEventPrompt } from "@/features/org/components/inactive-event-prompt";
 import { useAdminEvent } from "@/features/org/context/use-admin-event";
 import { useOrg } from "@/features/org/context/use-org";
 import { useEventPhase } from "@/features/org/hooks/use-event-phase";
-import { useAdminCommandListener } from "@/features/org/hooks/use-admin-commands";
+import {
+  useAdminCommandListener,
+  useAdminCommands,
+} from "@/features/org/hooks/use-admin-commands";
+import { needsActivationPrompt } from "@/features/org/lib/event-activation";
 import { CheckInWidget } from "@/features/org/live/check-in/check-in-widget";
 import { EventDashboardHeader } from "@/features/org/live/shared/event-header";
 import {
@@ -24,6 +29,8 @@ import {
 import { ScheduleWidget } from "@/features/org/live/shared/schedule-widget";
 import { ShellPage } from "@/features/org/live/shared/shell-slots";
 import { VideosWidget } from "@/features/org/live/shared/videos-widget";
+import { BUY_ANOTHER_EVENT_MESSAGE, canCreateOrgEvent } from "@/lib/event-tiers";
+import { useSession } from "@/lib/session";
 
 import { CallbacksWidget } from "./callbacks-widget";
 import { ChecklistPanel } from "./checklist-panel";
@@ -46,6 +53,8 @@ export function AdminDashboardPage({ orgSlug }: { orgSlug: string }) {
 
 function Dashboard({ orgSlug, event }: { orgSlug: string; event: OrgEvent }) {
   const { hasFeature } = useOrg();
+  const { activeEvent } = useAdminEvent();
+  const { dispatch } = useAdminCommands();
   const phase = useEventPhase(event);
   const beforeStart = !phase.hasStarted;
   const claims = useQuery(rosterClaimQueries.pending(orgSlug));
@@ -76,6 +85,14 @@ function Dashboard({ orgSlug, event }: { orgSlug: string; event: OrgEvent }) {
       }
       rail={<EventRail event={event} editable />}
     >
+      {/* A bought event starts inactive (#88), so its buyer lands here first. */}
+      {needsActivationPrompt(event, activeEvent) && (
+        <InactiveEventPrompt
+          orgSlug={orgSlug}
+          event={event}
+          onReview={() => dispatch({ type: "open-edit-event" })}
+        />
+      )}
       <EventDetailsBar event={event} editable />
       <RostersPanel orgSlug={orgSlug} eventId={event.id} />
       <WidgetBoard order={order} firstRow={4}>
@@ -157,9 +174,18 @@ function EventActions({
   );
 }
 
-/** The org has no events yet: a short note and "New event". */
+/**
+ * The org has no events yet: a short note and "New event". A self-serve or
+ * tier-managed Org buys its events, so its Organizers get the note on how to.
+ */
 function NoEvents({ orgSlug }: { orgSlug: string }) {
   const [createOpen, setCreateOpen] = useState(false);
+  const org = useOrg();
+  const canCreate = canCreateOrgEvent({
+    session: useSession(),
+    orgSelfServe: org.selfServe,
+    orgTierManaged: org.tierManaged,
+  });
   return (
     <ShellPage header={<ShellHeader title="Dashboard" />}>
       <Panel className="flex flex-col items-start gap-(--space-12) p-(--space-16)">
@@ -172,10 +198,16 @@ function NoEvents({ orgSlug }: { orgSlug: string }) {
             the schedule and videos.
           </p>
         </div>
-        <Button variant="primary" onClick={() => setCreateOpen(true)}>
-          <Icon icon={PlusIcon} />
-          New event
-        </Button>
+        {canCreate ? (
+          <Button variant="primary" onClick={() => setCreateOpen(true)}>
+            <Icon icon={PlusIcon} />
+            New event
+          </Button>
+        ) : (
+          <p className="text-fg-2 m-0 text-[13px] leading-[1.5]">
+            {BUY_ANOTHER_EVENT_MESSAGE}
+          </p>
+        )}
       </Panel>
       <EventFormSheet
         orgSlug={orgSlug}

@@ -8,6 +8,7 @@ import {
   loadOrgMemberships,
   resolveEffectiveMembership,
 } from "#shared/org/membership";
+import { findOrgEvent } from "#shared/org/find-org-event";
 import { isRosterType } from "#database/schema/enums";
 import { and, desc, eq, sql } from "drizzle-orm";
 
@@ -29,13 +30,7 @@ export default class OrgEventMiddleware {
     }
 
     if (mode === "scoped") {
-      const [event] = await db
-        .select()
-        .from(orgEvents)
-        .where(
-          and(eq(orgEvents.id, ctx.params.id), eq(orgEvents.orgId, ctx.org.id))
-        )
-        .limit(1);
+      const event = await findOrgEvent(ctx.org.id, ctx.params.id);
 
       if (!event) {
         return ctx.response.notFound({ message: "No event found." });
@@ -62,20 +57,9 @@ export default class OrgEventMiddleware {
           const requestedEventId =
             (ctx.params.id as string | undefined) ??
             (ctx.request.input("eventId") as string | undefined);
-          const [requestedEvent] = requestedEventId
-            ? await db
-                .select()
-                .from(orgEvents)
-                .where(
-                  and(
-                    eq(orgEvents.id, requestedEventId),
-                    eq(orgEvents.orgId, ctx.org.id)
-                  )
-                )
-                .limit(1)
-            : ev
-              ? [ev]
-              : [];
+          const requestedEvent = requestedEventId
+            ? await findOrgEvent(ctx.org.id, requestedEventId)
+            : ev;
 
           if (!requestedEvent) {
             return ctx.response.notFound({ message: "No event found." });

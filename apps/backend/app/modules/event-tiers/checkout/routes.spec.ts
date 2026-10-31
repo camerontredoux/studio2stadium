@@ -1,7 +1,11 @@
+import { db } from "#database/connection";
+import { users } from "#database/schema/users";
 import { test } from "@japa/runner";
+import { eq } from "drizzle-orm";
 
-const validPayload = (userId: string) => ({
-  userId,
+const validPayload = () => ({
+  name: "Ada Organizer",
+  email: "checkout_route_buyer@example.com",
   eventTier: "regional",
   orgName: "The Summit",
   eventName: "Summit 2026",
@@ -14,7 +18,7 @@ test.group("POST /event-tiers/checkout", () => {
     client,
   }) => {
     const res = await client.post("/event-tiers/checkout").json({
-      ...validPayload("8f14e45f-ceea-4c9e-b0f5-8a3f3a1e2a2b"),
+      ...validPayload(),
       eventTier: "enterprise",
     });
     res.assertStatus(422);
@@ -27,10 +31,38 @@ test.group("POST /event-tiers/checkout", () => {
     res.assertStatus(422);
   });
 
-  test("404s when the userId has no matching account", async ({ client }) => {
-    const res = await client
-      .post("/event-tiers/checkout")
-      .json(validPayload("8f14e45f-ceea-4c9e-b0f5-8a3f3a1e2a2b"));
-    res.assertStatus(404);
+  test("422s without the buyer's email, and creates no account", async ({
+    client,
+    assert,
+  }) => {
+    const { email, ...withoutEmail } = validPayload();
+
+    const res = await client.post("/event-tiers/checkout").json(withoutEmail);
+
+    res.assertStatus(422);
+    assert.lengthOf(
+      await db.select().from(users).where(eq(users.email, email)),
+      0
+    );
+  });
+
+  test("400s on an end date before the start date, and creates no account", async ({
+    client,
+    assert,
+  }) => {
+    const res = await client.post("/event-tiers/checkout").json({
+      ...validPayload(),
+      startDate: "2026-06-14",
+      endDate: "2026-06-13",
+    });
+
+    res.assertStatus(400);
+    assert.lengthOf(
+      await db
+        .select()
+        .from(users)
+        .where(eq(users.email, validPayload().email)),
+      0
+    );
   });
 });

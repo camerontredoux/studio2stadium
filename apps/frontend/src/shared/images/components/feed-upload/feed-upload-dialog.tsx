@@ -13,7 +13,7 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
 import { handleApiError } from "@/lib/api/errors";
-import { useSession } from "@/lib/session";
+import { useProfileSession } from "@/lib/session";
 import { useSubscribed } from "@/lib/session/hooks/use-subscribed";
 import { uploadToCloudflare } from "@/utils/upload-to-cloudflare";
 import { Link } from "@tanstack/react-router";
@@ -33,7 +33,7 @@ export function FeedUploadDialog({
   imageCount,
   orgAccountTier,
 }: FeedUploadDialogProps) {
-  const session = useSession();
+  const session = useProfileSession();
   const {
     data: { subscribed },
   } = useSubscribed();

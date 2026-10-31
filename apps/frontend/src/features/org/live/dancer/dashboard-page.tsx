@@ -68,7 +68,9 @@ function Dashboard({
   const { hasFeature } = useOrg();
   const scouting = useDancerScouting(event, roster, { allSchools: false });
   const order = WIDGETS.filter(
-    (widget) => !("feature" in widget) || hasFeature(widget.feature),
+    // Gate on the event shown here, which is the one its reads request, not
+    // the Org's active one (#110).
+    (widget) => !("feature" in widget) || hasFeature(widget.feature, event.id),
   ).map((widget) => widget.id);
   const shows = (id: (typeof WIDGETS)[number]["id"]) => order.includes(id);
 

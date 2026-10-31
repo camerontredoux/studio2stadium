@@ -73,8 +73,9 @@ export function useDancerScouting(
   const { org, settings, hasFeature } = useOrg();
   const slug = org.slug;
   const eventId = event?.id;
-  const selectionsOn = hasFeature("school_selections");
-  const callbacksOn = hasFeature("callbacks");
+  // Gate on the event these reads request, not the Org's active one (#110).
+  const selectionsOn = hasFeature("school_selections", eventId);
+  const callbacksOn = hasFeature("callbacks", eventId);
   const max = maxSchoolSelections(settings);
   const qc = useQueryClient();
 
