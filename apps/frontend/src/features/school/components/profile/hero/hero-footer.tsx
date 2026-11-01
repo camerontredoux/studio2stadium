@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { schoolQueries } from "@/features/school/api/queries";
 import type { SchoolProfile } from "@/features/school/types";
 import { useSubscribed } from "@/lib/session/hooks/use-subscribed";
@@ -20,13 +21,16 @@ export function HeroFooter({ school }: { school: SchoolProfile }) {
     data: { subscribed },
   } = useSubscribed();
 
-  const { data: activity } = useQuery(queries.activity({ enabled: isOwner }));
-  const { data: metadata } = useQuery(
+  const { data: activity, isPending: isActivityPending } = useQuery(
+    queries.activity({ enabled: isOwner }),
+  );
+  const { data: metadata, isPending: isMetadataPending } = useQuery(
     schoolQueries.metadata(school.id, { enabled: !isOwner }),
   );
 
   const isFollowing = metadata?.following ?? false;
   const isInterested = (metadata?.interested ?? 0) >= 3;
+  const isFollowersPending = isOwner ? isActivityPending : isMetadataPending;
 
   const handlePreview = () => {
     navigate({
@@ -61,7 +65,10 @@ export function HeroFooter({ school }: { school: SchoolProfile }) {
           </>
         )}
 
-        {!isOwner && (
+        {!isOwner && isMetadataPending && (
+          <Skeleton className="h-8 w-28 rounded-lg max-sm:flex-1 sm:h-7" />
+        )}
+        {!isOwner && !isMetadataPending && (
           <>
             <FollowButton school={school} isFollowing={isFollowing} size="sm" />
             {isFollowing && subscribed && !isInterested && (
@@ -93,6 +100,8 @@ export function HeroFooter({ school }: { school: SchoolProfile }) {
               </Button>
             </SchoolFollowingDialog>
           </>
+        ) : isFollowersPending ? (
+          <Skeleton className="h-8 w-24 rounded-lg max-sm:flex-1 sm:h-7" />
         ) : (
           <Button disabled variant="link" size="sm" className="flex-1">
             {metadata?.followers ?? activity?.followers ?? 0} Followers

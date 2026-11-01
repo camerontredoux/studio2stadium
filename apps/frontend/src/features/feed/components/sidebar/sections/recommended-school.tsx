@@ -1,4 +1,5 @@
 import { useCountdown } from "@/components/hooks/use-countdown";
+import { FollowConfirmDialog } from "@/components/shared/follow-confirm-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import type { RecommendedSchool } from "@/features/feed/types";
@@ -10,6 +11,7 @@ import { US_STATES } from "@/utils/constants/states";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { MapPinIcon, Users2Icon } from "lucide-react";
+import { useState } from "react";
 
 export function RecommendedSchool({ school }: { school: RecommendedSchool }) {
   const { data } = useSuspenseQuery(queries.followingIds("dancer"));
@@ -18,6 +20,7 @@ export function RecommendedSchool({ school }: { school: RecommendedSchool }) {
   const { mutate } = useFollowSchool(school);
 
   const [retryAfter, startCountdown] = useCountdown();
+  const [confirming, setConfirming] = useState(false);
 
   const handleFollow = () => {
     mutate(
@@ -67,7 +70,7 @@ export function RecommendedSchool({ school }: { school: RecommendedSchool }) {
             className="ml-auto"
             size="xs"
             variant="outline"
-            onClick={handleFollow}
+            onClick={() => setConfirming(true)}
             disabled={isFollowing || !!retryAfter}
           >
             {retryAfter
@@ -78,6 +81,12 @@ export function RecommendedSchool({ school }: { school: RecommendedSchool }) {
           </Button>
         ) : null}
       </div>
+      <FollowConfirmDialog
+        open={confirming}
+        onOpenChange={setConfirming}
+        school={school}
+        onConfirm={handleFollow}
+      />
     </div>
   );
 }

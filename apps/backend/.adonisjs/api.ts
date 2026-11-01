@@ -67,9 +67,21 @@ type AdminEventsGlobalIdPatch = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/edit-global-event/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/admin/edit-global-event/controller.ts').default['handle'], true>
 }
+type AdminEventsSchoolIdDelete = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/delete-school-event/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/delete-school-event/controller.ts').default['handle'], true>
+}
+type AdminEventsGlobalIdDelete = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/delete-global-event/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/delete-global-event/controller.ts').default['handle'], true>
+}
 type AdminApplicationsGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/admin/get-applications/controller.ts').default['handle'], false>
+}
+type AdminUnsubmittedschoolsGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/admin/get-unsubmitted-schools/controller.ts').default['handle'], false>
 }
 type AdminSchoolsGetHead = {
   request: unknown
@@ -107,6 +119,14 @@ type AdminLibraryVideosIdDelete = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/delete-training-video/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/admin/delete-training-video/controller.ts').default['handle'], true>
 }
+type AdminEventtierpurchasesGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/admin/get-event-tier-purchases/controller.ts').default['handle'], false>
+}
+type AdminEventtierpurchasesIdClaimemailPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/resend-event-tier-claim/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/resend-event-tier-claim/controller.ts').default['handle'], true>
+}
 type AdminOrgsGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/admin/get-all-orgs/controller.ts').default['handle'], false>
@@ -122,6 +142,14 @@ type AdminOrgsIdPatch = {
 type AdminOrgsIdDelete = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/delete-org/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/admin/delete-org/controller.ts').default['handle'], true>
+}
+type AdminOrgsIdEventsGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/get-org-event-capabilities/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/get-org-event-capabilities/controller.ts').default['handle'], true>
+}
+type AdminOrgsIdEventsIdCapabilitiesPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/update-event-capabilities/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/admin/update-event-capabilities/controller.ts').default['handle'], true>
 }
 type AdminOrgsIdMembersGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/get-org-members/validator.ts')['schema']>>
@@ -237,7 +265,7 @@ type OrgsIdEventsIdDelete = {
 }
 type OrgsIdEventsGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/dancers/profile/get-profile-checklist/controller.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/list/controller.ts').default['handle'], false>
 }
 type OrgsIdEventsIdUploadCoachesPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/upload-coaches/validator.ts')['schema']>>
@@ -270,6 +298,10 @@ type OrgsIdEventsIdRostersStatsGetHead = {
 type OrgsIdEventsIdRostersGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/rosters/list/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/list/controller.ts').default['handle'], true>
+}
+type OrgsIdEventsIdRostersPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/rosters/create/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/create/controller.ts').default['handle'], true>
 }
 type OrgsIdEventsIdRostersIdPatch = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/rosters/update/validator.ts')['schema']>>
@@ -323,9 +355,17 @@ type OrgsIdEventsIdAuditlogGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/audit-log/list/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/orgs/events/audit-log/list/controller.ts').default['handle'], true>
 }
-type OrgsIdEventsIdReconciliationGetHead = {
+type OrgsIdEventsIdReconciliationInvitesGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/reconciliation/validator.ts')['invitesSchema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/reconciliation/invites-controller.ts').default['handle'], true>
+}
+type OrgsIdEventsIdReconciliationOrphansGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/reconciliation/validator.ts')['orphansSchema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/reconciliation/orphans-controller.ts').default['handle'], true>
+}
+type OrgsIdEventsIdReconciliationCountsGetHead = {
   request: unknown
-  response: MakeTuyauResponse<import('../app/modules/orgs/events/reconciliation/list-controller.ts').default['handle'], false>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/reconciliation/counts-controller.ts').default['handle'], false>
 }
 type OrgsIdEventsIdReconciliationInvitesIdResendPost = {
   request: unknown
@@ -340,8 +380,8 @@ type OrgsIdEventsIdReconciliationRostersIdMergePost = {
   response: MakeTuyauResponse<import('../app/modules/orgs/events/reconciliation/merge-controller.ts').default['handle'], true>
 }
 type OrgsIdEventsIdReconciliationSchoolusersGetHead = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/modules/orgs/events/reconciliation/search-users-controller.ts').default['handle'], false>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/rosters/attach/search-validator.ts')['searchSchema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/reconciliation/search-users-controller.ts').default['handle'], true>
 }
 type OrgsIdEventsTestemailsPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/test-emails/validator.ts')['schema']>>
@@ -367,9 +407,25 @@ type OrgsIdEventsIdRostersIdCheckinPost = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/check-in/controller.ts').default['handle'], false>
 }
+type OrgsIdEventsIdRostersIdCheckincodeGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/rosters/check-in-code/controller.ts').default['handle'], false>
+}
+type OrgsIdEventsIdCheckinScanPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/events/check-in/scan/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/check-in/scan/controller.ts').default['handle'], true>
+}
 type OrgsIdEventsIdScheduleGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/events/schedule/controller.ts').default['handle'], false>
+}
+type OrgsIdEventsIdScheduleFileGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/schedule-file/controller.ts').default['handle'], false>
+}
+type OrgsIdEventsIdScheduleUrlGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/events/schedule-url/controller.ts').default['handle'], false>
 }
 type OrgsIdEventsIdVideocategoriesGetHead = {
   request: unknown
@@ -407,13 +463,17 @@ type OrgsIdDancersGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/dancers/list/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/dancers/list/controller.ts').default['handle'], true>
 }
+type OrgsIdDancersummaryGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/dancers/list/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/dancers/summary/controller.ts').default['handle'], true>
+}
 type OrgsIdDancersIdGetHead = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/dancers/get-by-id/controller.ts').default['handle'], false>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/event-query-validator.ts')['eventQuerySchema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/dancers/get-by-id/controller.ts').default['handle'], true>
 }
 type OrgsIdFavoritesGetHead = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/favorites/list/controller.ts').default['handle'], false>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/event-query-validator.ts')['eventQuerySchema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/favorites/list/controller.ts').default['handle'], true>
 }
 type OrgsIdFavoritesPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/favorites/create/validator.ts')['schema']>>
@@ -435,6 +495,10 @@ type OrgsIdDancersIdRatingPut = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/ratings/upsert/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/ratings/upsert/controller.ts').default['handle'], true>
 }
+type OrgsIdDancersIdRatingDelete = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/ratings/delete/controller.ts').default['handle'], false>
+}
 type OrgsIdRankingsGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/rankings/controller.ts').default['handle'], false>
@@ -442,6 +506,10 @@ type OrgsIdRankingsGetHead = {
 type OrgsIdSchoolsGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/event-query-validator.ts')['eventQuerySchema']>>
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/schools/list/controller.ts').default['handle'], true>
+}
+type OrgsIdSchoolsPageGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/schools/page/validator.ts')['schoolPageSchema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/schools/page/controller.ts').default['handle'], true>
 }
 type OrgsIdMyselectionsGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/event-query-validator.ts')['eventQuerySchema']>>
@@ -452,12 +520,24 @@ type OrgsIdMyselectionsPost = {
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/selections/create/controller.ts').default['handle'], true>
 }
 type OrgsIdMyselectionsIdDelete = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/selections/delete/controller.ts').default['handle'], false>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/selections/delete/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/selections/delete/controller.ts').default['handle'], true>
+}
+type OrgsIdMyselectionsIdMovePost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/selections/move/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/selections/move/controller.ts').default['handle'], true>
 }
 type OrgsIdCallbacksGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/callbacks/list/controller.ts').default['handle'], false>
+}
+type OrgsIdCallbacksHistoryGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/callbacks/history/controller.ts').default['handle'], false>
+}
+type OrgsIdDancersIdCallbacksGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/event-query-validator.ts')['eventQuerySchema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/callbacks/coach-dancer-detail/controller.ts').default['handle'], true>
 }
 type OrgsIdCallbacksPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/callbacks/create/validator.ts')['schema']>>
@@ -468,8 +548,8 @@ type OrgsIdCallbacksIdDelete = {
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/callbacks/delete/controller.ts').default['handle'], false>
 }
 type OrgsIdAdminCallbacksGetHead = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/callbacks/admin-board/controller.ts').default['handle'], false>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/callbacks/board-page-validator.ts')['boardPageSchema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/callbacks/admin-board/controller.ts').default['handle'], true>
 }
 type OrgsIdAdminDancersIdCallbacksGetHead = {
   request: unknown
@@ -480,8 +560,8 @@ type OrgsIdShowcasesGetHead = {
   response: MakeTuyauResponse<import('../app/modules/orgs/scouting/showcases/list/controller.ts').default['handle'], false>
 }
 type OrgsIdShowcasesIdCallbacksGetHead = {
-  request: unknown
-  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/showcases/published-callbacks/controller.ts').default['handle'], false>
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/orgs/scouting/callbacks/board-page-validator.ts')['boardPageSchema']>>
+  response: MakeTuyauResponse<import('../app/modules/orgs/scouting/showcases/published-callbacks/controller.ts').default['handle'], true>
 }
 type OrgsIdShowcasesPublishpreviewGetHead = {
   request: unknown
@@ -539,6 +619,10 @@ type OrgsIdInvitesDancerIdGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/orgs/invite-lookup-dancer/controller.ts').default['handle'], false>
 }
+type PremiumRoadmapGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/premium-roadmap/get-roadmap/controller.ts').default['handle'], false>
+}
 type SkillsGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/skills/get-skills/controller.ts').default['handle'], false>
@@ -546,6 +630,10 @@ type SkillsGetHead = {
 type SportsGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/sports/get-sports/controller.ts').default['handle'], false>
+}
+type StatsPublicGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/stats/get-public-stats/controller.ts').default['handle'], false>
 }
 type StylesGetHead = {
   request: unknown
@@ -594,6 +682,10 @@ type DancersFiltersGetHead = {
 type DancersGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/explore/get-dancers/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/dancers/explore/get-dancers/controller.ts').default['handle'], true>
+}
+type DancersRecommendedGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/get-recommended-dancers/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/get-recommended-dancers/controller.ts').default['handle'], true>
 }
 type DancersMePatch = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/update-portfolio/validator.ts')['validator']>>
@@ -698,6 +790,18 @@ type DancersAchievementsAchievementsIdDelete = {
 type DancersAchievementsAchievementsIdPatch = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/update-achievement/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/dancers/profile/update-achievement/controller.ts').default['handle'], true>
+}
+type EventtiersCheckoutPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/event-tiers/checkout/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/event-tiers/checkout/controller.ts').default['handle'], true>
+}
+type EventtiersCheckoutIdGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/event-tiers/checkout-status/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/event-tiers/checkout-status/controller.ts').default['handle'], true>
+}
+type EventtiersClaimPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/event-tiers/claim/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/event-tiers/claim/controller.ts').default['handle'], true>
 }
 type EventsFiltersGetHead = {
   request: unknown
@@ -859,6 +963,10 @@ type SchoolsIdFollowDelete = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/unfollow/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/schools/unfollow/controller.ts').default['handle'], true>
 }
+type SchoolsIdViewPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/record-program-view/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/schools/record-program-view/controller.ts').default['handle'], true>
+}
 type SchoolsIdMetadataGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/get-school-metadata/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/schools/get-school-metadata/controller.ts').default['handle'], true>
@@ -866,6 +974,46 @@ type SchoolsIdMetadataGetHead = {
 type SchoolsIdInterestPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/schools/show-interest/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/schools/show-interest/controller.ts').default['handle'], true>
+}
+type TrackerGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/tracker/list-items/controller.ts').default['handle'], false>
+}
+type TrackerEventsGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/list-events/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/tracker/list-events/controller.ts').default['handle'], true>
+}
+type TrackerItemsPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/create-item/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/tracker/create-item/controller.ts').default['handle'], true>
+}
+type TrackerItemsIdPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/update-item/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/tracker/update-item/controller.ts').default['handle'], true>
+}
+type TrackerItemsIdDelete = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/delete-item/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/tracker/delete-item/controller.ts').default['handle'], true>
+}
+type TrackerSectionsDelete = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/delete-section/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/tracker/delete-section/controller.ts').default['handle'], true>
+}
+type TrackerMilestonesPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/create-milestone/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/tracker/create-milestone/controller.ts').default['handle'], true>
+}
+type TrackerMilestonesIdPatch = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/update-milestone/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/tracker/update-milestone/controller.ts').default['handle'], true>
+}
+type TrackerMilestonesIdDelete = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/delete-milestone/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/tracker/delete-milestone/controller.ts').default['handle'], true>
+}
+type TrackerSectionsOrderPut = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/tracker/update-section-order/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/tracker/update-section-order/controller.ts').default['handle'], true>
 }
 type UsersCheckavailabilityGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/users/check-availability/validator.ts')['validator']>>
@@ -914,6 +1062,14 @@ type VideosTusPost = {
 type VideosYoutubePost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/videos/add-youtube-video/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/videos/add-youtube-video/controller.ts').default['handle'], true>
+}
+type VideosPermissionsGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/videos/get-permissions/controller.ts').default['handle'], false>
+}
+type VideosUploadsIdGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/videos/get-upload/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/videos/get-upload/controller.ts').default['handle'], true>
 }
 export interface ApiDefinition {
   'admin': {
@@ -1004,6 +1160,7 @@ export interface ApiDefinition {
           '$url': {
           };
           '$patch': AdminEventsGlobalIdPatch;
+          '$delete': AdminEventsGlobalIdDelete;
         };
       };
       'school': {
@@ -1011,8 +1168,15 @@ export interface ApiDefinition {
           '$url': {
           };
           '$patch': AdminEventsSchoolIdPatch;
+          '$delete': AdminEventsSchoolIdDelete;
         };
       };
+    };
+    'unsubmitted-schools': {
+      '$url': {
+      };
+      '$get': AdminUnsubmittedschoolsGetHead;
+      '$head': AdminUnsubmittedschoolsGetHead;
     };
     'dancers': {
       '$url': {
@@ -1062,6 +1226,19 @@ export interface ApiDefinition {
         };
       };
     };
+    'event-tier-purchases': {
+      '$url': {
+      };
+      '$get': AdminEventtierpurchasesGetHead;
+      '$head': AdminEventtierpurchasesGetHead;
+      ':id': {
+        'claim-email': {
+          '$url': {
+          };
+          '$post': AdminEventtierpurchasesIdClaimemailPost;
+        };
+      };
+    };
     'orgs': {
       '$url': {
       };
@@ -1073,6 +1250,19 @@ export interface ApiDefinition {
         };
         '$patch': AdminOrgsIdPatch;
         '$delete': AdminOrgsIdDelete;
+        'events': {
+          '$url': {
+          };
+          '$get': AdminOrgsIdEventsGetHead;
+          '$head': AdminOrgsIdEventsGetHead;
+          ':eventId': {
+            'capabilities': {
+              '$url': {
+              };
+              '$patch': AdminOrgsIdEventsIdCapabilitiesPatch;
+            };
+          };
+        };
         'members': {
           '$url': {
           };
@@ -1266,6 +1456,7 @@ export interface ApiDefinition {
             };
             '$get': OrgsIdEventsIdRostersGetHead;
             '$head': OrgsIdEventsIdRostersGetHead;
+            '$post': OrgsIdEventsIdRostersPost;
             ':rosterId': {
               '$url': {
               };
@@ -1284,6 +1475,12 @@ export interface ApiDefinition {
                 '$url': {
                 };
                 '$post': OrgsIdEventsIdRostersIdCheckinPost;
+              };
+              'check-in-code': {
+                '$url': {
+                };
+                '$get': OrgsIdEventsIdRostersIdCheckincodeGetHead;
+                '$head': OrgsIdEventsIdRostersIdCheckincodeGetHead;
               };
             };
             '$delete': OrgsIdEventsIdRostersDelete;
@@ -1340,11 +1537,11 @@ export interface ApiDefinition {
             '$head': OrgsIdEventsIdAuditlogGetHead;
           };
           'reconciliation': {
-            '$url': {
-            };
-            '$get': OrgsIdEventsIdReconciliationGetHead;
-            '$head': OrgsIdEventsIdReconciliationGetHead;
             'invites': {
+              '$url': {
+              };
+              '$get': OrgsIdEventsIdReconciliationInvitesGetHead;
+              '$head': OrgsIdEventsIdReconciliationInvitesGetHead;
               ':inviteId': {
                 'resend': {
                   '$url': {
@@ -1355,6 +1552,18 @@ export interface ApiDefinition {
                 };
                 '$delete': OrgsIdEventsIdReconciliationInvitesIdDelete;
               };
+            };
+            'orphans': {
+              '$url': {
+              };
+              '$get': OrgsIdEventsIdReconciliationOrphansGetHead;
+              '$head': OrgsIdEventsIdReconciliationOrphansGetHead;
+            };
+            'counts': {
+              '$url': {
+              };
+              '$get': OrgsIdEventsIdReconciliationCountsGetHead;
+              '$head': OrgsIdEventsIdReconciliationCountsGetHead;
             };
             'rosters': {
               ':rosterId': {
@@ -1382,12 +1591,29 @@ export interface ApiDefinition {
             '$url': {
             };
             '$post': OrgsIdEventsIdCheckinPost;
+            'scan': {
+              '$url': {
+              };
+              '$post': OrgsIdEventsIdCheckinScanPost;
+            };
           };
           'schedule': {
             '$url': {
             };
             '$get': OrgsIdEventsIdScheduleGetHead;
             '$head': OrgsIdEventsIdScheduleGetHead;
+            'file': {
+              '$url': {
+              };
+              '$get': OrgsIdEventsIdScheduleFileGetHead;
+              '$head': OrgsIdEventsIdScheduleFileGetHead;
+            };
+            'url': {
+              '$url': {
+              };
+              '$get': OrgsIdEventsIdScheduleUrlGetHead;
+              '$head': OrgsIdEventsIdScheduleUrlGetHead;
+            };
           };
           'video-categories': {
             '$url': {
@@ -1455,8 +1681,21 @@ export interface ApiDefinition {
             '$url': {
             };
             '$put': OrgsIdDancersIdRatingPut;
+            '$delete': OrgsIdDancersIdRatingDelete;
+          };
+          'callbacks': {
+            '$url': {
+            };
+            '$get': OrgsIdDancersIdCallbacksGetHead;
+            '$head': OrgsIdDancersIdCallbacksGetHead;
           };
         };
+      };
+      'dancer-summary': {
+        '$url': {
+        };
+        '$get': OrgsIdDancersummaryGetHead;
+        '$head': OrgsIdDancersummaryGetHead;
       };
       'favorites': {
         '$url': {
@@ -1481,6 +1720,12 @@ export interface ApiDefinition {
         };
         '$get': OrgsIdSchoolsGetHead;
         '$head': OrgsIdSchoolsGetHead;
+        'page': {
+          '$url': {
+          };
+          '$get': OrgsIdSchoolsPageGetHead;
+          '$head': OrgsIdSchoolsPageGetHead;
+        };
       };
       'my-selections': {
         '$url': {
@@ -1492,6 +1737,11 @@ export interface ApiDefinition {
           '$url': {
           };
           '$delete': OrgsIdMyselectionsIdDelete;
+          'move': {
+            '$url': {
+            };
+            '$post': OrgsIdMyselectionsIdMovePost;
+          };
         };
       };
       'callbacks': {
@@ -1499,6 +1749,12 @@ export interface ApiDefinition {
         };
         '$get': OrgsIdCallbacksGetHead;
         '$head': OrgsIdCallbacksGetHead;
+        'history': {
+          '$url': {
+          };
+          '$get': OrgsIdCallbacksHistoryGetHead;
+          '$head': OrgsIdCallbacksHistoryGetHead;
+        };
         '$post': OrgsIdCallbacksPost;
         ':dancerRosterId': {
           '$url': {
@@ -1627,6 +1883,12 @@ export interface ApiDefinition {
       };
     };
   };
+  'premium-roadmap': {
+    '$url': {
+    };
+    '$get': PremiumRoadmapGetHead;
+    '$head': PremiumRoadmapGetHead;
+  };
   'skills': {
     '$url': {
     };
@@ -1638,6 +1900,14 @@ export interface ApiDefinition {
     };
     '$get': SportsGetHead;
     '$head': SportsGetHead;
+  };
+  'stats': {
+    'public': {
+      '$url': {
+      };
+      '$get': StatsPublicGetHead;
+      '$head': StatsPublicGetHead;
+    };
   };
   'styles': {
     '$url': {
@@ -1704,6 +1974,12 @@ export interface ApiDefinition {
     };
     '$get': DancersGetHead;
     '$head': DancersGetHead;
+    'recommended': {
+      '$url': {
+      };
+      '$get': DancersRecommendedGetHead;
+      '$head': DancersRecommendedGetHead;
+    };
     'me': {
       '$url': {
       };
@@ -1817,6 +2093,24 @@ export interface ApiDefinition {
           '$patch': DancersAchievementsAchievementsIdPatch;
         };
       };
+    };
+  };
+  'event-tiers': {
+    'checkout': {
+      '$url': {
+      };
+      '$post': EventtiersCheckoutPost;
+      ':sessionId': {
+        '$url': {
+        };
+        '$get': EventtiersCheckoutIdGetHead;
+        '$head': EventtiersCheckoutIdGetHead;
+      };
+    };
+    'claim': {
+      '$url': {
+      };
+      '$post': EventtiersClaimPost;
     };
   };
   'events': {
@@ -2016,6 +2310,11 @@ export interface ApiDefinition {
         '$post': SchoolsIdFollowPost;
         '$delete': SchoolsIdFollowDelete;
       };
+      'view': {
+        '$url': {
+        };
+        '$post': SchoolsIdViewPost;
+      };
       'metadata': {
         '$url': {
         };
@@ -2026,6 +2325,50 @@ export interface ApiDefinition {
         '$url': {
         };
         '$post': SchoolsIdInterestPost;
+      };
+    };
+  };
+  'tracker': {
+    '$url': {
+    };
+    '$get': TrackerGetHead;
+    '$head': TrackerGetHead;
+    'events': {
+      '$url': {
+      };
+      '$get': TrackerEventsGetHead;
+      '$head': TrackerEventsGetHead;
+    };
+    'items': {
+      '$url': {
+      };
+      '$post': TrackerItemsPost;
+      ':id': {
+        '$url': {
+        };
+        '$patch': TrackerItemsIdPatch;
+        '$delete': TrackerItemsIdDelete;
+      };
+    };
+    'sections': {
+      '$url': {
+      };
+      '$delete': TrackerSectionsDelete;
+      'order': {
+        '$url': {
+        };
+        '$put': TrackerSectionsOrderPut;
+      };
+    };
+    'milestones': {
+      '$url': {
+      };
+      '$post': TrackerMilestonesPost;
+      ':id': {
+        '$url': {
+        };
+        '$patch': TrackerMilestonesIdPatch;
+        '$delete': TrackerMilestonesIdDelete;
       };
     };
   };
@@ -2086,6 +2429,20 @@ export interface ApiDefinition {
       '$url': {
       };
       '$post': VideosYoutubePost;
+    };
+    'permissions': {
+      '$url': {
+      };
+      '$get': VideosPermissionsGetHead;
+      '$head': VideosPermissionsGetHead;
+    };
+    'uploads': {
+      ':mediaId': {
+        '$url': {
+        };
+        '$get': VideosUploadsIdGetHead;
+        '$head': VideosUploadsIdGetHead;
+      };
     };
   };
 }

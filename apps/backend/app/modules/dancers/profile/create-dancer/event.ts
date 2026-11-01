@@ -35,6 +35,8 @@ export class DancerCreatedHandler {
     // Org-provisioned dancers are freemium and must not receive the S2S
     // welcome email. If they later pay for full S2S access, the Stripe
     // SubscriptionCreatedEvent sends the premium welcome email instead.
+    // Any membership counts, organizer included: someone who already belongs to
+    // an org reached the platform through it, whichever hat they wear there.
     const [orgMembership] = await db
       .select({ userId: orgMemberships.userId })
       .from(orgMemberships)

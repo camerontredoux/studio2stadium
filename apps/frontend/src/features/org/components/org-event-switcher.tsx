@@ -1,36 +1,66 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CheckIcon, PlusIcon } from "lucide-react";
+import { PlusIcon } from "@phosphor-icons/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 
+import { Button } from "@/components/event/button";
 import {
-  AlertDialog,
-  AlertDialogClose,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
+  Dialog,
+  DialogBody,
+  DialogClose,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogPopup,
+  DialogTitle,
+} from "@/components/event/dialog";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Menu,
+  MenuGroup,
+  MenuGroupLabel,
+  MenuItem,
+  MenuPopup,
+  MenuRadioGroup,
+  MenuRadioItem,
+  MenuSeparator,
+  MenuTrigger,
+} from "@/components/event/menu";
+import { ShellSidebarBrand } from "@/components/event/shell";
+import { Tag } from "@/components/event/tag";
 import { toastManager } from "@/components/ui/toast-manager";
-import { adminQueries, type OrgEvent } from "@/features/org/api/admin-queries";
+import {
+  invalidateAfterLiveEventChange,
+  type OrgEvent,
+} from "@/features/org/api/admin-queries";
 import { EventFormSheet } from "@/features/org/components/event-form-sheet";
 import { useAdminEvent } from "@/features/org/context/use-admin-event";
-import { client } from "@/lib/api/client";
+import { useOrg } from "@/features/org/context/use-org";
+import { monogram } from "@/features/org/live/shared/monogram";
+import { $api } from "@/lib/api/client";
+import {
+  BUY_ANOTHER_EVENT_MESSAGE,
+  canCreateOrgEvent,
+  eventTierLabel,
+} from "@/lib/event-tiers";
+import { useSession } from "@/lib/session";
 
+/**
+ * The admin event switcher: the sidebar brand (monogram + org name) opening an
+ * "Events" menu. Picking an event shows it in the admin area; the live event
+ * is tagged LIVE and any other can be made live (PATCH `isActive: true`,
+ * after a confirm). "New event" opens the event form.
+ */
 export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
   const queryClient = useQueryClient();
-  const { activeEvent, events, selectedEvent, selectEvent } = useAdminEvent();
+  const { org, selfServe, tierManaged } = useOrg();
+  const { events, selectedEvent, selectEvent } = useAdminEvent();
   const [createOpen, setCreateOpen] = useState(false);
+  const [confirmEvent, setConfirmEvent] = useState<OrgEvent | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const canCreate = canCreateOrgEvent({
+    session: useSession(),
+    orgSelfServe: selfServe,
+    orgTierManaged: tierManaged,
+  });
 
   const sortedEvents = useMemo(
     () =>
@@ -42,145 +72,156 @@ export function OrgEventSwitcher({ orgSlug }: { orgSlug: string }) {
     [events],
   );
 
-  const items = sortedEvents.map((event) => ({
-    value: event.id,
-    label: event.name,
-  }));
-
-  const activate = useMutation({
-    mutationFn: async (eventId: string) => {
-      const raw = client as unknown as {
-        PATCH: (
-          path: string,
-          options: { body: { isActive: boolean } },
-        ) => Promise<{ data: OrgEvent; error?: unknown }>;
-      };
-      const response = await raw.PATCH(`/orgs/${orgSlug}/events/${eventId}`, {
-        body: { isActive: true },
-      });
-      if (response.error) throw new Error("Activation failed");
-      return response.data;
-    },
-    onSuccess: () => {
+  const activate = $api.useMutation("patch", "/orgs/{slug}/events/{id}", {
+    onSuccess: (_data, { params }) => {
       setConfirmOpen(false);
-      void queryClient.invalidateQueries(adminQueries.events(orgSlug));
-      toastManager.add({ title: "Active event updated", type: "success" });
+      // Show the event that just went live.
+      selectEvent(params.path.id);
+      void invalidateAfterLiveEventChange(queryClient);
+      toastManager.add({ title: "Live event updated", type: "success" });
     },
-    onError: () => {
+    onError: (error) => {
+      // A refunded or disputed purchase can only be brought back by staff;
+      // the backend says so in its message.
+      const description =
+        (error as { message?: string } | undefined)?.message ?? undefined;
       toastManager.add({
-        title: "Couldn't make event active",
+        title: "Couldn't make event live",
+        description,
         type: "error",
       });
     },
   });
 
-  const isSelectedActive =
-    selectedEvent !== null && selectedEvent.id === activeEvent?.id;
-
   return (
     <>
-      <div className="flex items-center gap-2">
-        <Select
-          items={items}
-          value={selectedEvent?.id ?? null}
-          onValueChange={(value) => {
-            if (value) selectEvent(value);
-          }}
-          disabled={items.length === 0}
-        >
-          <SelectTrigger
-            aria-label="Event to view"
-            className="bg-background h-8 w-[220px] text-xs 2xl:text-sm"
-          >
-            <SelectValue placeholder="Select event" />
-          </SelectTrigger>
-          <SelectContent>
-            {sortedEvents.map((event) => (
-              <SelectItem key={event.id} value={event.id}>
-                <span className="flex min-w-0 items-center justify-between gap-3">
-                  <span className="truncate">{event.name}</span>
-                  {event.isActive && (
-                    <span className="text-muted-foreground text-[10px] font-medium tracking-wide uppercase">
-                      Active
+      <Menu>
+        <MenuTrigger
+          render={
+            <ShellSidebarBrand
+              mark={monogram(org.name)}
+              name={org.name}
+              aria-label={`${org.name}: switch event`}
+            />
+          }
+        />
+        <MenuPopup align="start" className="w-[300px] max-w-[calc(100vw-16px)]">
+          <MenuGroup>
+            <MenuGroupLabel>Events</MenuGroupLabel>
+            {sortedEvents.length === 0 ? (
+              <p className="type-body text-fg-3 m-0 px-(--space-8) py-(--space-6)">
+                No events yet
+              </p>
+            ) : (
+              <MenuRadioGroup
+                value={selectedEvent?.id ?? ""}
+                onValueChange={(eventId: string) => selectEvent(eventId)}
+              >
+                {sortedEvents.map((event) => (
+                  <MenuRadioItem
+                    key={event.id}
+                    value={event.id}
+                    indicator="start"
+                    closeOnClick
+                    className="h-9"
+                  >
+                    <span className="flex min-w-0 items-center gap-(--space-8)">
+                      <span
+                        className={
+                          event.id === selectedEvent?.id
+                            ? "text-fg min-w-0 truncate font-medium"
+                            : "text-fg-2 min-w-0 truncate font-medium"
+                        }
+                      >
+                        {event.name}
+                      </span>
+                      <span className="ms-auto flex shrink-0 items-center gap-(--space-6)">
+                        <Tag>{eventTierLabel(event.eventTier)}</Tag>
+                        {event.isActive ? (
+                          <Tag tone="live">Live</Tag>
+                        ) : (
+                          <Button
+                            size="sm"
+                            className="text-[11.5px]"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              setConfirmEvent(event);
+                              setConfirmOpen(true);
+                            }}
+                          >
+                            Make live
+                          </Button>
+                        )}
+                      </span>
                     </span>
-                  )}
-                </span>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+                  </MenuRadioItem>
+                ))}
+              </MenuRadioGroup>
+            )}
+          </MenuGroup>
+          <MenuSeparator />
+          {canCreate ? (
+            <MenuItem icon={PlusIcon} onClick={() => setCreateOpen(true)}>
+              New event
+            </MenuItem>
+          ) : (
+            <p className="type-body text-fg-3 m-0 px-(--space-8) py-(--space-6)">
+              {BUY_ANOTHER_EVENT_MESSAGE}
+            </p>
+          )}
+        </MenuPopup>
+      </Menu>
 
-        {isSelectedActive ? (
-          <Button
-            variant="outline"
-            size="xs"
-            className="h-8 gap-1.5 px-2.5"
-            disabled
-          >
-            <CheckIcon aria-hidden className="size-3" />
-            Active event
-          </Button>
-        ) : (
-          <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-            <AlertDialogTrigger
+      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <DialogPopup>
+          <DialogHeader>
+            <DialogTitle>Make {confirmEvent?.name} live?</DialogTitle>
+          </DialogHeader>
+          <DialogBody className="pt-(--space-8)">
+            <DialogDescription>
+              Dancers and coaches will see this as the live event. If another
+              event is live, they won't see it anymore. Admins can still open
+              any event from this menu.
+            </DialogDescription>
+          </DialogBody>
+          <DialogFooter>
+            <DialogClose
               render={
                 <Button
-                  size="xs"
-                  className="h-8 px-2.5"
-                  disabled={!selectedEvent}
+                  variant="ghost"
+                  size="lg"
+                  disabled={activate.isPending}
                 />
               }
             >
-              Make active
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>
-                  Make {selectedEvent?.name} the active event?
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                  Dancers and coaches will see this as the active event. If
-                  another event is active, it will no longer be shown to them.
-                  Admins can still view any event from the event switcher.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogClose
-                  render={
-                    <Button variant="ghost" disabled={activate.isPending} />
-                  }
-                >
-                  Cancel
-                </AlertDialogClose>
-                <Button
-                  onClick={() => {
-                    if (selectedEvent) activate.mutate(selectedEvent.id);
-                  }}
-                  disabled={!selectedEvent || activate.isPending}
-                >
-                  {activate.isPending ? "Making active…" : "Make active"}
-                </Button>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        )}
+              Cancel
+            </DialogClose>
+            <Button
+              variant="primary"
+              size="lg"
+              disabled={!confirmEvent || activate.isPending}
+              onClick={() => {
+                if (!confirmEvent) return;
+                activate.mutate({
+                  params: { path: { slug: orgSlug, id: confirmEvent.id } },
+                  body: { isActive: true },
+                });
+              }}
+            >
+              {activate.isPending ? "Making live…" : "Make live"}
+            </Button>
+          </DialogFooter>
+        </DialogPopup>
+      </Dialog>
 
-        <Button
-          variant="ghost"
-          size="xs"
-          className="h-8 gap-1 px-2"
-          onClick={() => setCreateOpen(true)}
-        >
-          <PlusIcon aria-hidden className="size-3" />
-          New
-        </Button>
-      </div>
-
-      <EventFormSheet
-        orgSlug={orgSlug}
-        open={createOpen}
-        onOpenChange={setCreateOpen}
-      />
+      {canCreate && (
+        <EventFormSheet
+          orgSlug={orgSlug}
+          open={createOpen}
+          onOpenChange={setCreateOpen}
+        />
+      )}
     </>
   );
 }

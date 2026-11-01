@@ -4,6 +4,7 @@ import {
   ChevronRight,
   CreditCard,
   FolderOpen,
+  HelpCircleIcon,
   SkullIcon,
   User,
   UserRoundSearchIcon,
@@ -33,6 +34,12 @@ export function SettingsPage() {
             description: "Manage your membership",
             href: "/settings/membership",
           },
+          {
+            icon: HelpCircleIcon,
+            label: "FAQ",
+            description: "Frequently asked questions",
+            href: "/faq",
+          },
         ]
       : [
           {
@@ -40,6 +47,12 @@ export function SettingsPage() {
             label: "Application",
             description: "Manage your application",
             href: "/settings/application",
+          },
+          {
+            icon: HelpCircleIcon,
+            label: "FAQ",
+            description: "Frequently asked questions",
+            href: "/faq",
           },
         ]),
     {

@@ -77,9 +77,13 @@ export function HeroContent({
             </div>
             <div className="flex min-w-0 items-center gap-1.5">
               <MailIcon className="text-brand size-3.5 shrink-0" />
-              <span className="truncate" title={dancer.displayEmail}>
+              <a
+                href={`mailto:${dancer.displayEmail}`}
+                className="hover:text-brand truncate transition-colors"
+                title={dancer.displayEmail}
+              >
                 {dancer.displayEmail}
-              </span>
+              </a>
             </div>
           </div>
         </div>

@@ -1,2 +1,4 @@
 /export/
 /full-import/
+# Local Drive disk (DRIVE_DISK=fs)
+/storage/

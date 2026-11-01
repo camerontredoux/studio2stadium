@@ -156,7 +156,7 @@ export function AdminCommandPalette() {
     >
       <CommandDialogPopup>
         <Command items={groups}>
-          <CommandInput placeholder="Type a command or search..." />
+          <CommandInput placeholder="Search" aria-label="Search commands" />
           <CommandPanel>
             <CommandEmpty>No results.</CommandEmpty>
             <CommandList>

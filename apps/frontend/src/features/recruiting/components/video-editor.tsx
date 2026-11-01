@@ -6,7 +6,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { Field } from "@/components/ui/field";
+import { Field, FieldError } from "@/components/ui/field";
 import {
   Frame,
   FrameHeader,
@@ -85,6 +85,12 @@ export function VideoEditor({
               </Empty>
             )}
           </div>
+          <FieldError
+            className="px-1"
+            error={
+              videoError ? { type: "validate", message: videoError } : undefined
+            }
+          />
         </Field>
       </FramePanel>
     </Frame>

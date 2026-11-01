@@ -255,4 +255,117 @@ test.group("ListRosterService", (group) => {
     assert.equal(page2.total, 5);
     assert.lengthOf(page2.data, 1);
   });
+
+  test("checkedIn filters to checked-in or not-yet entries", async ({
+    assert,
+  }) => {
+    const { event } = await makeOrgAndEvent();
+    await db.insert(eventRosters).values([
+      {
+        eventId: event.id,
+        type: "dancer",
+        email: "in@example.com",
+        firstName: "In",
+        lastName: "Side",
+        checkedInAt: new Date("2026-06-01T09:00:00Z"),
+      },
+      {
+        eventId: event.id,
+        type: "dancer",
+        email: "out@example.com",
+        firstName: "Out",
+        lastName: "Side",
+      },
+    ]);
+    const service = new ListRosterService();
+
+    const checkedIn = await service.execute(event.id, {
+      type: "dancer",
+      checkedIn: true,
+    });
+    assert.deepEqual(
+      checkedIn.data.map((r) => r.email),
+      ["in@example.com"]
+    );
+    assert.equal(checkedIn.total, 1);
+
+    const notYet = await service.execute(event.id, {
+      type: "dancer",
+      checkedIn: false,
+    });
+    assert.deepEqual(
+      notYet.data.map((r) => r.email),
+      ["out@example.com"]
+    );
+  });
+
+  test("search matches a full name and a bib from its start", async ({
+    assert,
+  }) => {
+    const { event } = await makeOrgAndEvent();
+    await db.insert(eventRosters).values([
+      {
+        eventId: event.id,
+        type: "dancer",
+        email: "lily@example.com",
+        firstName: "Lily",
+        lastName: "Brown",
+        bibNumber: 101,
+      },
+      {
+        eventId: event.id,
+        type: "dancer",
+        email: "max@example.com",
+        firstName: "Max",
+        lastName: "Green",
+        bibNumber: 210,
+      },
+    ]);
+    const service = new ListRosterService();
+
+    const byName = await service.execute(event.id, {
+      type: "dancer",
+      search: "lily brown",
+    });
+    assert.deepEqual(
+      byName.data.map((r) => r.email),
+      ["lily@example.com"]
+    );
+
+    const byBib = await service.execute(event.id, {
+      type: "dancer",
+      search: "10",
+    });
+    assert.deepEqual(
+      byBib.data.map((r) => r.email),
+      ["lily@example.com"]
+    );
+  });
+
+  test("pages never repeat a row when the sort column ties", async ({
+    assert,
+  }) => {
+    const { event } = await makeOrgAndEvent();
+    await db.insert(eventRosters).values(
+      Array.from({ length: 30 }, (_, i) => ({
+        eventId: event.id,
+        type: "dancer" as const,
+        email: `d${i}@example.com`,
+        firstName: "Same",
+        lastName: "Name",
+      }))
+    );
+    const service = new ListRosterService();
+
+    const seen = new Set<string>();
+    for (let page = 0; page < 3; page++) {
+      const result = await service.execute(event.id, {
+        type: "dancer",
+        page,
+        limit: 10,
+      });
+      for (const row of result.data) seen.add(row.id);
+    }
+    assert.equal(seen.size, 30);
+  });
 });

@@ -1,0 +1,834 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>S2S Live coach view</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="shared/shell.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+/* Page-specific styles. The app shell, shared controls, widget board and every layout breakpoint live in shared/shell.css (linked in <head>). */
+/* rating meter, used in the roster and both widgets */
+.mini{display:inline-flex;gap:2px;flex:none}
+.mini>span{display:block;width:8px;height:5px;border-radius:1px}
+.mini-lg>span{width:16px;height:6px;border-radius:2px}
+.rk-row{display:flex;align-items:center;gap:10px;min-width:0}
+.rk-n{font-family:"Geist Mono",ui-monospace,monospace;font-size:11px;color:#8A8A8A;flex:none}
+.rk-full{display:grid;grid-template-columns:32px 40px minmax(0,1.2fr) minmax(0,1fr) 56px 28px 96px;align-items:center;column-gap:12px;min-height:48px;padding:0 8px 0 14px;border-bottom:1px solid #262626}
+.rk-big{font-family:"Geist Mono",ui-monospace,monospace;font-size:15px;font-weight:500;color:#EDEDED}
+.rk-foot{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 14px;color:#8A8A8A}
+.cb-row{display:grid;grid-template-columns:40px minmax(0,1.2fr) minmax(0,1fr) 56px auto;align-items:center;column-gap:12px;min-height:44px;padding:0 8px 0 14px;border-bottom:1px solid #262626}
+/* coach roster table */
+.cr-scroll{overflow:auto}
+.cr{min-width:840px}
+.cr-row{display:grid;grid-template-columns:16px 48px minmax(130px,1.4fr) 52px minmax(120px,1fr) 44px 112px 28px 96px 32px;align-items:center;column-gap:12px;padding:0 14px;min-height:44px;border-bottom:1px solid #262626}
+.cr-head{min-height:32px;background:#1D1D1D;position:sticky;top:0;z-index:2}
+.cr-head>*{min-width:0;overflow:hidden}
+.cr-body>.cr-row:hover{background:#1E1E1E}
+.cr-body>.cr-row.is-sel{background:#222222}
+.cr-body>.cr-row.note-open{background:#1E1E1E;border-bottom-color:transparent}
+.cr-bib{font-family:"Geist Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;font-size:13px;color:#EDEDED}
+.cr-name{font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cr-num{font-family:"Geist Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;font-size:12.5px;color:#A3A3A3}
+.cr-dim{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#A3A3A3}
+.rate{display:flex;flex-direction:row-reverse;justify-content:flex-end;align-items:center}
+.rseg{display:grid;place-items:center;width:18px;height:28px;padding:0;border:0;background:transparent;cursor:pointer}
+.rseg>span{display:block;width:14px;height:8px;border-radius:2px;transition:background .1s}
+.rate:hover .rseg>span{background:#333333 !important}
+.rate .rseg:hover>span,.rate .rseg:hover~.rseg>span{background:#A3A3A3 !important}
+.rnum{font-family:"Geist Mono",ui-monospace,monospace;font-size:11.5px;color:#8A8A8A;margin-left:6px;width:10px}
+.fav{display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:6px;background:transparent;color:#6B6B6B;cursor:pointer}
+.fav:hover{background:#252525;color:#EDEDED}
+.fav[aria-pressed="true"]{color:#EDEDED}
+.fav .hf-on,.fav[aria-pressed="true"] .hf-off{display:none}
+.fav[aria-pressed="true"] .hf-on{display:block}
+.call{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border:1px solid transparent;border-radius:13px;background:transparent;color:#A3A3A3;font:inherit;font-size:12.5px;font-weight:500;cursor:pointer;white-space:nowrap;justify-self:start}
+.call:hover{border-color:#333333;color:#EDEDED}
+.call[aria-pressed="true"]{background:#EDEDED;border-color:#EDEDED;color:#121212}
+.note{display:grid;place-items:center;width:28px;height:28px;padding:0;border:0;border-radius:6px;background:transparent;color:#6B6B6B;cursor:pointer}
+.note:hover,.note[aria-expanded="true"]{background:#252525;color:#EDEDED}
+.note.has{color:#EDEDED}
+.cr-note{display:flex;flex-direction:column;gap:8px;padding:2px 14px 14px 102px;background:#1E1E1E;border-bottom:1px solid #262626}
+.cr-note textarea{width:100%;max-width:640px;min-height:64px;resize:vertical;box-sizing:border-box;padding:8px 10px;border:1px solid #333333;border-radius:6px;background:#161616;color:#EDEDED;font:inherit;font-size:13px;line-height:1.45;outline:none}
+.cr-note textarea:focus{border-color:#555555}
+/* FAQ */
+.faq{max-width:760px}
+.faq-q{display:flex;align-items:center;gap:12px;width:100%;min-height:48px;margin:0;padding:0 14px;border:0;border-bottom:1px solid #262626;background:transparent;color:#EDEDED;font:inherit;font-size:13.5px;font-weight:500;text-align:left;cursor:pointer}
+.faq-q:hover{background:#1E1E1E}
+.faq-q svg{margin-left:auto;color:#8A8A8A;transition:transform .15s}
+.faq-q[aria-expanded="true"]{border-bottom-color:transparent}
+.faq-q[aria-expanded="true"] svg{transform:rotate(180deg);color:#EDEDED}
+.faq-a{margin:0;padding:0 14px 16px;border-bottom:1px solid #262626;color:#A3A3A3;font-size:13px;line-height:1.55}
+/* roster table: desktop scroll area and phone columns */
+@media (min-width:801px){
+.cr-panel{max-height:calc(100vh - 64px)}
+.cr-scroll{flex:1 1 auto;min-height:0}
+}
+@media (max-width:800px){
+.rk-full{grid-template-columns:28px 36px minmax(0,1fr) 56px 28px 32px;column-gap:8px;padding:0 8px 0 12px}
+.cb-row{grid-template-columns:36px minmax(0,1fr) 56px auto;column-gap:8px;padding:0 8px 0 12px}
+.cr{min-width:348px}
+.cr-row{grid-template-columns:36px minmax(88px,1fr) 76px 24px 32px 28px;column-gap:8px;padding:0 12px}
+.cr-note{padding:2px 12px 12px 56px}
+.call-lbl,.rnum{display:none}
+.call{width:32px;padding:0;justify-content:center}
+.rseg{width:14px}
+.rseg>span{width:11px}
+}
+</style>
+</helmet>
+
+<div class="shell {{shellClass}}">
+
+  <!-- ───────── Sidebar ───────── -->
+  <nav class="side" aria-label="Primary">
+    <div class="side-top" style="display: flex; align-items: center; gap: 4px; position: relative">
+      <div class="ev-id" style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; height: 40px; padding: 0 8px">
+        <span class="mono" style="display: grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; background: #EDEDED; color: #121212; font-size: 10px; font-weight: 500; flex: none">S2S</span>
+        <span style="flex: 1; min-width: 0; font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">S2S Org Test</span>
+      </div>
+      <button type="button" class="btn btn-ghost btn-icon side-toggle" aria-label="{{sideLabel}}" title="{{sideLabel}}" aria-expanded="{{sideExpanded}}" onClick="{{toggleSidebar}}">
+        <svg class="i" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM40,56H80V200H40ZM216,200H96V56H216V200Z"></path></svg>
+      </button>
+    </div>
+
+    <div class="nav-list" style="display: flex; flex-direction: column; gap: 2px; margin-top: 8px">
+      <a class="nav {{navDash}}" href="#" aria-current="{{curDash}}" onClick="{{goDash}}">
+        <svg class="i" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,16V96H40V56ZM40,112H96v88H40Zm176,88H112V112H216v88Z"></path></svg>
+        Dashboard
+      </a>
+      <a class="nav {{navD}}" href="#" aria-current="{{curD}}" onClick="{{goDancers}}">
+        <svg class="i" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M231.16,166.63l-28.63-14.31A47.74,47.74,0,0,1,176,109.39V80a8,8,0,0,0-8-8,48.05,48.05,0,0,1-48-48,8,8,0,0,0-12.83-6.37L30.13,76l-.2.16a16,16,0,0,0-1.24,23.75L142.4,213.66a8,8,0,0,0,5.66,2.34H224a16,16,0,0,0,16-16V180.94A15.92,15.92,0,0,0,231.16,166.63ZM224,200H151.37L40,88.63l12.87-9.76,38.79,38.79A8,8,0,0,0,103,106.34L65.74,69.11l40-30.31A64.15,64.15,0,0,0,160,87.5v21.89a63.65,63.65,0,0,0,35.38,57.24L224,180.94ZM70.8,184H32a8,8,0,0,1,0-16H70.8a8,8,0,1,1,0,16Zm40,24a8,8,0,0,1-8,8H48a8,8,0,0,1,0-16h54.8A8,8,0,0,1,110.8,208Z"></path></svg>
+        Dancers
+        <span class="ct mono">{{dancerCount}}</span>
+      </a>
+      <a class="nav {{navF}}" href="#" aria-current="{{curF}}" onClick="{{goFaq}}">
+        <svg class="i" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M140,180a12,12,0,1,1-12-12A12,12,0,0,1,140,180ZM128,72c-22.06,0-40,16.15-40,36v4a8,8,0,0,0,16,0v-4c0-11,10.77-20,24-20s24,9,24,20-10.77,20-24,20a8,8,0,0,0-8,8v8a8,8,0,0,0,16,0v-.72c18.24-3.35,32-17.9,32-35.28C168,88.15,150.06,72,128,72Zm104,56A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"></path></svg>
+        FAQ
+      </a>
+    </div>
+
+    <div class="side-spacer" style="flex: 1"></div>
+
+    <button type="button" class="side-foot" onClick="{{toggleRole}}" aria-haspopup="menu" aria-expanded="{{roleOpen}}" style="display: flex; align-items: center; gap: 10px; height: 48px; padding: 0 8px; border: 0; border-radius: 8px; background: transparent; color: #EDEDED; font: inherit; cursor: pointer; text-align: left">
+      <span class="mono" style="display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #2B2B2B; color: #EDEDED; font-size: 11px; flex: none">AN</span>
+      <span style="display: flex; flex-direction: column; min-width: 0; flex: 1">
+        <span style="font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Abbey Nugent</span>
+        <span style="font-size: 11.5px; color: #8A8A8A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Coach · Summit</span>
+      </span>
+      <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="#8A8A8A"><path d="M181.66,170.34a8,8,0,0,1,0,11.32l-48,48a8,8,0,0,1-11.32,0l-48-48a8,8,0,0,1,11.32-11.32L128,212.69l42.34-42.35A8,8,0,0,1,181.66,170.34Zm-96-84.68L128,43.31l42.34,42.35a8,8,0,0,0,11.32-11.32l-48-48a8,8,0,0,0-11.32,0l-48,48A8,8,0,0,0,85.66,85.66Z"></path></svg>
+    </button>
+
+    <!-- View-as switcher -->
+    <sc-if value="{{roleOpen}}" hint-placeholder-val="{{ false }}">
+      <div class="pop role-pop" role="menu" aria-label="View as">
+        <div class="lbl" style="padding: 6px 8px 8px">View as</div>
+        <a class="pop-item" role="menuitemradio" aria-checked="false" href="Main.dc.html">
+          <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M208,40H48A16,16,0,0,0,32,56v56c0,52.72,25.52,84.67,46.93,102.19,23.06,18.86,46,25.27,47,25.53a8,8,0,0,0,4.2,0c1-.26,23.91-6.67,47-25.53C198.48,196.67,224,164.72,224,112V56A16,16,0,0,0,208,40Zm0,72c0,37.07-13.66,67.16-40.6,89.42A129.3,129.3,0,0,1,128,223.62a128.25,128.25,0,0,1-38.92-21.81C61.82,179.51,48,149.3,48,112l0-56,160,0Z"></path></svg>
+          <span style="flex: 1">Admin</span>
+        </a>
+        <button type="button" class="pop-item" role="menuitemradio" aria-checked="true" onClick="{{closeRole}}">
+          <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M168,152a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,152Zm-8-40H96a8,8,0,0,0,0,16h64a8,8,0,0,0,0-16Zm56-64V216a16,16,0,0,1-16,16H56a16,16,0,0,1-16-16V48A16,16,0,0,1,56,32H92.26a47.92,47.92,0,0,1,71.48,0H200A16,16,0,0,1,216,48ZM96,64h64a32,32,0,0,0-64,0ZM200,48H173.25A47.93,47.93,0,0,1,176,64v8a8,8,0,0,1-8,8H88a8,8,0,0,1-8-8V64a47.93,47.93,0,0,1,2.75-16H56V216H200Z"></path></svg>
+          <span style="flex: 1">Coach</span>
+          <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="#EDEDED"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"></path></svg>
+        </button>
+        <a class="pop-item" role="menuitemradio" aria-checked="false" href="Dancer.dc.html">
+          <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"></path></svg>
+          <span style="flex: 1">Dancer</span>
+        </a>
+      </div>
+    </sc-if>
+  </nav>
+
+  <!-- ───────── Content ───────── -->
+  <div class="content">
+    <header>
+      <sc-if value="{{isDash}}" hint-placeholder-val="{{ true }}">
+        <h1 class="hdr-title" style="margin: 0; font-size: 15px; font-weight: 600">Fall Showcase 2026</h1>
+        <div class="hdr-status">
+          <span class="mono" style="display: inline-flex; align-items: center; gap: 8px; height: 24px; padding: 0 8px; border: 1px solid #333333; border-radius: 5px; font-size: 11.5px">
+            <span style="color: {{accent}}; letter-spacing: .06em">LIVE</span>
+            <span style="color: #EDEDED"><span class="day-word">Day </span>{{curDay}}/{{eventDays}}</span>
+          </span>
+          <span class="mono hdr-dates" style="font-size: 12px; color: #A3A3A3">10/22/26 – 10/24/26</span>
+        </div>
+      </sc-if>
+      <sc-if value="{{isSub}}" hint-placeholder-val="{{ false }}">
+        <nav class="hdr-crumb" aria-label="Breadcrumb" style="display: flex; align-items: center; gap: 8px; flex: none">
+          <a href="#" onClick="{{goDash}}" style="font-size: 15px; color: #8A8A8A; text-decoration: none; white-space: nowrap">Fall Showcase 2026</a>
+          <span aria-hidden="true" style="color: #555555">/</span>
+        </nav>
+        <h1 class="hdr-title" style="margin: 0; font-size: 15px; font-weight: 600">{{pageTitle}}</h1>
+      </sc-if>
+    </header>
+
+    <div class="body {{bodyCls}}">
+
+      <!-- ───────── Dashboard ───────── -->
+      <sc-if value="{{isDash}}" hint-placeholder-val="{{ true }}">
+        <div class="main">
+          <div class="board {{boardState}} {{boardAnim}}" ref="{{boardRef}}" data-n="3" data-open="{{openIdx}}">
+
+            <!-- Schedule -->
+            <section class="{{tSch.cls}}" aria-label="Schedule">
+              <button type="button" class="t-layer t-peek" onClick="{{tSch.open}}" aria-label="Expand schedule">
+                <span class="sch-bg" aria-hidden="true">
+                  <span class="sch-sheet">
+                    <span class="sch-line" style="width: 55%; height: 10px; background: #6B6B6B"></span>
+                    <span class="sch-row"><span style="width: 18%"></span><span style="width: 52%"></span></span>
+                    <span class="sch-row"><span style="width: 18%"></span><span style="width: 64%"></span></span>
+                    <span class="sch-row"><span style="width: 18%"></span><span style="width: 40%"></span></span>
+                    <span class="sch-row"><span style="width: 18%"></span><span style="width: 58%"></span></span>
+                    <span class="sch-line" style="width: 35%; height: 8px; background: #6B6B6B; margin-top: 6px"></span>
+                    <span class="sch-row"><span style="width: 18%"></span><span style="width: 46%"></span></span>
+                    <span class="sch-row"><span style="width: 18%"></span><span style="width: 70%"></span></span>
+                    <span class="sch-row"><span style="width: 18%"></span><span style="width: 38%"></span></span>
+                    <span class="sch-row"><span style="width: 18%"></span><span style="width: 60%"></span></span>
+                    <span class="sch-line" style="width: 42%; height: 8px; background: #6B6B6B; margin-top: 6px"></span>
+                    <span class="sch-row"><span style="width: 18%"></span><span style="width: 56%"></span></span>
+                    <span class="sch-row"><span style="width: 18%"></span><span style="width: 44%"></span></span>
+                  </span>
+                </span>
+                <span class="t-head">
+                  <span class="lbl" style="color: #C4C4C4">Schedule</span>
+                  <span class="t-exp"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M216,48V96a8,8,0,0,1-16,0V67.31l-50.34,50.35a8,8,0,0,1-11.32-11.32L188.69,56H160a8,8,0,0,1,0-16h48A8,8,0,0,1,216,48ZM106.34,138.34,56,188.69V160a8,8,0,0,0-16,0v48a8,8,0,0,0,8,8H96a8,8,0,0,0,0-16H67.31l50.35-50.34a8,8,0,0,0-11.32-11.32Z"></path></svg></span>
+                </span>
+                <span class="t-pbody">
+                  <span class="mono" style="font-size: 12px; color: #EDEDED">schedule.pdf</span>
+                </span>
+              </button>
+              <button type="button" class="t-layer t-strip" onClick="{{tSch.open}}" aria-label="Open schedule">
+                <svg class="i" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Z"></path></svg>
+                <span class="t-strip-label">Schedule</span>
+              </button>
+              <div class="t-layer t-full">
+                <div class="ph t-fhead" onClick="{{headerCollapse}}" title="Collapse">
+                  <span class="lbl">Schedule</span>
+                  <span class="mono" style="font-size: 12px; color: #A3A3A3">schedule.pdf</span>
+                  <span style="flex: 1"></span>
+                  <button type="button" class="btn" style="height: 24px; padding: 0 8px; border-radius: 5px; font-size: 12px">
+                    <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M224,144v64a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V144a8,8,0,0,1,16,0v56H208V144a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,124.69V32a8,8,0,0,0-16,0v92.69L93.66,98.34a8,8,0,0,0-11.32,11.32Z"></path></svg>
+                    Download
+                  </button>
+                  <button type="button" class="btn btn-ghost btn-icon" aria-label="Collapse schedule" onClick="{{collapseTile}}"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,53.66,163.31,104H192a8,8,0,0,1,0,16H144a8,8,0,0,1-8-8V64a8,8,0,0,1,16,0V92.69l50.34-50.35a8,8,0,0,1,11.32,11.32ZM112,136H64a8,8,0,0,0,0,16H92.69L42.34,202.34a8,8,0,0,0,11.32,11.32L104,163.31V192a8,8,0,0,0,16,0V144A8,8,0,0,0,112,136Z"></path></svg></button>
+                </div>
+                <div class="t-fbody" style="position: relative; background: #141414">
+                  <div style="position: absolute; top: 16px; bottom: 16px; left: 50%; transform: translateX(-50%); aspect-ratio: 8.5 / 11; max-width: calc(100% - 32px); background: #E5E5E5; border-radius: 2px; box-shadow: 0 4px 24px rgba(0,0,0,.4); display: grid; place-items: center">
+                    <span class="mono" style="font-size: 12px; color: #555555">[Schedule PDF preview]</span>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Top ranked -->
+            <section class="{{tTop.cls}}" aria-label="Top ranked">
+              <button type="button" class="t-layer t-peek" onClick="{{tTop.open}}" aria-label="Expand top ranked dancers">
+                <span class="t-head">
+                  <span class="lbl">Top ranked</span>
+                  <span class="t-exp"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M216,48V96a8,8,0,0,1-16,0V67.31l-50.34,50.35a8,8,0,0,1-11.32-11.32L188.69,56H160a8,8,0,0,1,0-16h48A8,8,0,0,1,216,48ZM106.34,138.34,56,188.69V160a8,8,0,0,0-16,0v48a8,8,0,0,0,8,8H96a8,8,0,0,0,0-16H67.31l50.35-50.34a8,8,0,0,0-11.32-11.32Z"></path></svg></span>
+                </span>
+                <span class="t-pbody">
+                  <sc-if value="{{hasTop}}" hint-placeholder-val="{{ true }}">
+                    <span style="display: flex; flex-direction: column; gap: 6px; min-width: 0">
+                      <span class="rk-n">01</span>
+                      <span style="font-size: 18px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{top1.name}}</span>
+                      <span style="display: flex; align-items: center; gap: 10px; min-width: 0">
+                        <span class="mini mini-lg" role="img" aria-label="{{top1.ratingAria}}">
+                          <sc-for list="{{top1.segs}}" as="g" hint-placeholder-count="5"><span style="background: {{g.bg}}"></span></sc-for>
+                        </span>
+                        <span class="mono" style="font-size: 11.5px; color: #8A8A8A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{top1.bib}} · {{top1.studio}}</span>
+                      </span>
+                    </span>
+                    <span class="pk-extra" style="display: flex; flex-direction: column; gap: 6px; padding-top: 10px; border-top: 1px solid #262626">
+                      <sc-for list="{{topRest}}" as="t" hint-placeholder-count="2">
+                        <span class="rk-row">
+                          <span class="rk-n">{{t.rank}}</span>
+                          <span style="flex: 1; min-width: 0; color: #A3A3A3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{t.name}}</span>
+                          <span class="mini" role="img" aria-label="{{t.ratingAria}}"><sc-for list="{{t.segs}}" as="g" hint-placeholder-count="5"><span style="background: {{g.bg}}"></span></sc-for></span>
+                        </span>
+                      </sc-for>
+                    </span>
+                  </sc-if>
+                  <sc-if value="{{noTop}}" hint-placeholder-val="{{ false }}">
+                    <span style="font-size: 12.5px; color: #8A8A8A">No ratings yet</span>
+                  </sc-if>
+                </span>
+              </button>
+              <button type="button" class="t-layer t-strip" onClick="{{tTop.open}}" aria-label="Open top ranked dancers">
+                <svg class="i" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M232,64H208V48a8,8,0,0,0-8-8H56a8,8,0,0,0-8,8V64H24A16,16,0,0,0,8,80V96a40,40,0,0,0,40,40h3.65A80.13,80.13,0,0,0,120,191.61V216H96a8,8,0,0,0,0,16h64a8,8,0,0,0,0-16H136V191.58c31.94-3.23,58.44-25.64,68.08-55.58H208a40,40,0,0,0,40-40V80A16,16,0,0,0,232,64ZM48,120A24,24,0,0,1,24,96V80H48v32q0,4,.39,8Zm144-8.9c0,35.52-29,64.64-64,64.9a64,64,0,0,1-64-64V56H192ZM232,96a24,24,0,0,1-24,24h-.5a81.81,81.81,0,0,0,.5-8.9V80h24Z"></path></svg>
+                <span class="mono" style="font-size: 11.5px; color: #EDEDED">{{rankedCount}}</span>
+                <span class="t-strip-label">Top ranked</span>
+              </button>
+              <div class="t-layer t-full">
+                <div class="ph t-fhead" onClick="{{headerCollapse}}" title="Collapse">
+                  <span class="lbl">Top ranked</span>
+                  <span class="mono" style="font-size: 12px; color: #A3A3A3">{{rankedCount}}</span>
+                  <span style="flex: 1"></span>
+                  <button type="button" class="btn btn-ghost btn-icon" aria-label="Collapse top ranked" onClick="{{collapseTile}}"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,53.66,163.31,104H192a8,8,0,0,1,0,16H144a8,8,0,0,1-8-8V64a8,8,0,0,1,16,0V92.69l50.34-50.35a8,8,0,0,1,11.32,11.32ZM112,136H64a8,8,0,0,0,0,16H92.69L42.34,202.34a8,8,0,0,0,11.32,11.32L104,163.31V192a8,8,0,0,0,16,0V144A8,8,0,0,0,112,136Z"></path></svg></button>
+                </div>
+                <div class="t-fbody">
+                  <sc-for list="{{ranked}}" as="t" hint-placeholder-count="4">
+                    <div class="rk-full">
+                      <span class="rk-big">{{t.rank}}</span>
+                      <span class="cr-num">{{t.bib}}</span>
+                      <span class="cr-name">{{t.name}}</span>
+                      <span class="cr-dim hide-m">{{t.studio}}</span>
+                      <span class="mini" role="img" aria-label="{{t.ratingAria}}"><sc-for list="{{t.segs}}" as="g" hint-placeholder-count="5"><span style="background: {{g.bg}}"></span></sc-for></span>
+                      <button type="button" class="fav" aria-pressed="{{t.fav}}" aria-label="{{t.favLabel}}" onClick="{{t.toggleFav}}"><svg class="i-sm hf-off" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M178,40c-20.65,0-38.73,8.88-50,23.89C116.73,48.88,98.65,40,78,40a62.07,62.07,0,0,0-62,62c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,228.66,240,172,240,102A62.07,62.07,0,0,0,178,40ZM128,214.8C109.74,204.16,32,155.69,32,102A46.06,46.06,0,0,1,78,56c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46C224,155.61,146.24,204.15,128,214.8Z"></path></svg><svg class="i-sm hf-on" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M240,102c0,70-103.79,126.66-108.21,129a8,8,0,0,1-7.58,0C119.79,228.66,16,172,16,102A62.07,62.07,0,0,1,78,40c20.65,0,38.73,8.88,50,23.89C139.27,48.88,157.35,40,178,40A62.07,62.07,0,0,1,240,102Z"></path></svg></button>
+                      <button type="button" class="call" aria-pressed="{{t.called}}" aria-label="{{t.callLabel}}" onClick="{{t.toggleCall}}"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M228.54,86.66l-176.06-54A16,16,0,0,0,32,48V192a16,16,0,0,0,16,16,16,16,0,0,0,4.52-.65L136,181.73V192a16,16,0,0,0,16,16h32a16,16,0,0,0,16-16v-29.9l28.54-8.75A16.09,16.09,0,0,0,240,138V102A16.09,16.09,0,0,0,228.54,86.66ZM136,165,48,192V48l88,27Zm48,27H152V176.82L184,167Zm40-54-.11,0L152,160.08V79.92l71.89,22,.11,0v36Z"></path></svg><span class="call-lbl">{{t.callText}}</span></button>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{hasUnrated}}" hint-placeholder-val="{{ true }}">
+                    <div class="rk-foot">
+                      <span class="lbl">Unrated</span>
+                      <span class="mono" style="font-size: 12px; color: #A3A3A3">{{unratedCount}}</span>
+                      <span style="flex: 1"></span>
+                      <a href="#" class="btn" onClick="{{goDancers}}" style="height: 24px; padding: 0 8px; border-radius: 5px; font-size: 12px">Open roster</a>
+                    </div>
+                  </sc-if>
+                </div>
+              </div>
+            </section>
+
+            <!-- Callbacks -->
+            <section class="{{tCb.cls}}" aria-label="Callbacks">
+              <button type="button" class="t-layer t-peek" onClick="{{tCb.open}}" aria-label="Expand callbacks">
+                <span class="t-head">
+                  <span class="lbl">Callbacks</span>
+                  <span role="img" aria-label="{{cbConnLabel}}" title="{{cbConnLabel}}" style="display: inline-grid; place-items: center; color: {{cbConnColor}}">
+                    <sc-if value="{{cbOnline}}" hint-placeholder-val="{{ true }}"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M140,204a12,12,0,1,1-12-12A12,12,0,0,1,140,204ZM237.08,87A172,172,0,0,0,18.92,87,8,8,0,0,0,29.08,99.37a156,156,0,0,1,197.84,0A8,8,0,0,0,237.08,87ZM205,122.77a124,124,0,0,0-153.94,0A8,8,0,0,0,61,135.31a108,108,0,0,1,134.06,0,8,8,0,0,0,11.24-1.3A8,8,0,0,0,205,122.77Zm-32.26,35.76a76.05,76.05,0,0,0-89.42,0,8,8,0,0,0,9.42,12.94,60,60,0,0,1,70.58,0,8,8,0,1,0,9.42-12.94Z"></path></svg></sc-if>
+                    <sc-if value="{{cbOffline}}" hint-placeholder-val="{{ false }}"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M213.92,210.62a8,8,0,1,1-11.84,10.76l-52-57.15a60,60,0,0,0-57.41,7.24,8,8,0,1,1-9.42-12.93A75.43,75.43,0,0,1,128,144c1.28,0,2.55,0,3.82.1L104.9,114.49A108,108,0,0,0,61,135.31,8,8,0,0,1,49.73,134,8,8,0,0,1,51,122.77a124.27,124.27,0,0,1,41.71-21.66L69.37,75.4a155.43,155.43,0,0,0-40.29,24A8,8,0,0,1,18.92,87,171.87,171.87,0,0,1,58,62.86L42.08,45.38A8,8,0,1,1,53.92,34.62ZM128,192a12,12,0,1,0,12,12A12,12,0,0,0,128,192ZM237.08,87A172.3,172.3,0,0,0,106,49.4a8,8,0,1,0,2,15.87A158.33,158.33,0,0,1,128,64a156.25,156.25,0,0,1,98.92,35.37A8,8,0,0,0,237.08,87ZM195,135.31a8,8,0,0,0,11.24-1.3,8,8,0,0,0-1.3-11.24,124.25,124.25,0,0,0-51.73-24.2A8,8,0,1,0,150,114.24,108.12,108.12,0,0,1,195,135.31Z"></path></svg></sc-if>
+                  </span>
+                  <span class="t-exp"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M216,48V96a8,8,0,0,1-16,0V67.31l-50.34,50.35a8,8,0,0,1-11.32-11.32L188.69,56H160a8,8,0,0,1,0-16h48A8,8,0,0,1,216,48ZM106.34,138.34,56,188.69V160a8,8,0,0,0-16,0v48a8,8,0,0,0,8,8H96a8,8,0,0,0,0-16H67.31l50.35-50.34a8,8,0,0,0-11.32-11.32Z"></path></svg></span>
+                </span>
+                <span class="t-pbody">
+                  <span style="display: flex; align-items: baseline; gap: 8px">
+                    <span style="font-size: 32px; font-weight: 600; letter-spacing: -0.03em; line-height: 1">{{cbCount}}</span>
+                    <span style="font-size: 12.5px; color: #8A8A8A">called back</span>
+                  </span>
+                  <span class="pk-extra" style="display: flex; flex-wrap: wrap; gap: 4px">
+                    <sc-for list="{{cbList}}" as="c" hint-placeholder-count="2">
+                      <span class="chip mono" style="height: 22px">{{c.bib}}</span>
+                    </sc-for>
+                  </span>
+                </span>
+              </button>
+              <button type="button" class="t-layer t-strip" onClick="{{tCb.open}}" aria-label="Open callbacks">
+                <svg class="i" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M228.54,86.66l-176.06-54A16,16,0,0,0,32,48V192a16,16,0,0,0,16,16,16,16,0,0,0,4.52-.65L136,181.73V192a16,16,0,0,0,16,16h32a16,16,0,0,0,16-16v-29.9l28.54-8.75A16.09,16.09,0,0,0,240,138V102A16.09,16.09,0,0,0,228.54,86.66ZM136,165,48,192V48l88,27Zm48,27H152V176.82L184,167Zm40-54-.11,0L152,160.08V79.92l71.89,22,.11,0v36Z"></path></svg>
+                <span class="mono" style="font-size: 11.5px; color: #EDEDED">{{cbCount}}</span>
+                <span class="t-strip-label">Callbacks</span>
+              </button>
+              <div class="t-layer t-full">
+                <div class="ph t-fhead" onClick="{{headerCollapse}}" title="Collapse">
+                  <span class="lbl">Callbacks</span>
+                  <span role="img" aria-label="{{cbConnLabel}}" title="{{cbConnLabel}}" style="display: inline-grid; place-items: center; color: {{cbConnColor}}">
+                    <sc-if value="{{cbOnline}}" hint-placeholder-val="{{ true }}"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M140,204a12,12,0,1,1-12-12A12,12,0,0,1,140,204ZM237.08,87A172,172,0,0,0,18.92,87,8,8,0,0,0,29.08,99.37a156,156,0,0,1,197.84,0A8,8,0,0,0,237.08,87ZM205,122.77a124,124,0,0,0-153.94,0A8,8,0,0,0,61,135.31a108,108,0,0,1,134.06,0,8,8,0,0,0,11.24-1.3A8,8,0,0,0,205,122.77Zm-32.26,35.76a76.05,76.05,0,0,0-89.42,0,8,8,0,0,0,9.42,12.94,60,60,0,0,1,70.58,0,8,8,0,1,0,9.42-12.94Z"></path></svg></sc-if>
+                    <sc-if value="{{cbOffline}}" hint-placeholder-val="{{ false }}"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M213.92,210.62a8,8,0,1,1-11.84,10.76l-52-57.15a60,60,0,0,0-57.41,7.24,8,8,0,1,1-9.42-12.93A75.43,75.43,0,0,1,128,144c1.28,0,2.55,0,3.82.1L104.9,114.49A108,108,0,0,0,61,135.31,8,8,0,0,1,49.73,134,8,8,0,0,1,51,122.77a124.27,124.27,0,0,1,41.71-21.66L69.37,75.4a155.43,155.43,0,0,0-40.29,24A8,8,0,0,1,18.92,87,171.87,171.87,0,0,1,58,62.86L42.08,45.38A8,8,0,1,1,53.92,34.62ZM128,192a12,12,0,1,0,12,12A12,12,0,0,0,128,192ZM237.08,87A172.3,172.3,0,0,0,106,49.4a8,8,0,1,0,2,15.87A158.33,158.33,0,0,1,128,64a156.25,156.25,0,0,1,98.92,35.37A8,8,0,0,0,237.08,87ZM195,135.31a8,8,0,0,0,11.24-1.3,8,8,0,0,0-1.3-11.24,124.25,124.25,0,0,0-51.73-24.2A8,8,0,1,0,150,114.24,108.12,108.12,0,0,1,195,135.31Z"></path></svg></sc-if>
+                  </span>
+                  <span class="mono" style="font-size: 12px; color: #A3A3A3">{{cbCount}}</span>
+                  <span style="flex: 1"></span>
+                  <button type="button" class="btn btn-ghost btn-icon" aria-label="Collapse callbacks" onClick="{{collapseTile}}"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,53.66,163.31,104H192a8,8,0,0,1,0,16H144a8,8,0,0,1-8-8V64a8,8,0,0,1,16,0V92.69l50.34-50.35a8,8,0,0,1,11.32,11.32ZM112,136H64a8,8,0,0,0,0,16H92.69L42.34,202.34a8,8,0,0,0,11.32,11.32L104,163.31V192a8,8,0,0,0,16,0V144A8,8,0,0,0,112,136Z"></path></svg></button>
+                </div>
+                <div class="t-fbody">
+                  <sc-for list="{{cbList}}" as="c" hint-placeholder-count="2">
+                    <div class="cb-row">
+                      <span class="cr-bib">{{c.bib}}</span>
+                      <span class="cr-name">{{c.name}}</span>
+                      <span class="cr-dim hide-m">{{c.studio}}</span>
+                      <span class="mini" role="img" aria-label="{{c.ratingAria}}"><sc-for list="{{c.segs}}" as="g" hint-placeholder-count="5"><span style="background: {{g.bg}}"></span></sc-for></span>
+                      <button type="button" class="btn btn-ghost" aria-label="{{c.removeLabel}}" onClick="{{c.remove}}" style="height: 26px; font-size: 12px">Remove</button>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{cbEmpty}}" hint-placeholder-val="{{ false }}">
+                    <div class="rl-empty">
+                      <span>No callbacks yet</span>
+                      <a href="#" class="btn" onClick="{{goDancers}}">Open roster</a>
+                    </div>
+                  </sc-if>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <!-- Right rail -->
+        <aside class="panel rail" aria-label="Event">
+          <div class="rail-sec rail-event" style="padding: 14px; display: flex; flex-direction: column; gap: 12px">
+            <div style="display: flex; align-items: center; justify-content: space-between">
+              <span class="mono" style="font-size: 11px; letter-spacing: .06em; color: {{accent}}; border: 1px solid #333333; border-radius: 4px; padding: 2px 6px">LIVE</span>
+              <span class="mono" style="font-size: 12px; color: #A3A3A3">{{timeLeft}}</span>
+            </div>
+            <div style="display: flex; align-items: baseline; gap: 8px; font-variant-numeric: tabular-nums">
+              <span style="font-size: 32px; font-weight: 600; letter-spacing: -0.035em; line-height: 1">Day {{curDay}}</span>
+              <span style="font-size: 14px; font-weight: 500; color: #8A8A8A">of {{eventDays}}</span>
+            </div>
+            <div role="img" aria-label="{{dayAria}}" style="display: flex; gap: 4px">
+              <sc-for list="{{segs}}" as="d" hint-placeholder-count="3">
+                <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px">
+                  <span style="display: block; height: 10px; border-radius: 3px; background: {{d.bg}}"></span>
+                  <span class="mono" style="font-size: 11.5px; color: {{d.color}}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{d.label}}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div class="rail-sec">
+            <div class="ph"><span class="lbl">Details</span></div>
+            <dl style="margin: 0; padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 12px">
+              <div style="display: flex; flex-direction: column; gap: 4px">
+                <dt style="font-size: 11.5px; color: #8A8A8A">Dates · 2026</dt>
+                <dd style="margin: 0; font-size: 13px">Thu, Oct 22 → Sat, Oct 24</dd>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 4px">
+                <dt style="font-size: 11.5px; color: #8A8A8A">Times · MDT</dt>
+                <dd class="mono" style="margin: 0; font-size: 13px">12:00 → 18:00</dd>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 4px">
+                <dt style="font-size: 11.5px; color: #8A8A8A">Location</dt>
+                <dd style="margin: 0; display: flex; flex-direction: column; gap: 2px">
+                  <span style="font-size: 13px">[Venue name]</span>
+                  <span style="font-size: 12px; color: #A3A3A3">[Street address, City, State]</span>
+                </dd>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 4px">
+                <dt style="font-size: 11.5px; color: #8A8A8A">Contact</dt>
+                <dd style="margin: 0"><a href="mailto:info@studio2stadium.com" style="text-decoration: none; font-size: 13px">info@studio2stadium.com</a></dd>
+              </div>
+            </dl>
+          </div>
+        </aside>
+      </sc-if>
+
+      <!-- ───────── Dancer roster ───────── -->
+      <sc-if value="{{isDancers}}" hint-placeholder-val="{{ false }}">
+        <div class="main">
+          <section class="panel cr-panel" aria-label="Dancers">
+            <sc-if value="{{noSel}}" hint-placeholder-val="{{ true }}">
+              <div class="rl-tools">
+                <div class="seg" role="group" aria-label="Filter dancers">
+                  <sc-for list="{{filters}}" as="f" hint-placeholder-count="3">
+                    <button type="button" aria-pressed="{{f.pressed}}" aria-label="{{f.label}}" title="{{f.label}}" onClick="{{f.pick}}">
+                      <sc-if value="{{f.isAll}}" hint-placeholder-val="{{ false }}"><svg class="i-sm seg-ico" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M80,64a8,8,0,0,1,8-8H216a8,8,0,0,1,0,16H88A8,8,0,0,1,80,64Zm136,56H88a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16Zm0,64H88a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16ZM44,52A12,12,0,1,0,56,64,12,12,0,0,0,44,52Zm0,64a12,12,0,1,0,12,12A12,12,0,0,0,44,116Zm0,64a12,12,0,1,0,12,12A12,12,0,0,0,44,180Z"></path></svg></sc-if>
+                      <sc-if value="{{f.isFav}}" hint-placeholder-val="{{ false }}"><svg class="i-sm seg-ico" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M178,40c-20.65,0-38.73,8.88-50,23.89C116.73,48.88,98.65,40,78,40a62.07,62.07,0,0,0-62,62c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,228.66,240,172,240,102A62.07,62.07,0,0,0,178,40ZM128,214.8C109.74,204.16,32,155.69,32,102A46.06,46.06,0,0,1,78,56c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46C224,155.61,146.24,204.15,128,214.8Z"></path></svg></sc-if>
+                      <sc-if value="{{f.isCalled}}" hint-placeholder-val="{{ false }}"><svg class="i-sm seg-ico" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M228.54,86.66l-176.06-54A16,16,0,0,0,32,48V192a16,16,0,0,0,16,16,16,16,0,0,0,4.52-.65L136,181.73V192a16,16,0,0,0,16,16h32a16,16,0,0,0,16-16v-29.9l28.54-8.75A16.09,16.09,0,0,0,240,138V102A16.09,16.09,0,0,0,228.54,86.66ZM136,165,48,192V48l88,27Zm48,27H152V176.82L184,167Zm40-54-.11,0L152,160.08V79.92l71.89,22,.11,0v36Z"></path></svg></sc-if>
+                      <span class="seg-lbl">{{f.label}}</span><span class="n">{{f.n}}</span>
+                    </button>
+                  </sc-for>
+                </div>
+                <label class="search">
+                  <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="#8A8A8A"><path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"></path></svg>
+                  <input type="search" placeholder="Search bib, name, studio" aria-label="Search dancers" value="{{q}}" onChange="{{setQ}}">
+                </label>
+              </div>
+            </sc-if>
+            <sc-if value="{{hasSel}}" hint-placeholder-val="{{ false }}">
+              <div class="rl-tools">
+                <button type="button" class="btn btn-ghost btn-icon" aria-label="Clear selection" onClick="{{clearSel}}">
+                  <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"></path></svg>
+                </button>
+                <span class="mono" style="font-size: 12px; color: #EDEDED; white-space: nowrap">{{selCount}} selected</span>
+                <span class="vsep"></span>
+                <button type="button" class="btn" onClick="{{bulkCall}}">
+                  <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M228.54,86.66l-176.06-54A16,16,0,0,0,32,48V192a16,16,0,0,0,16,16,16,16,0,0,0,4.52-.65L136,181.73V192a16,16,0,0,0,16,16h32a16,16,0,0,0,16-16v-29.9l28.54-8.75A16.09,16.09,0,0,0,240,138V102A16.09,16.09,0,0,0,228.54,86.66ZM136,165,48,192V48l88,27Zm48,27H152V176.82L184,167Zm40-54-.11,0L152,160.08V79.92l71.89,22,.11,0v36Z"></path></svg>
+                  {{bulkCallLabel}}
+                </button>
+                <button type="button" class="btn" onClick="{{bulkFav}}">
+                  <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M178,40c-20.65,0-38.73,8.88-50,23.89C116.73,48.88,98.65,40,78,40a62.07,62.07,0,0,0-62,62c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,228.66,240,172,240,102A62.07,62.07,0,0,0,178,40ZM128,214.8C109.74,204.16,32,155.69,32,102A46.06,46.06,0,0,1,78,56c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46C224,155.61,146.24,204.15,128,214.8Z"></path></svg>
+                  {{bulkFavLabel}}
+                </button>
+              </div>
+            </sc-if>
+            <div class="cr-scroll">
+              <div class="cr" role="table" aria-label="Dancers">
+                <div class="cr-row cr-head" role="row">
+                  <span class="c-chk hide-m" role="columnheader"><input type="checkbox" class="ck" aria-label="Select all" checked="{{allChecked}}" onChange="{{toggleAll}}"></span>
+                  <span role="columnheader" aria-sort="{{ariaSort.bib}}"><button type="button" class="lbl sort" data-on="{{sortOn.bib}}" onClick="{{sortBy.bib}}">Bib<sc-if value="{{sortAsc.bib}}" hint-placeholder-val="{{ true }}"><svg aria-hidden="true" style="width: 12px; height: 12px" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,165.66a8,8,0,0,1-11.32,0L128,91.31,53.66,165.66a8,8,0,0,1-11.32-11.32l80-80a8,8,0,0,1,11.32,0l80,80A8,8,0,0,1,213.66,165.66Z"></path></svg></sc-if><sc-if value="{{sortDesc.bib}}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" style="width: 12px; height: 12px" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"></path></svg></sc-if></button></span>
+                  <span role="columnheader" aria-sort="{{ariaSort.name}}"><button type="button" class="lbl sort" data-on="{{sortOn.name}}" onClick="{{sortBy.name}}">Name<sc-if value="{{sortAsc.name}}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" style="width: 12px; height: 12px" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,165.66a8,8,0,0,1-11.32,0L128,91.31,53.66,165.66a8,8,0,0,1-11.32-11.32l80-80a8,8,0,0,1,11.32,0l80,80A8,8,0,0,1,213.66,165.66Z"></path></svg></sc-if><sc-if value="{{sortDesc.name}}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" style="width: 12px; height: 12px" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"></path></svg></sc-if></button></span>
+                  <span class="hide-m" role="columnheader" aria-sort="{{ariaSort.year}}"><button type="button" class="lbl sort" data-on="{{sortOn.year}}" onClick="{{sortBy.year}}">Year<sc-if value="{{sortAsc.year}}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" style="width: 12px; height: 12px" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,165.66a8,8,0,0,1-11.32,0L128,91.31,53.66,165.66a8,8,0,0,1-11.32-11.32l80-80a8,8,0,0,1,11.32,0l80,80A8,8,0,0,1,213.66,165.66Z"></path></svg></sc-if><sc-if value="{{sortDesc.year}}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" style="width: 12px; height: 12px" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"></path></svg></sc-if></button></span>
+                  <span class="hide-m" role="columnheader" aria-sort="{{ariaSort.studio}}"><button type="button" class="lbl sort" data-on="{{sortOn.studio}}" onClick="{{sortBy.studio}}">Studio<sc-if value="{{sortAsc.studio}}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" style="width: 12px; height: 12px" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,165.66a8,8,0,0,1-11.32,0L128,91.31,53.66,165.66a8,8,0,0,1-11.32-11.32l80-80a8,8,0,0,1,11.32,0l80,80A8,8,0,0,1,213.66,165.66Z"></path></svg></sc-if><sc-if value="{{sortDesc.studio}}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" style="width: 12px; height: 12px" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"></path></svg></sc-if></button></span>
+                  <span class="hide-m" role="columnheader" aria-sort="{{ariaSort.gpa}}"><button type="button" class="lbl sort" data-on="{{sortOn.gpa}}" onClick="{{sortBy.gpa}}">GPA<sc-if value="{{sortAsc.gpa}}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" style="width: 12px; height: 12px" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,165.66a8,8,0,0,1-11.32,0L128,91.31,53.66,165.66a8,8,0,0,1-11.32-11.32l80-80a8,8,0,0,1,11.32,0l80,80A8,8,0,0,1,213.66,165.66Z"></path></svg></sc-if><sc-if value="{{sortDesc.gpa}}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" style="width: 12px; height: 12px" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"></path></svg></sc-if></button></span>
+                  <span role="columnheader" aria-sort="{{ariaSort.r}}"><button type="button" class="lbl sort" data-on="{{sortOn.r}}" onClick="{{sortBy.r}}">Rating<sc-if value="{{sortAsc.r}}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" style="width: 12px; height: 12px" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,165.66a8,8,0,0,1-11.32,0L128,91.31,53.66,165.66a8,8,0,0,1-11.32-11.32l80-80a8,8,0,0,1,11.32,0l80,80A8,8,0,0,1,213.66,165.66Z"></path></svg></sc-if><sc-if value="{{sortDesc.r}}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" style="width: 12px; height: 12px" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"></path></svg></sc-if></button></span>
+                  <span role="columnheader" aria-label="Favorite" style="display: grid; place-items: center; color: #8A8A8A"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M178,40c-20.65,0-38.73,8.88-50,23.89C116.73,48.88,98.65,40,78,40a62.07,62.07,0,0,0-62,62c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,228.66,240,172,240,102A62.07,62.07,0,0,0,178,40ZM128,214.8C109.74,204.16,32,155.69,32,102A46.06,46.06,0,0,1,78,56c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46C224,155.61,146.24,204.15,128,214.8Z"></path></svg></span>
+                  <span class="lbl" role="columnheader" style="padding-left: 10px">Callback</span>
+                  <span role="columnheader" aria-label="Note" style="display: grid; place-items: center; color: #8A8A8A"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M227.31,73.37,182.63,28.68a16,16,0,0,0-22.63,0L36.69,152A15.86,15.86,0,0,0,32,163.31V208a16,16,0,0,0,16,16H92.69A15.86,15.86,0,0,0,104,219.31L227.31,96a16,16,0,0,0,0-22.63ZM92.69,208H48V163.31l88-88L180.69,120ZM192,108.68,147.31,64l24-24L216,84.68Z"></path></svg></span>
+                </div>
+                <div class="cr-body" role="rowgroup">
+                  <sc-for list="{{rows}}" as="r" hint-placeholder-count="5">
+                    <div class="{{r.cls}}" role="row">
+                      <span class="c-chk hide-m" role="cell"><input type="checkbox" class="ck" aria-label="{{r.selAria}}" checked="{{r.checked}}" onChange="{{r.toggleSel}}"></span>
+                      <span class="cr-bib" role="cell">{{r.bib}}</span>
+                      <span class="cr-name" role="cell">{{r.name}}</span>
+                      <span class="cr-num hide-m" role="cell">{{r.year}}</span>
+                      <span class="cr-dim hide-m" role="cell">{{r.studio}}</span>
+                      <span class="cr-num hide-m" role="cell">{{r.gpa}}</span>
+                      <span class="rate" role="cell" aria-label="{{r.ratingAria}}">
+                        <span class="rnum">{{r.rnum}}</span>
+                        <sc-for list="{{r.segs}}" as="g" hint-placeholder-count="5">
+                          <button type="button" class="rseg" aria-label="{{g.aria}}" aria-pressed="{{g.pressed}}" onClick="{{g.pick}}"><span style="background: {{g.bg}}"></span></button>
+                        </sc-for>
+                      </span>
+                      <span role="cell">
+                        <button type="button" class="fav" aria-pressed="{{r.fav}}" aria-label="{{r.favLabel}}" onClick="{{r.toggleFav}}"><svg class="i-sm hf-off" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M178,40c-20.65,0-38.73,8.88-50,23.89C116.73,48.88,98.65,40,78,40a62.07,62.07,0,0,0-62,62c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,228.66,240,172,240,102A62.07,62.07,0,0,0,178,40ZM128,214.8C109.74,204.16,32,155.69,32,102A46.06,46.06,0,0,1,78,56c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46C224,155.61,146.24,204.15,128,214.8Z"></path></svg><svg class="i-sm hf-on" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M240,102c0,70-103.79,126.66-108.21,129a8,8,0,0,1-7.58,0C119.79,228.66,16,172,16,102A62.07,62.07,0,0,1,78,40c20.65,0,38.73,8.88,50,23.89C139.27,48.88,157.35,40,178,40A62.07,62.07,0,0,1,240,102Z"></path></svg></button>
+                      </span>
+                      <span role="cell">
+                        <button type="button" class="call" aria-pressed="{{r.called}}" aria-label="{{r.callLabel}}" onClick="{{r.toggleCall}}"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M228.54,86.66l-176.06-54A16,16,0,0,0,32,48V192a16,16,0,0,0,16,16,16,16,0,0,0,4.52-.65L136,181.73V192a16,16,0,0,0,16,16h32a16,16,0,0,0,16-16v-29.9l28.54-8.75A16.09,16.09,0,0,0,240,138V102A16.09,16.09,0,0,0,228.54,86.66ZM136,165,48,192V48l88,27Zm48,27H152V176.82L184,167Zm40-54-.11,0L152,160.08V79.92l71.89,22,.11,0v36Z"></path></svg><span class="call-lbl">{{r.callText}}</span></button>
+                      </span>
+                      <span role="cell">
+                        <button type="button" class="{{r.noteCls}}" aria-label="{{r.noteLabel}}" aria-expanded="{{r.noteOpen}}" onClick="{{r.toggleNote}}">
+                          <sc-if value="{{r.hasNote}}" hint-placeholder-val="{{ false }}"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M88,96a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H96A8,8,0,0,1,88,96Zm8,40h64a8,8,0,0,0,0-16H96a8,8,0,0,0,0,16Zm32,16H96a8,8,0,0,0,0,16h32a8,8,0,0,0,0-16ZM224,48V156.69A15.86,15.86,0,0,1,219.31,168L168,219.31A15.86,15.86,0,0,1,156.69,224H48a16,16,0,0,1-16-16V48A16,16,0,0,1,48,32H208A16,16,0,0,1,224,48ZM48,208H152V160a8,8,0,0,1,8-8h48V48H48Zm120-40v28.7L196.69,168Z"></path></svg></sc-if>
+                          <sc-if value="{{r.noNote}}" hint-placeholder-val="{{ true }}"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"></path></svg></sc-if>
+                        </button>
+                      </span>
+                    </div>
+                    <sc-if value="{{r.noteOpen}}" hint-placeholder-val="{{ false }}">
+                      <div class="cr-note">
+                        <label class="lbl" for="{{r.noteId}}">Private note · {{r.name}}</label>
+                        <textarea id="{{r.noteId}}" placeholder="Add a note…" value="{{r.noteVal}}" onChange="{{r.setNote}}"></textarea>
+                        <span style="display: flex; gap: 8px">
+                          <button type="button" class="btn" onClick="{{r.toggleNote}}">Done</button>
+                        </span>
+                      </div>
+                    </sc-if>
+                  </sc-for>
+                  <sc-if value="{{rowsEmpty}}" hint-placeholder-val="{{ false }}">
+                    <div class="rl-empty">
+                      <span>{{emptyText}}</span>
+                      <button type="button" class="btn" onClick="{{clearFilters}}">Clear filters</button>
+                    </div>
+                  </sc-if>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </sc-if>
+
+      <!-- ───────── FAQ ───────── -->
+      <sc-if value="{{isFaq}}" hint-placeholder-val="{{ false }}">
+        <div class="main">
+          <section class="panel faq" aria-label="Frequently asked questions">
+            <sc-for list="{{faqs}}" as="f" hint-placeholder-count="5">
+              <h2 style="margin: 0; font-size: inherit">
+                <button type="button" class="faq-q" aria-expanded="{{f.open}}" onClick="{{f.toggle}}">
+                  {{f.q}}
+                  <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"></path></svg>
+                </button>
+              </h2>
+              <sc-if value="{{f.open}}" hint-placeholder-val="{{ false }}">
+                <p class="faq-a">{{f.a}}</p>
+              </sc-if>
+            </sc-for>
+          </section>
+        </div>
+      </sc-if>
+    </div>
+  </div>
+
+  <!-- ───────── Mobile bottom bar ───────── -->
+  <nav class="bbar" aria-label="Primary (mobile)">
+    <a class="bb {{navDash}}" href="#" aria-label="Dashboard" aria-current="{{curDash}}" onClick="{{goDash}}"><span class="bb-ico"><svg aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,16V96H40V56ZM40,112H96v88H40Zm176,88H112V112H216v88Z"></path></svg></span><span class="bb-lbl" aria-hidden="true"><span>Dashboard</span></span></a>
+    <a class="bb {{navD}}" href="#" aria-label="Dancers" aria-current="{{curD}}" onClick="{{goDancers}}"><span class="bb-ico"><svg aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M231.16,166.63l-28.63-14.31A47.74,47.74,0,0,1,176,109.39V80a8,8,0,0,0-8-8,48.05,48.05,0,0,1-48-48,8,8,0,0,0-12.83-6.37L30.13,76l-.2.16a16,16,0,0,0-1.24,23.75L142.4,213.66a8,8,0,0,0,5.66,2.34H224a16,16,0,0,0,16-16V180.94A15.92,15.92,0,0,0,231.16,166.63ZM224,200H151.37L40,88.63l12.87-9.76,38.79,38.79A8,8,0,0,0,103,106.34L65.74,69.11l40-30.31A64.15,64.15,0,0,0,160,87.5v21.89a63.65,63.65,0,0,0,35.38,57.24L224,180.94ZM70.8,184H32a8,8,0,0,1,0-16H70.8a8,8,0,1,1,0,16Zm40,24a8,8,0,0,1-8,8H48a8,8,0,0,1,0-16h54.8A8,8,0,0,1,110.8,208Z"></path></svg></span><span class="bb-lbl" aria-hidden="true"><span>Dancers</span></span></a>
+    <a class="bb {{navF}}" href="#" aria-label="FAQ" aria-current="{{curF}}" onClick="{{goFaq}}"><span class="bb-ico"><svg aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M140,180a12,12,0,1,1-12-12A12,12,0,0,1,140,180ZM128,72c-22.06,0-40,16.15-40,36v4a8,8,0,0,0,16,0v-4c0-11,10.77-20,24-20s24,9,24,20-10.77,20-24,20a8,8,0,0,0-8,8v8a8,8,0,0,0,16,0v-.72c18.24-3.35,32-17.9,32-35.28C168,88.15,150.06,72,128,72Zm104,56A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"></path></svg></span><span class="bb-lbl" aria-hidden="true"><span>FAQ</span></span></a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#6EE7A0","options":["#6EE7A0","#FBBF24","#7DD3FC","#EDEDED"]},"callbacksConn":{"editor":"enum","options":["connected","connecting","offline"],"default":"connected"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  constructor(...args) {
+    super(...args);
+    this.state = {};
+  }
+  componentDidMount() {
+    // Same as the admin dashboard: from 1360px down (desktop only) the sidebar collapses on entering the range,
+    // and re-expands on leaving upward if it was collapsed automatically. Breakpoints live in shared/shell.css.
+    if (!window.matchMedia) return;
+    this.narrowMq = window.matchMedia('(min-width: 801px) and (max-width: 1360px)');
+    this.onNarrow = () => {
+      const st = this.state || {};
+      if (this.narrowMq.matches) { if (!st.collapsed) this.setState({ collapsed: true, autoCollapsed: true }); }
+      else if (st.autoCollapsed && window.innerWidth > 1360) this.setState({ collapsed: false, autoCollapsed: false });
+    };
+    this.onNarrow();
+    if (this.narrowMq.addEventListener) this.narrowMq.addEventListener('change', this.onNarrow);
+    else if (this.narrowMq.addListener) this.narrowMq.addListener(this.onNarrow);
+  }
+  componentWillUnmount() {
+    if (this.narrowMq && this.onNarrow) {
+      if (this.narrowMq.removeEventListener) this.narrowMq.removeEventListener('change', this.onNarrow);
+      else if (this.narrowMq.removeListener) this.narrowMq.removeListener(this.onNarrow);
+    }
+  }
+  renderVals() {
+    const s = this.state || {};
+    const accent = this.props.accent ?? '#6EE7A0';
+    const conn = this.props.callbacksConn ?? 'connected';
+    const page = s.page || 'dash';
+    const go = (p, extra) => (e) => {
+      if (e && e.preventDefault) e.preventDefault();
+      this.setState(Object.assign({ page: p, q: '', filter: 'all', rsel: {}, noteOpen: null, roleOpen: false }, extra || {}));
+    };
+    const put = (key, id, val) => {
+      const m = Object.assign({}, (this.state && this.state[key]) || {});
+      m[id] = val;
+      const o = {}; o[key] = m;
+      this.setState(o);
+    };
+    const putMany = (key, ids, val) => {
+      const m = Object.assign({}, (this.state && this.state[key]) || {});
+      ids.forEach((id) => { m[id] = val; });
+      const o = {}; o[key] = m;
+      this.setState(o);
+    };
+
+    // Dancers, with this coach's private ratings, favorites, callbacks and notes
+    const base = [
+      { id: '122', bib: '122', name: 'Jane Doe', year: '2027', studio: 'Elevate Dance Co.', gpa: '3.8' },
+      { id: '125', bib: '125', name: 'Jason Jones', year: '2026', studio: 'Rhythm Lab', gpa: '3.4' },
+      { id: '126', bib: '126', name: 'Mary Miller', year: '2027', studio: 'Elevate Dance Co.', gpa: '3.9' },
+      { id: '220', bib: '220', name: 'Abbey Nugent', year: '2028', studio: 'Studio West', gpa: '3.6' },
+      { id: '230', bib: '230', name: 'Juna Park', year: '2026', studio: 'Pulse Academy', gpa: '4.0' }
+    ];
+    const rating = Object.assign({ '122': 3, '125': 2, '126': 4, '230': 5 }, s.rating || {});
+    const fav = Object.assign({ '125': true, '230': true }, s.fav || {});
+    const called = Object.assign({ '122': true, '230': true }, s.called || {});
+    const notes = Object.assign({ '230': 'Strong turns and clean lines. Ask about the summer intensive.' }, s.notes || {});
+    const D = base.map((d) => Object.assign({}, d, { r: rating[d.id] || 0, fav: !!fav[d.id], called: !!called[d.id], note: notes[d.id] || '' }));
+    const meter = (r) => [1, 2, 3, 4, 5].map((n) => ({ bg: n <= r ? '#EDEDED' : '#333333' }));
+    const ratingAria = (d) => d.r ? 'Rated ' + d.r + ' of 5' : 'Not rated';
+    const actions = (d) => ({
+      fav: d.fav,
+      favLabel: (d.fav ? 'Unfavorite ' : 'Favorite ') + d.name,
+      toggleFav: () => put('fav', d.id, !d.fav),
+      called: d.called,
+      callText: d.called ? 'Called' : 'Call',
+      callLabel: (d.called ? 'Undo callback for ' : 'Call back ') + d.name,
+      toggleCall: () => put('called', d.id, !d.called)
+    });
+
+    // Roster
+    const filter = s.filter || 'all';
+    const qRaw = s.q || '';
+    const q = qRaw.trim().toLowerCase();
+    const nFav = D.filter((d) => d.fav).length;
+    const nCalled = D.filter((d) => d.called).length;
+    const filters = [['all', 'All', D.length], ['fav', 'Favorites', nFav], ['called', 'Called', nCalled]].map((f) => ({
+      label: f[1], n: f[2], pressed: filter === f[0],
+      isAll: f[0] === 'all', isFav: f[0] === 'fav', isCalled: f[0] === 'called',
+      pick: () => this.setState({ filter: f[0], rsel: {} })
+    }));
+    const visible = D
+      .filter((d) => filter === 'all' || (filter === 'fav' ? d.fav : d.called))
+      .filter((d) => !q || [d.bib, d.name, d.studio, d.year].some((v) => v.toLowerCase().indexOf(q) >= 0));
+    const sortKey = s.sortKey || 'bib';
+    const sortDir = s.sortDir || 1;
+    const keyOf = (d) => (sortKey === 'bib' || sortKey === 'year' || sortKey === 'gpa') ? Number(d[sortKey]) : (sortKey === 'r' ? d.r : String(d[sortKey]).toLowerCase());
+    visible.sort((a, b) => { const av = keyOf(a); const bv = keyOf(b); return (av < bv ? -1 : av > bv ? 1 : 0) * sortDir; });
+    const sortOn = {}, sortAsc = {}, sortDesc = {}, sortBy = {}, ariaSort = {};
+    ['bib', 'name', 'year', 'studio', 'gpa', 'r'].forEach((k) => {
+      sortOn[k] = sortKey === k;
+      sortAsc[k] = sortKey === k && sortDir === 1;
+      sortDesc[k] = sortKey === k && sortDir === -1;
+      ariaSort[k] = sortKey === k ? (sortDir === 1 ? 'ascending' : 'descending') : 'none';
+      sortBy[k] = () => this.setState({ sortKey: k, sortDir: sortKey === k ? -sortDir : ((k === 'r' || k === 'gpa') ? -1 : 1) });
+    });
+    const rsel = s.rsel || {};
+    const selRows = D.filter((d) => rsel[d.id]);
+    const allChecked = visible.length > 0 && visible.every((d) => rsel[d.id]);
+    const noteOpen = s.noteOpen || null;
+    const rows = visible.map((d) => Object.assign(actions(d), {
+      bib: d.bib, name: d.name, year: d.year, studio: d.studio, gpa: d.gpa,
+      ratingAria: 'Rating for ' + d.name,
+      rnum: d.r ? String(d.r) : '–',
+      segs: [5, 4, 3, 2, 1].map((n) => ({
+        bg: n <= d.r ? '#EDEDED' : '#333333',
+        aria: 'Rate ' + d.name + ' ' + n + ' of 5',
+        pressed: n === d.r,
+        pick: () => put('rating', d.id, d.r === n ? 0 : n)
+      })),
+      hasNote: !!d.note, noNote: !d.note,
+      noteCls: 'note' + (d.note ? ' has' : ''),
+      noteLabel: (d.note ? 'Edit note for ' : 'Add note for ') + d.name,
+      noteOpen: noteOpen === d.id,
+      toggleNote: () => this.setState({ noteOpen: noteOpen === d.id ? null : d.id }),
+      noteVal: d.note,
+      noteId: 'note-' + d.id,
+      setNote: (e) => put('notes', d.id, e.target.value),
+      checked: !!rsel[d.id],
+      selAria: 'Select ' + d.name,
+      toggleSel: () => { const n = Object.assign({}, rsel); if (n[d.id]) delete n[d.id]; else n[d.id] = true; this.setState({ rsel: n }); },
+      cls: 'cr-row' + (rsel[d.id] ? ' is-sel' : '') + (noteOpen === d.id ? ' note-open' : '')
+    }));
+    const anyNotCalled = selRows.some((d) => !d.called);
+    const anyNotFav = selRows.some((d) => !d.fav);
+
+    // Dashboard tiles
+    const tileIds = ['sch', 'top', 'cb'];
+    const openTile = s.tile && tileIds.indexOf(s.tile) >= 0 ? s.tile : null;
+    const setTile = (id) => {
+      clearTimeout(this.animTimer);
+      this.setState({ tile: id, anim: true });
+      this.animTimer = setTimeout(() => this.setState({ anim: false }), 600);
+      // Scroll in step with the open animation (same 500ms ease-out, same frame) so it reads as one motion
+      if (this.scrollRaf) cancelAnimationFrame(this.scrollRaf);
+      const b = this.boardEl;
+      if (id && b) {
+        const mobile = window.matchMedia && window.matchMedia('(max-width: 800px)').matches;
+        let sc = b.parentElement;
+        while (sc && sc !== document.body && !/(auto|scroll)/.test(getComputedStyle(sc).overflowY)) sc = sc.parentElement;
+        const useWin = !sc || sc === document.body;
+        const from = useWin ? (window.scrollY || 0) : sc.scrollTop;
+        const viewTop = useWin ? 0 : sc.getBoundingClientRect().top;
+        const to = Math.max(0, from + b.getBoundingClientRect().top - viewTop - 8 + (mobile ? tileIds.indexOf(id) * 52 : 0));
+        const dist = to - from;
+        if (Math.abs(dist) > 1) {
+          const t0 = performance.now();
+          const step = (now) => {
+            const p = Math.min(1, (now - t0) / 500);
+            const y = from + dist * (1 - Math.pow(1 - p, 4));
+            if (useWin) window.scrollTo(0, y); else sc.scrollTop = y;
+            if (p < 1) this.scrollRaf = requestAnimationFrame(step);
+          };
+          this.scrollRaf = requestAnimationFrame(step);
+        }
+      }
+    };
+    const tile = (id) => ({
+      cls: 'tile ' + (openTile ? (openTile === id ? 'is-open' : 'is-strip') : 'is-peek'),
+      open: () => setTile(id)
+    });
+    const ranked = D.filter((d) => d.r > 0)
+      .sort((a, b) => (b.r - a.r) || ((b.fav ? 1 : 0) - (a.fav ? 1 : 0)) || (Number(a.bib) - Number(b.bib)))
+      .map((d, i) => Object.assign(actions(d), {
+        rank: String(i + 1).padStart(2, '0'), bib: d.bib, name: d.name, studio: d.studio,
+        segs: meter(d.r), ratingAria: ratingAria(d)
+      }));
+    const unrated = D.filter((d) => !d.r).length;
+    const cbList = D.filter((d) => d.called).map((d) => ({
+      bib: d.bib, name: d.name, studio: d.studio, segs: meter(d.r), ratingAria: ratingAria(d),
+      removeLabel: 'Remove ' + d.name + ' from callbacks',
+      remove: () => put('called', d.id, false)
+    }));
+
+    // Event card (same as the admin rail)
+    const eventDays = 3, curDay = 2;
+    const evStart = Date.UTC(2026, 9, 22);
+    const nowMin = 15 * 60 + 12, startMin = 12 * 60, endMin = 18 * 60;
+    const pct = Math.max(0, Math.min(100, Math.round((nowMin - startMin) / (endMin - startMin) * 100)));
+    const minsLeft = Math.max(0, endMin - nowMin);
+    const segs = [];
+    for (let i = 0; i < eventDays; i++) {
+      const dt = new Date(evStart + i * 86400000);
+      const n = i + 1;
+      segs.push({
+        label: dt.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' }) + ' ' + dt.getUTCDate(),
+        color: n === curDay ? '#EDEDED' : '#8A8A8A',
+        bg: n < curDay ? '#D4D4D4' : (n === curDay ? 'linear-gradient(to right, ' + accent + ' ' + pct + '%, #313131 ' + pct + '%)' : '#313131')
+      });
+    }
+
+    // FAQ (draft copy)
+    const faqOpen = Object.assign({ q1: true }, s.faq || {});
+    const faqs = [
+      { id: 'q1', q: 'How do ratings work?', a: 'Tap a segment in the Rating column to score a dancer from 1 to 5. Tap the same segment again to clear it. Ratings are only visible to you and drive your Top ranked list.' },
+      { id: 'q2', q: 'What does Call do?', a: 'Call adds the dancer to your callbacks. Your callback list updates live on the dashboard, and you can remove a dancer at any time before callbacks close.' },
+      { id: 'q3', q: 'Who can see my notes and favorites?', a: 'Only you. Notes, favorites and ratings are private to your coach account and are never shown to dancers or other coaches.' },
+      { id: 'q4', q: 'Where is the event schedule?', a: 'Open the Schedule tile on your dashboard to view or download the latest schedule.' },
+      { id: 'q5', q: 'Who do I contact with questions during the event?', a: 'Email the event team at info@studio2stadium.com.' }
+    ].map((f) => Object.assign({}, f, {
+      open: !!faqOpen[f.id],
+      toggle: () => { const m = Object.assign({}, faqOpen); m[f.id] = !faqOpen[f.id]; this.setState({ faq: m }); }
+    }));
+
+    const isSub = page === 'dancers' || page === 'faq';
+    return {
+      accent: accent,
+      shellClass: s.collapsed ? 'collapsed' : '',
+      sideLabel: s.collapsed ? 'Expand sidebar' : 'Collapse sidebar',
+      sideExpanded: !s.collapsed,
+      toggleSidebar: () => this.setState({ collapsed: !(this.state && this.state.collapsed), roleOpen: false }),
+      roleOpen: !!s.roleOpen,
+      toggleRole: () => this.setState({ roleOpen: !s.roleOpen }),
+      closeRole: () => this.setState({ roleOpen: false }),
+
+      isDash: page === 'dash',
+      isDancers: page === 'dancers',
+      isFaq: page === 'faq',
+      isSub: isSub,
+      bodyCls: isSub ? 'full' : '',
+      pageTitle: page === 'faq' ? 'FAQ' : 'Dancers',
+      navDash: page === 'dash' ? 'on' : '',
+      navD: page === 'dancers' ? 'on' : '',
+      navF: page === 'faq' ? 'on' : '',
+      curDash: page === 'dash' ? 'page' : 'false',
+      curD: page === 'dancers' ? 'page' : 'false',
+      curF: page === 'faq' ? 'page' : 'false',
+      goDash: go('dash'),
+      goDancers: go('dancers'),
+      goFaq: go('faq'),
+      dancerCount: D.length,
+
+      tSch: tile('sch'),
+      tTop: tile('top'),
+      tCb: tile('cb'),
+      openIdx: openTile ? tileIds.indexOf(openTile) : -1,
+      boardState: openTile ? 'has-open' : '',
+      boardAnim: s.anim ? 'anim' : '',
+      boardRef: (el) => { this.boardEl = el; },
+      collapseTile: () => setTile(null),
+      headerCollapse: (e) => {
+        const hit = e && e.target && e.target.closest ? e.target.closest('button, a, input, select, label, textarea') : null;
+        if (hit) return;
+        setTile(null);
+      },
+      ranked: ranked,
+      rankedCount: ranked.length,
+      hasTop: ranked.length > 0,
+      noTop: ranked.length === 0,
+      top1: ranked[0] || { name: '', bib: '', studio: '', segs: meter(0), ratingAria: '' },
+      topRest: ranked.slice(1, 3),
+      hasUnrated: unrated > 0,
+      unratedCount: unrated,
+      cbList: cbList,
+      cbCount: cbList.length,
+      cbEmpty: cbList.length === 0,
+      cbOnline: conn !== 'offline',
+      cbOffline: conn === 'offline',
+      cbConnColor: ({ connected: accent, connecting: '#8A8A8A', offline: '#F87171' })[conn] || accent,
+      cbConnLabel: ({ connected: 'Live: connected', connecting: 'Live: connecting', offline: 'Live: offline' })[conn] || 'Live: connected',
+
+      eventDays: eventDays,
+      curDay: curDay,
+      segs: segs,
+      dayAria: 'Day ' + curDay + ' of ' + eventDays + ', ' + pct + '% through today',
+      timeLeft: (minsLeft >= 60 ? Math.floor(minsLeft / 60) + 'h ' : '') + (minsLeft % 60) + 'm left today',
+
+      filters: filters,
+      q: qRaw,
+      setQ: (e) => this.setState({ q: e.target.value }),
+      rows: rows,
+      rowsEmpty: visible.length === 0,
+      emptyText: q ? 'No matches for “' + qRaw.trim() + '”' : (filter === 'fav' ? 'No favorites yet' : 'No callbacks yet'),
+      clearFilters: () => this.setState({ q: '', filter: 'all' }),
+      sortOn: sortOn, sortAsc: sortAsc, sortDesc: sortDesc, sortBy: sortBy, ariaSort: ariaSort,
+      allChecked: allChecked,
+      toggleAll: () => { const n = Object.assign({}, rsel); visible.forEach((d) => { if (allChecked) delete n[d.id]; else n[d.id] = true; }); this.setState({ rsel: n }); },
+      hasSel: selRows.length > 0,
+      noSel: selRows.length === 0,
+      selCount: selRows.length,
+      clearSel: () => this.setState({ rsel: {} }),
+      bulkCallLabel: anyNotCalled ? 'Call back' : 'Undo callback',
+      bulkCall: () => putMany('called', selRows.map((d) => d.id), anyNotCalled),
+      bulkFavLabel: anyNotFav ? 'Favorite' : 'Unfavorite',
+      bulkFav: () => putMany('fav', selRows.map((d) => d.id), anyNotFav),
+
+      faqs: faqs
+    };
+  }
+}
+</script>
+</body>
+</html>

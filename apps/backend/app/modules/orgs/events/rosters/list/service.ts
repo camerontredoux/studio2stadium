@@ -49,11 +49,14 @@ export class ListRosterService {
       const searchClauses = [
         ilike(eventRosters.firstName, pattern),
         ilike(eventRosters.lastName, pattern),
+        sql`concat_ws(' ', ${eventRosters.firstName}, ${eventRosters.lastName}) ILIKE ${pattern}`,
         ilike(eventRosters.email, pattern),
       ];
-      const asNumber = Number(q.search);
-      if (Number.isInteger(asNumber) && asNumber > 0) {
-        searchClauses.push(eq(eventRosters.bibNumber, asNumber));
+      // Bibs match from the start, so "10" finds 101 while it is being typed.
+      if (/^\d+$/.test(q.search)) {
+        searchClauses.push(
+          sql`${eventRosters.bibNumber}::text LIKE ${`${q.search}%`}`
+        );
       }
       filters.push(or(...searchClauses)!);
     }
@@ -68,8 +71,24 @@ export class ListRosterService {
       filters.push(eq(eventRosters.organization, q.org));
     }
 
+    if (q.checkedIn !== undefined) {
+      filters.push(
+        q.checkedIn
+          ? isNotNull(eventRosters.checkedInAt)
+          : isNull(eventRosters.checkedInAt)
+      );
+    }
+
     const sortColumn = SORT_COLUMNS[sortBy];
     const orderExpr = sortDir === "desc" ? desc(sortColumn) : asc(sortColumn);
+    // Ties fall back to name, bib and id so offset pages never repeat or skip
+    // a row between requests.
+    const tieBreakers = [
+      asc(eventRosters.lastName),
+      asc(eventRosters.firstName),
+      asc(eventRosters.bibNumber),
+      asc(eventRosters.id),
+    ];
 
     return this.db.use(async (db) => {
       const [rows, totalRow] = await Promise.all([
@@ -90,7 +109,6 @@ export class ListRosterService {
             gpa: eventDancerProfiles.gpa,
             studio: eventDancerProfiles.studio,
             state: eventDancerProfiles.state,
-            height: eventDancerProfiles.height,
             danceStyles: eventDancerProfiles.danceStyles,
             bio: eventDancerProfiles.bio,
             checkedInAt: eventRosters.checkedInAt,
@@ -108,7 +126,7 @@ export class ListRosterService {
           )
           .leftJoin(users, eq(users.id, eventRosters.userId))
           .where(and(...filters))
-          .orderBy(orderExpr)
+          .orderBy(orderExpr, ...tieBreakers)
           .limit(limit)
           .offset(page * limit),
         db
@@ -154,7 +172,6 @@ export class ListRosterService {
                   gpa: r.gpa,
                   studio: r.studio,
                   state: r.state,
-                  height: r.height,
                   danceStyles: r.danceStyles,
                   bio: r.bio,
                 }

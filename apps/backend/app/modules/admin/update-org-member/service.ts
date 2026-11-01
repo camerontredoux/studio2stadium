@@ -1,4 +1,5 @@
 import { orgMemberships } from "#database/schema/organizations";
+import type { OrgMemberType } from "#database/schema/enums";
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
 import { eq } from "drizzle-orm";
@@ -9,7 +10,8 @@ export class Service {
   constructor(private db: DatabaseService) {}
 
   async execute({ params, role, type }: Validator) {
-    const updates: Partial<{ role: "admin" | "member"; type: "coach" | "dancer" }> = {};
+    const updates: Partial<{ role: "admin" | "member"; type: OrgMemberType }> =
+      {};
     if (role) updates.role = role;
     if (type) updates.type = type;
 

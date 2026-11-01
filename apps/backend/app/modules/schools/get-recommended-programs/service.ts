@@ -1,8 +1,16 @@
+import { premiumGrants } from "#database/schema/organizations";
+import { subscriptions } from "#database/schema/subscriptions";
 import { DatabaseService } from "#database/service";
 import { StateCode } from "#shared/constants/states";
 import { imageUrl } from "#utils/image-url";
 import { inject } from "@adonisjs/core";
+import { and, eq, gt, isNull } from "drizzle-orm";
 import { stateAdjacencies, stateRegions } from "./constants.ts";
+
+// Premium dancers see the full top-N list; free dancers see a short teaser
+// (and hit the premium paywall when they open a school).
+const PREMIUM_LIMIT = 20;
+const FREE_LIMIT = 3;
 
 type MatchTier = "excellent" | "good" | "partial" | "unqualified" | null;
 
@@ -65,9 +73,10 @@ export class Service {
       return [];
     }
 
-    const [schools, skillRarity] = await Promise.all([
+    const [schools, skillRarity, isPremium] = await Promise.all([
       this.getSchools(profileId),
       this.getDancerSkillRarity(),
+      this.isPremium(profileId),
     ]);
     const scored = this.calculateScores(
       dancer,
@@ -76,11 +85,66 @@ export class Service {
       options.debug
     );
 
+    // Free dancers get a short teaser (and hit the paywall when they open a
+    // school); premium dancers get the full top-N list.
+    const limit = isPremium ? (options.limit ?? PREMIUM_LIMIT) : FREE_LIMIT;
+
     return scored
       .filter((s) => {
-        return s.matchScore > 0 && s.matchTier !== "unqualified";
+        // Require real skill overlap and a badgeable tier — the product is a
+        // skill-match tool, so a school with no matched skills or only a
+        // sub-partial score (tier null, driven by GPA/location alone) should
+        // not surface.
+        return (
+          s.matchedSkillsCount > 0 &&
+          s.matchTier !== null &&
+          s.matchTier !== "unqualified"
+        );
       })
-      .slice(0, options.limit);
+      .slice(0, limit);
+  }
+
+  /**
+   * Premium entitlement for the dancer behind this profile — an active
+   * subscription or an active, unrevoked premium grant. Mirrors the
+   * `subscribed` middleware.
+   */
+  private async isPremium(profileId: string): Promise<boolean> {
+    return this.db.use(async (db) => {
+      const dancer = await db.query.dancerProfiles.findFirst({
+        where: { id: profileId },
+        columns: { userId: true },
+      });
+      if (!dancer) return false;
+
+      const now = new Date();
+
+      const [subscription] = await db
+        .select({ id: subscriptions.id })
+        .from(subscriptions)
+        .where(
+          and(
+            eq(subscriptions.userId, dancer.userId),
+            eq(subscriptions.status, "active"),
+            gt(subscriptions.currentPeriodEnd, now)
+          )
+        )
+        .limit(1);
+      if (subscription) return true;
+
+      const [grant] = await db
+        .select({ id: premiumGrants.id })
+        .from(premiumGrants)
+        .where(
+          and(
+            eq(premiumGrants.userId, dancer.userId),
+            gt(premiumGrants.expiresAt, now),
+            isNull(premiumGrants.revokedAt)
+          )
+        )
+        .limit(1);
+      return Boolean(grant);
+    });
   }
 
   /**

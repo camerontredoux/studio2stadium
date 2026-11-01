@@ -6,12 +6,18 @@ import {
   FrameTitle,
 } from "@/components/ui/frame";
 import { feedQueries } from "@/features/feed/api/queries";
+import { useSpotlightIndex } from "@/features/feed/hooks/use-spotlight-index";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { RecommendedSchool } from "./recommended-school";
 
 export function ProgramsSection() {
   const { data: recommended } = useSuspenseQuery(feedQueries.recommended());
+  const spotlightIndex = useSpotlightIndex(recommended.length);
+
+  // Exclude the program currently featured in the spotlight so it doesn't
+  // appear twice on screen.
+  const suggested = recommended.filter((_, index) => index !== spotlightIndex);
 
   return (
     <Frame compact>
@@ -24,16 +30,16 @@ export function ProgramsSection() {
         </FrameTitle>
       </FrameHeader>
       <FramePanel className="divide-y">
-        {recommended.length > 1 ? (
-          recommended
-            .slice(1)
-            .map((school) => (
-              <RecommendedSchool key={school.id} school={school} />
-            ))
+        {suggested.length > 0 ? (
+          suggested.map((school) => (
+            <RecommendedSchool key={school.id} school={school} />
+          ))
         ) : (
           <div className="flex items-center justify-center px-5 py-4">
             <p className="text-muted-foreground text-sm">
-              No recommended programs found.
+              {recommended.length > 0
+                ? "No additional recommended programs found."
+                : "No recommended programs found."}
             </p>
           </div>
         )}

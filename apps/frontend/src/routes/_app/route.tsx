@@ -3,10 +3,13 @@ import { ErrorComponent } from "@/components/layouts/app-layout/error-layout";
 import { PendingComponent } from "@/components/layouts/app-layout/pending-layout";
 import { ToastProvider } from "@/components/ui/toast";
 import { notificationQueries } from "@/features/notifications/api/queries";
+import { organizerRedirect } from "@/features/org/lib/org-destination";
 import { createAccess } from "@/lib/access/access";
 import { queries, SessionNetworkError } from "@/lib/session";
-import { useRealtime } from "@/lib/session/hooks/use-realtime";
-import { VideoProcessingProvider } from "@/lib/video-processing";
+import {
+  useWatchVideoUploads,
+  VideoProcessingProvider,
+} from "@/lib/video-processing";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import posthog from "posthog-js";
 
@@ -24,7 +27,12 @@ export const Route = createFileRoute("/_app")({
         });
       }
 
-      if (!session.verified) {
+      // An Organizer account has no profile for this product to be built on:
+      // it belongs in its Org's admin area, never in dancer onboarding.
+      const organizer = organizerRedirect(session, location.pathname);
+      if (organizer) throw redirect({ ...organizer, replace: true });
+
+      if (!session.verified && session.type !== "organizer") {
         if (session.type === "school") {
           const application = await context.queryClient.ensureQueryData(
             queries.application(true),
@@ -63,7 +71,15 @@ export const Route = createFileRoute("/_app")({
         }
       }
 
-      context.queryClient.ensureQueryData(notificationQueries.count());
+      context.queryClient.prefetchQuery(notificationQueries.count());
+
+      // Premium screens treat a dancer as unsubscribed until this loads, so
+      // load it before rendering rather than flash "Subscribe" at subscribers.
+      if (session.type === "dancer") {
+        await context.queryClient
+          .ensureQueryData(queries.subscribed())
+          .catch(() => undefined);
+      }
 
       const { id, firstName, lastName, displayEmail } = session
       posthog.identify(
@@ -100,7 +116,7 @@ function RouteComponent() {
 }
 
 function RealtimeWrapper() {
-  useRealtime();
+  useWatchVideoUploads();
 
   return (
     <AppLayout>

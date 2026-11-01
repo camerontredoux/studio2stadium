@@ -2,12 +2,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useSession } from "@/lib/session";
 import { useSubscribed } from "@/lib/session/hooks/use-subscribed";
+import { usePremiumRoadmap } from "@/shared/premium-roadmap/hooks";
 import { US_STATES } from "@/utils/constants/states";
 import { STYLES } from "@/utils/constants/styles";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { MapPin, SparklesIcon, StarIcon, Users2Icon } from "lucide-react";
 import { feedQueries } from "../../api/queries";
+import { useSpotlightIndex } from "../../hooks/use-spotlight-index";
 import type { RecommendedSchool } from "../../types";
 import { ProfileChecklist } from "./profile-checklist";
 
@@ -39,14 +41,22 @@ export function ProgramSpotlight() {
   const session = useSession();
   const { data: subscription } = useSubscribed();
   const { data } = useSuspenseQuery(feedQueries.recommended());
+  const spotlightIndex = useSpotlightIndex(data.length);
 
-  const showChecklist = subscription.subscribed || !session.orgAccountTier;
+  const { isLoading: roadmapLoading, roadmap } = usePremiumRoadmap();
+
+  // The Premium Roadmap replaces the checklist for eligible dancers. If the
+  // roadmap request fails, fall back to the checklist.
+  const showChecklist =
+    (subscription.subscribed || !session.orgAccountTier) &&
+    !roadmapLoading &&
+    !roadmap;
 
   if (data.length === 0) {
     return showChecklist ? <ProfileChecklist /> : null;
   }
 
-  const recommended = data[0];
+  const recommended = data[spotlightIndex];
 
   return (
     <div className="overflow-clip rounded-2xl border">

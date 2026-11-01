@@ -15,6 +15,8 @@ interface CompareViewProps {
   onRemove: (rosterId: string) => void;
   onBack: () => void;
   onOpenSheet: (rosterId: string) => void;
+  /** Event being compared, so the marks match the list the coach came from. */
+  eventId?: string;
 }
 
 export function CompareView({
@@ -22,11 +24,14 @@ export function CompareView({
   onRemove,
   onBack,
   onOpenSheet,
+  eventId,
 }: CompareViewProps) {
   const { org } = useOrg();
 
   const dancerQueries = useQueries({
-    queries: compareIds.map((id) => scoutingQueries.dancer(org.slug, id)),
+    queries: compareIds.map((id) =>
+      scoutingQueries.dancer(org.slug, id, eventId),
+    ),
   });
 
   const dancerData = dancerQueries.map((q) => q.data);
@@ -68,6 +73,7 @@ export function CompareView({
             maxRating={maxRating}
             onRemove={onRemove}
             onOpenSheet={onOpenSheet}
+            eventId={eventId}
           />
         ))}
       </div>
@@ -82,6 +88,7 @@ function CompareColumn({
   maxRating,
   onRemove,
   onOpenSheet,
+  eventId,
 }: {
   rosterId: string;
   query: UseQueryResult<any>;
@@ -89,6 +96,7 @@ function CompareColumn({
   maxRating: number;
   onRemove: (rosterId: string) => void;
   onOpenSheet: (rosterId: string) => void;
+  eventId?: string;
 }) {
   const dancer = query.data;
 
@@ -185,7 +193,11 @@ function CompareColumn({
       </div>
 
       {/* Favorite */}
-      <FavoriteButton dancerRosterId={rosterId} isFavorited={dancer.isFavorited} />
+      <FavoriteButton
+        dancerRosterId={rosterId}
+        isFavorited={dancer.isFavorited}
+        eventId={eventId}
+      />
 
       {/* Notes */}
       <div>

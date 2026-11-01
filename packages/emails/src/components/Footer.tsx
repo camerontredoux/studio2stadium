@@ -1,8 +1,10 @@
 import { Column, Img, Link, Row, Section, Text } from "@react-email/components";
 import { colors } from "./styles.js";
 
-const LOGO_URL =
-  "https://d1wf5hycmlyms9.cloudfront.net/s2slogo777018b0-7579-48d1-b9b1-9f8f044ab2c0.png";
+// Wordmark cropped to its artwork and repainted onto the footer background
+// (#f9fafb). The source export is opaque white, and R2's /img/ route flattens
+// alpha, so a transparent PNG is not an option here.
+const LOGO_URL = "https://studio2stadium.com/img/s2s-wordmark-v3.png";
 const WEBSITE_ICON =
   "https://d1wf5hycmlyms9.cloudfront.net/internet-svgrepo-comdc030971-a2db-47ef-8f08-05139b6d9d36.png";
 const EMAIL_ICON =
@@ -21,7 +23,7 @@ export function Footer() {
             src={LOGO_URL}
             style={{ margin: "0 auto" }}
             alt="Studio 2 Stadium"
-            width="100"
+            width="150"
             height="auto"
           />
         </Column>

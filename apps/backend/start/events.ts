@@ -29,6 +29,9 @@ import "#modules/webhooks/stripe/event"; //  premium welcome + subscription ende
 // Cloudflare events
 import "#modules/webhooks/cloudflare/event"; //  video ready/failed notifications
 
+// Application events
+import "#modules/applications/submit-application/event"; //  new application email to admin
+
 // Admin events
 import "#modules/admin/update-application-status/event"; //  school welcome email + global notification
 import "#modules/admin/create-blog-post/event"; //  blog post created outbox

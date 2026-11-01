@@ -8,6 +8,7 @@ import {
 } from "@stos/emails";
 import type { organizations } from "#database/schema/organizations";
 import type { orgEvents } from "#database/schema/org-events";
+import type { RosterType } from "#database/schema/enums";
 
 interface OrgRosterAddedMailData {
   email: string;
@@ -79,7 +80,7 @@ export async function sendOrgRosterAddedEmailOrThrow(opts: {
   event?: typeof orgEvents.$inferSelect | null;
   email: string;
   firstName: string;
-  type: "coach" | "dancer";
+  type: RosterType;
 }): Promise<void> {
   const { org, event, email, firstName, type } = opts;
 
@@ -113,7 +114,7 @@ export async function sendOrgRosterAddedEmail(opts: {
   event?: typeof orgEvents.$inferSelect | null;
   email: string;
   firstName: string;
-  type: "coach" | "dancer";
+  type: RosterType;
 }): Promise<void> {
   try {
     await sendOrgRosterAddedEmailOrThrow(opts);

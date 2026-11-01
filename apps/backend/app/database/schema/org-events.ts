@@ -8,10 +8,26 @@ import {
   eventTier,
   orgMemberType,
   rosterClaimStatus,
+  isRosterTypeSql,
+  type RosterType,
 } from "./enums.ts";
 import { citext, timestamps } from "./helpers/columns.ts";
 import { organizations } from "./organizations.ts";
 import { users } from "./users.ts";
+
+/**
+ * The staff exceptions stored on one Org Event: a capability mapped to `true`
+ * is included whatever the Event Tier says, `false` is excluded, and a missing
+ * key defers to the Event Tier. Declared here rather than imported so the
+ * schema does not depend on `#shared`; `#shared/org/entitlement` re-exports it
+ * and checks at compile time that the keys match `EVENT_TIER_CAPABILITIES`.
+ */
+export type CapabilityOverrides = Partial<
+  Record<
+    "callbacks" | "check_in" | "school_selections" | "video_library",
+    boolean
+  >
+>;
 
 export const orgEvents = pg.pgTable(
   "org_events",
@@ -34,9 +50,27 @@ export const orgEvents = pg.pgTable(
     // 0006), and the default keeps hand-built events there until the purchase
     // flow starts setting it from what was actually paid for.
     eventTier: eventTier().notNull().default("enterprise"),
+    // Staff exceptions to what the Event Tier includes, per capability: `true`
+    // or `false` wins over the Event Tier, a missing key defers to it. Resolved
+    // only through `#shared/org/entitlement` (#109). These moved here from
+    // `organizations.features`, copied onto every event the Org had, so an
+    // Org's events can now differ.
+    capabilityOverrides: pg
+      .jsonb()
+      .$type<CapabilityOverrides>()
+      .notNull()
+      .default({}),
     schedulePdfUrl: pg.text(),
+    // The event's daily hours: `startTime` to `endTime` ("HH:mm") on every day
+    // from `startDate` to `endDate`, local to `timezone`. `endTime` needs both of
+    // the others and is after `startTime`; the rules are in
+    // `orgs/events/event-schedule.ts`.
     startTime: pg.text(),
+    endTime: pg.text(),
     timezone: pg.text(),
+    // Dancers check themselves in from their dashboard instead of showing
+    // their pass QR at the desk.
+    selfCheckIn: pg.boolean().notNull().default(false),
     ...timestamps,
   },
   (table) => [
@@ -57,7 +91,10 @@ export const eventRosters = pg.pgTable(
       .notNull()
       .references(() => orgEvents.id, { onDelete: "cascade" }),
     userId: pg.uuid().references(() => users.id, { onDelete: "set null" }),
-    type: orgMemberType().notNull(),
+    // A Roster Entry is a Coach or a Dancer. Organizers run the event rather
+    // than taking part in it (ADR 0003), so `organizer` is excluded here at the
+    // type level and by the `event_rosters_type_not_organizer` CHECK below.
+    type: orgMemberType().$type<RosterType>().notNull(),
     bibNumber: pg.integer(),
     email: pg.text().notNull(),
     firstName: pg.text().notNull(),
@@ -97,6 +134,8 @@ export const eventRosters = pg.pgTable(
       .where(sql`bib_number IS NOT NULL`),
     pg.index().on(table.eventId, table.type),
     pg.index().on(table.userId),
+    // A Roster Entry is a Coach or a Dancer, never an Organizer (ADR 0003).
+    pg.check("event_rosters_roster_type", isRosterTypeSql()),
   ]
 );
 
@@ -127,7 +166,8 @@ export const csvUploads = pg.pgTable(
       .uuid()
       .notNull()
       .references(() => orgEvents.id, { onDelete: "cascade" }),
-    type: orgMemberType().notNull(),
+    // Rosters are uploaded as Coaches or Dancers; there is no organizer CSV.
+    type: orgMemberType().$type<RosterType>().notNull(),
     fileUrl: pg.text().notNull(),
     uploadedBy: pg
       .uuid()
@@ -139,7 +179,10 @@ export const csvUploads = pg.pgTable(
     errorDetails: pg.jsonb(),
     ...timestamps,
   },
-  (table) => [pg.index().on(table.eventId, table.createdAt)]
+  (table) => [
+    pg.index().on(table.eventId, table.createdAt),
+    pg.check("csv_uploads_roster_type", isRosterTypeSql()),
+  ]
 );
 
 /**

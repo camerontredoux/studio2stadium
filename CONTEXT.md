@@ -1,7 +1,8 @@
 # Studio 2 Stadium
 
-The collegiate dance recruiting platform. This repo is the public marketing site and schools
-directory; the product itself lives in the `app` repo. The glossary below is shared by both.
+The collegiate dance recruiting platform. This repo is the product: the web app, its API, and the
+notifications worker. The public marketing site and schools directory live in a separate repo. The
+glossary below is shared by both.
 
 ## Language
 
@@ -27,10 +28,35 @@ Enterprise. What is sold and what is enforced are the same thing.
 _Avoid_: Plan, package, subscription — nothing here recurs. Never bare "tier", which is ambiguous
 with Account Tier.
 
+**Grandfathered Org**:
+An Org built by hand before billing, whose events are all Enterprise (ADR 0006). Its Organizers
+create their own events, which take Enterprise.
+
+**Self-serve Org**:
+An Org an Event Tier purchase has landed on. Only S2S staff or another purchase add events to it.
+
+**Tier-managed Org**:
+A hand-built Org where staff have put any event below Enterprise. From then on, like a self-serve
+Org, only staff add events to it. Neither state is ever undone.
+
 **Account Tier**:
 The level of platform access a Dancer's account holds — standard or limited. An Org Event grants one
 for a window the Org configures, after which it lapses unless the Dancer subscribes.
 _Avoid_: Bare "tier"; premium, which is the Dancer's own paid subscription rather than a grant.
+
+### Programs and people
+
+**School**:
+A college dance program represented on the platform. A School has a public Program profile and may recruit Dancers through the platform.
+_Avoid_: College, team, organisation, which can refer to other concepts.
+
+**Program**:
+A School's dance program as presented to Dancers for discovery and recruiting. It is not an Org or an Org Event.
+_Avoid_: School when referring to the program's public recruiting presence.
+
+**Follow**:
+A Dancer's saved connection to a Program. A Dancer follows a Program to find it again and receive updates from it. The product also calls this action Favorite; use Follow for the Dancer-to-Program action.
+_Avoid_: Favorite for this action.
 
 ### People
 
@@ -48,6 +74,8 @@ _Avoid_: Recruiter, scout, evaluator
 The person who runs an Org's events and buys S2S Live. Never appears on a Roster and never evaluates
 Dancers — the distinction from a Coach is that an Organizer runs the event rather than recruiting at
 it.
+Buys without signing in: the email typed before checkout identifies them, and the purchase creates
+their account if that email has none (ADR 0007).
 _Avoid_: Host, promoter, event manager
 
 **Roster Entry**:
@@ -57,6 +85,30 @@ than against the person.
 _Avoid_: Attendee, participant, registration
 
 ### Things
+
+**Interest**:
+A Dancer's expression of interest in a School's Program. It is separate from following the Program and from submitting an application.
+_Avoid_: Follow, Favorite, application
+
+**Application**:
+A Dancer's submission to a School through the platform. The School can review and update its status.
+_Avoid_: Interest, submission when the recruiting context is important
+
+**Subscription**:
+A Dancer's paid, recurring access to premium platform features. It is separate from an Account Tier granted by an Org Event.
+_Avoid_: Event Tier, Premium Grant
+
+**Feed**:
+A stream of updates from the Programs or Dancers a user follows.
+_Avoid_: Notification list, activity list
+
+**Video**:
+Media in a Dancer's or School's profile or library that can be viewed as recruiting content.
+_Avoid_: Profile, image
+
+**Profile View**:
+A recorded occasion when a School views a Dancer's Profile.
+_Avoid_: Interest, Follow
 
 **Profile**:
 A Dancer's portfolio on the platform. There is one Profile per Dancer; an Org Event surfaces that

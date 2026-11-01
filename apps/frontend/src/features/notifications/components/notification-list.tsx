@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import {
   Empty,
   EmptyDescription,
@@ -14,8 +15,14 @@ import { notificationQueries } from "../api/queries";
 import { NotificationItem } from "./notification-item";
 
 export function NotificationList() {
-  const { status, data, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useInfiniteQuery(notificationQueries.notifications());
+  const {
+    status,
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isFetchNextPageError,
+  } = useInfiniteQuery(notificationQueries.notifications());
 
   const notifications = data?.pages.flatMap((page) => page.data ?? []) ?? [];
 
@@ -40,7 +47,8 @@ export function NotificationList() {
     if (
       lastItem.index >= notifications.length - 1 &&
       hasNextPage &&
-      !isFetchingNextPage
+      !isFetchingNextPage &&
+      !isFetchNextPageError
     ) {
       fetchNextPage();
     }
@@ -49,6 +57,7 @@ export function NotificationList() {
     fetchNextPage,
     notifications.length,
     isFetchingNextPage,
+    isFetchNextPageError,
     virtualItems,
   ]);
 
@@ -56,7 +65,7 @@ export function NotificationList() {
     return <NotificationListSkeleton />;
   }
 
-  if (status === "error") {
+  if (!data) {
     return (
       <Empty className="border">
         <EmptyHeader>
@@ -116,7 +125,25 @@ export function NotificationList() {
                 ref={rowVirtualizer.measureElement}
               >
                 {isLoaderRow ? (
-                  <NotificationItemSkeleton />
+                  isFetchNextPageError && !isFetchingNextPage ? (
+                    <div
+                      className="flex items-center justify-center gap-3 px-2 py-3"
+                      data-testid="notifications-next-page-error"
+                    >
+                      <p className="text-muted-foreground text-sm">
+                        Couldn't load more notifications.
+                      </p>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => fetchNextPage()}
+                      >
+                        Try again
+                      </Button>
+                    </div>
+                  ) : (
+                    <NotificationItemSkeleton />
+                  )
                 ) : (
                   <NotificationItem notification={notification} />
                 )}

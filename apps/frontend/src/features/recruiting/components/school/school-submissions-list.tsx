@@ -16,14 +16,20 @@ import { SchoolSubmissionCard } from "./school-submission-card";
 type SchoolSubmissionsListProps = {
   status: string;
   watched: string;
+  watchingId: string | null;
+  onWatchingChange: (id: string | null) => void;
 };
 
 function filterSubmissions(
   submissions: SchoolSubmission[],
   status: string,
   watched: string,
+  watchingId: string | null,
 ) {
   return submissions.filter((s) => {
+    // Never drop the submission whose video is open — filtering it out unmounts
+    // the card and takes the open dialog down with it.
+    if (s.id === watchingId) return true;
     if (status !== "all" && s.status !== status) return false;
     if (watched !== "all") {
       const isWatched = s.watched;
@@ -37,10 +43,10 @@ function filterSubmissions(
 function groupByDate(submissions: SchoolSubmission[]) {
   const groups: { date: string; submissions: SchoolSubmission[] }[] = [];
   const sorted = [...submissions].sort(
-    (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
   for (const sub of sorted) {
-    const dateStr = formatDate(sub.updatedAt);
+    const dateStr = formatDate(sub.createdAt);
     const last = groups[groups.length - 1];
     if (last?.date === dateStr) {
       last.submissions.push(sub);
@@ -54,10 +60,12 @@ function groupByDate(submissions: SchoolSubmission[]) {
 export function SchoolSubmissionsList({
   status,
   watched,
+  watchingId,
+  onWatchingChange,
 }: SchoolSubmissionsListProps) {
   const { data } = useSuspenseQuery(recruitingQueries.schoolSubmissions());
 
-  const filtered = filterSubmissions(data, status, watched);
+  const filtered = filterSubmissions(data, status, watched, watchingId);
   const grouped = groupByDate(filtered);
 
   return (
@@ -68,7 +76,7 @@ export function SchoolSubmissionsList({
             key={group.date}
             className="relative flex flex-col gap-2 lg:gap-3"
           >
-            <div className="sticky top-12 z-10 py-2">
+            <div className="top-header sticky z-10 py-2">
               <div className="flex items-center gap-2">
                 <div className="border-brand/20 bg-background/90 flex items-center gap-1.5 rounded-full border px-2.5 py-1 backdrop-blur-sm">
                   <CalendarIcon className="text-brand size-3.5" />
@@ -84,6 +92,7 @@ export function SchoolSubmissionsList({
                 <SchoolSubmissionCard
                   key={submission.id}
                   submission={submission}
+                  onWatchingChange={onWatchingChange}
                 />
               ))}
             </div>

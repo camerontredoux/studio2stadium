@@ -45,9 +45,9 @@ function CalendarPopover({
   return (
     <Popover open={isOpen} onOpenChange={onToggle} modal>
       <PopoverTrigger
+        id={id}
         render={(props) => (
           <Button
-            id={id}
             variant="outline"
             className={cn(
               "group relative h-9 w-full justify-start px-3 py-2 font-normal whitespace-nowrap hover:bg-inherit",

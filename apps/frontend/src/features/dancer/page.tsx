@@ -12,9 +12,9 @@ import {
 } from "@/components/ui/empty";
 import { useSession } from "@/lib/session";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Link, useSearch } from "@tanstack/react-router";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { CalendarIcon, CrownIcon } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useViewDancer } from "./api/mutations";
 import { dancerQueries } from "./api/queries";
 import { Achievements } from "./components/profile/achievements";
@@ -34,10 +34,20 @@ interface DancerPageProps {
 
 export function DancerPage({ username }: DancerPageProps) {
   const session = useSession();
-  const mode = useSearch({
-    from: "/_app/(routes)/$username",
-    select: (search) => search.mode,
-  });
+  const { mode, upload } = useSearch({ from: "/_app/(routes)/$username" });
+  const navigate = useNavigate({ from: "/$username" });
+
+  // `?upload=video` opens the upload dialog once; drop it so a reload or
+  // back navigation doesn't reopen it.
+  const [openUpload] = useState(upload === "video");
+  useEffect(() => {
+    if (upload) {
+      navigate({
+        search: (prev) => ({ ...prev, upload: undefined }),
+        replace: true,
+      });
+    }
+  }, [upload, navigate]);
 
   const { data } = useSuspenseQuery(dancerQueries.profile(username));
   const { mutate: viewDancer } = useViewDancer();
@@ -153,6 +163,7 @@ export function DancerPage({ username }: DancerPageProps) {
                 videos={data.videos}
                 showOwnerControls={isOwner && !isPreview}
                 orgAccountTier={data.orgAccountTier}
+                openUpload={openUpload}
               />
             ) : null}
 

@@ -33,7 +33,9 @@ test.group("ExportRosterService", (group) => {
     await db.delete(organizations).execute();
   });
 
-  test("produces a CSV with header and data rows", async ({ assert }) => {
+  test("produces a dancer CSV with header and data rows, without Organization", async ({
+    assert,
+  }) => {
     const { event } = await makeOrgAndEvent();
     await db.insert(eventRosters).values([
       {
@@ -60,14 +62,35 @@ test.group("ExportRosterService", (group) => {
     const csv = await service.execute(event.id, { type: "dancer" });
 
     const lines = csv.trim().split("\r\n");
+    assert.equal(lines[0], "First Name,Last Name,Email,Bib #,Status");
+    assert.equal(lines.length, 3);
+    assert.include(lines[1]!, "Alice");
+    assert.notInclude(lines[1]!, "Elite");
+    assert.include(lines[1]!, "Pending");
+  });
+
+  test("produces a coach CSV with the Organization column", async ({
+    assert,
+  }) => {
+    const { event } = await makeOrgAndEvent();
+    await db.insert(eventRosters).values({
+      eventId: event.id,
+      type: "coach",
+      email: "coach@example.com",
+      firstName: "Casey",
+      lastName: "Coach",
+      organization: "UCLA",
+    });
+
+    const service = new ExportRosterService();
+    const csv = await service.execute(event.id, { type: "coach" });
+
+    const lines = csv.trim().split("\r\n");
     assert.equal(
       lines[0],
       "First Name,Last Name,Email,Bib #,Organization,Status"
     );
-    assert.equal(lines.length, 3);
-    assert.include(lines[1]!, "Alice");
-    assert.include(lines[1]!, "Elite");
-    assert.include(lines[1]!, "Pending");
+    assert.equal(lines[1], "Casey,Coach,coach@example.com,,UCLA,Pending");
   });
 
   test("escapes fields containing commas, quotes, and newlines", async ({
@@ -76,7 +99,7 @@ test.group("ExportRosterService", (group) => {
     const { event } = await makeOrgAndEvent();
     await db.insert(eventRosters).values({
       eventId: event.id,
-      type: "dancer",
+      type: "coach",
       email: "weird@example.com",
       firstName: 'Mary "The" Ann',
       lastName: "Smith, Jr.",
@@ -84,7 +107,7 @@ test.group("ExportRosterService", (group) => {
     });
 
     const service = new ExportRosterService();
-    const csv = await service.execute(event.id, { type: "dancer" });
+    const csv = await service.execute(event.id, { type: "coach" });
 
     const dataLine = csv.trim().split("\r\n")[1]!;
     assert.include(dataLine, '"Mary ""The"" Ann"');

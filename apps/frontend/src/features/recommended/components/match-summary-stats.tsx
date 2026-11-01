@@ -70,6 +70,9 @@ export function MatchSummaryStats({
   const sameStateCount = schools.filter((s) => s.sameState).length;
   const meetsGpaCount = schools.filter((s) => s.meetsGpaRequirement).length;
 
+  const shareOfMatches = (count: number) =>
+    totalSchools > 0 ? Math.round((count / totalSchools) * 100) : 0;
+
   const avgMatchScore =
     totalSchools > 0
       ? schools.reduce((sum, s) => sum + s.matchScore, 0) / totalSchools
@@ -119,13 +122,13 @@ export function MatchSummaryStats({
           label="In Your State"
           value={sameStateCount}
           icon={<LuMapPin className="size-5" />}
-          subtext={`${Math.round((sameStateCount / totalSchools) * 100)}% of matches`}
+          subtext={`${shareOfMatches(sameStateCount)}% of matches`}
         />
         <StatCard
           label="Meet GPA Req"
           value={meetsGpaCount}
           icon={<LuGraduationCap className="size-5" />}
-          subtext={`${Math.round((meetsGpaCount / totalSchools) * 100)}% of matches`}
+          subtext={`${shareOfMatches(meetsGpaCount)}% of matches`}
         />
       </div>
 

@@ -5,11 +5,13 @@ import {
   HeartIcon,
   MailIcon,
   MapPinIcon,
+  TagIcon,
 } from "lucide-react";
 
 import { cn } from "@/components/utils/cn";
 import type { OrgEvent } from "@/features/org/api/admin-queries";
 import type { EventPhaseInfo } from "@/features/org/hooks/use-event-phase";
+import { eventTierLabel } from "@/lib/event-tiers";
 
 export type PanelAccent =
   | "blue"
@@ -82,7 +84,7 @@ export function PhaseBadge({
       >
         <LivePulse />
         <span className={cn(isActive ? "text-success" : "text-foreground")}>
-          Day {phase.liveDay} of {phase.totalDays}
+          Day {phase.day} of {phase.totalDays}
         </span>
       </span>
     );
@@ -167,11 +169,14 @@ export function DashboardHeader({
   phase,
   dateRange,
   actions,
+  isActive = true,
 }: {
   name: string;
   phase: EventPhaseInfo;
   dateRange: string;
   actions?: React.ReactNode;
+  /** Whether the event is the Org's active one; an inactive event's phase is muted. */
+  isActive?: boolean;
 }) {
   return (
     <header className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-4">
@@ -179,7 +184,7 @@ export function DashboardHeader({
         <h1 className="text-lg font-semibold tracking-tight 2xl:text-xl">
           {name}
         </h1>
-        <PhaseBadge phase={phase} isActive />
+        <PhaseBadge phase={phase} isActive={isActive} />
         <span className="text-muted-foreground text-xs tabular-nums 2xl:text-sm">
           {dateRange}
         </span>
@@ -215,8 +220,8 @@ export function SidebarSection({
 }
 
 export function phaseProgressPct(phase: EventPhaseInfo): number {
-  if (phase.phase === "live" && phase.liveDay) {
-    return Math.round((phase.liveDay / phase.totalDays) * 100);
+  if (phase.phase === "live" && phase.day) {
+    return Math.round((phase.day / phase.totalDays) * 100);
   }
   if (phase.phase === "wrapped") return 100;
   if (phase.phase === "upcoming" || phase.phase === "imminent") {
@@ -235,7 +240,7 @@ export function SidebarPhaseSection({ phase }: { phase: EventPhaseInfo }) {
     : "Approaching kickoff";
   const headline =
     phase.phase === "live"
-      ? `Day ${phase.liveDay}`
+      ? `Day ${phase.day}`
       : phase.phase === "wrapped"
         ? "Wrapped"
         : phase.daysUntilStart === 0
@@ -245,7 +250,9 @@ export function SidebarPhaseSection({ phase }: { phase: EventPhaseInfo }) {
     phase.phase === "live"
       ? `of ${phase.totalDays}`
       : phase.phase === "wrapped"
-        ? phase.label.toLowerCase().replace(/^wrapped\s*/, "")
+        ? phase.label === "Just wrapped"
+          ? "yesterday"
+          : phase.label.toLowerCase().replace(/^wrapped\s*/, "")
         : "until kickoff";
 
   return (
@@ -296,6 +303,13 @@ export function SidebarDetailsSection({
           <CalendarIcon className="text-muted-foreground mt-0.5 size-3.5 shrink-0" />
           <span className="tabular-nums">
             {formatLongDateRange(event.startDate, event.endDate)}
+          </span>
+        </li>
+        <li className="flex items-center gap-2">
+          <TagIcon className="text-muted-foreground size-3.5 shrink-0" />
+          <span>
+            {eventTierLabel(event.eventTier)}
+            <span className="text-muted-foreground"> Event Tier</span>
           </span>
         </li>
         {event.startTime && (

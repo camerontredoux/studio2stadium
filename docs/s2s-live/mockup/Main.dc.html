@@ -1,0 +1,1772 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>S2S Live admin dashboard</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="shared/shell.css">
+<script src="/_blob/245a53b274982e1afa8b16e34d602b9b"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500&amp;display=swap">
+<style>
+/* Page-specific styles. The app shell, shared controls, widget board and every layout breakpoint live in shared/shell.css (linked in <head>). */
+.rt-scroll{overflow-x:auto}
+/* one set of columns for the whole table: rows are subgrids, so a column can size to its widest cell and still line up across rows */
+.rt{min-width:560px;display:grid;grid-template-columns:minmax(90px,160px) 52px 52px 60px minmax(130px,2fr) minmax(100px,1fr);column-gap:12px}
+.rt-row{display:grid;grid-column:1 / -1;grid-template-columns:subgrid;align-items:center;column-gap:12px;padding:0 8px 0 14px;min-height:44px;border-bottom:1px solid #262626}
+.rt-head{min-height:32px;background:#1D1D1D}
+.num{text-align:right;font-family:"Geist Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;font-size:13px}
+/* Narrower screens: shorter Roster column; leftover width split 2:1 between the activation bars and the Upload column */
+@media (max-width:1180px){.rt{min-width:560px;grid-template-columns:minmax(80px,120px) 52px 52px 60px minmax(130px,2fr) minmax(88px,1fr)}}
+/* Rosters on phones: Activation hidden; Roster fits its content and Total, Active, Pending and Upload split the rest evenly, so their right edges are evenly spaced.
+   The row's 8px right padding comes out of the last column, so the count columns are inset 8px to match; no sideways scroll (must stay below the .rt rules above) */
+@media (max-width:800px){.rt-scroll{overflow-x:visible}.rt{min-width:0;grid-template-columns:max-content minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) minmax(max-content,1fr)}.rt-x{display:none !important}.rt-row>:nth-child(2),.rt-row>:nth-child(3),.rt-row>:nth-child(4){padding-right:8px}}
+/* Small phones: Active hidden too (Total minus Pending); Upload becomes a square icon button */
+@media (max-width:480px){.rt{grid-template-columns:max-content minmax(0,1fr) minmax(0,1fr) minmax(0,1fr)}.rt-xs,.rt-up-lbl{display:none !important}.rt-up{width:28px;padding:0}}
+.bar{position:relative;height:6px;border-radius:3px;background:#2E2E2E;flex:1;overflow:hidden}
+.bar>span{position:absolute;left:0;top:0;bottom:0;border-radius:3px;background:#E5E5E5}
+.chip{cursor:pointer}
+.chip:hover{border-color:#404040}
+.act{display:grid;grid-template-columns:16px minmax(0,1fr) auto;align-items:center;column-gap:10px;padding:0 14px;height:36px;border-bottom:1px solid #262626;color:#A3A3A3}
+.act:last-child{border-bottom:0}
+.sel-wrap{position:relative;display:flex}
+.sel{appearance:none;-webkit-appearance:none;width:100%;height:28px;padding:0 28px 0 8px;border:1px solid #333333;border-radius:6px;background:#202020;color:#EDEDED;font:inherit;font-size:12.5px;cursor:pointer}
+.sel:hover{border-color:#404040}
+.sel-wrap svg{position:absolute;right:8px;top:7px;pointer-events:none}
+@media (max-width:800px){
+.vid-peek{grid-template-columns:repeat(4,minmax(0,1fr)) !important;grid-template-rows:minmax(0,1fr) !important}
+}
+/* ── Roster pages (Dancers, Coaches) ── */
+.rl-scroll{overflow:auto}
+.rl{min-width:680px}
+.rl-row{display:grid;align-items:center;column-gap:12px;padding:0 14px;min-height:44px;border-bottom:1px solid #262626}
+.rl-d{grid-template-columns:16px 64px minmax(120px,1fr) minmax(180px,1.5fr) 96px 96px}
+.rl-c{grid-template-columns:16px minmax(120px,1fr) minmax(180px,1.5fr) minmax(100px,.8fr) 96px}
+.rl-head{min-height:32px;background:#1D1D1D;position:sticky;top:0;z-index:2}
+.rl-body>.rl-row:last-child{border-bottom:0}
+.rl-body>.rl-row:hover{background:#1E1E1E}
+.rl-body>.rl-row.is-sel{background:#222222}
+.c-bib{font-family:"Geist Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;font-size:13px;color:#EDEDED}
+.c-name{font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.c-email,.c-sch{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#A3A3A3}
+.c-sch{color:#EDEDED}
+.c-st{font-family:"Geist Mono",ui-monospace,monospace;font-size:11px;letter-spacing:.06em}
+.c-ci{display:flex;align-items:center;gap:6px}
+.rl-hide{display:none !important}
+.grp-btn{padding:0 10px}
+@media (min-width:801px){
+.rl-panel{max-height:calc(100vh - 64px)}
+.rl-scroll{flex:1 1 auto;min-height:0}
+}
+@media (max-width:800px){
+.grp-btn{width:28px;padding:0;justify-content:center}
+}
+/* ── Second row (Check-in, then Results): its own row while everything is collapsed; both join the strips when a tile opens ── */
+@media (min-width:801px){
+.board.has-res:not(.has-open){grid-template-rows:minmax(0,1fr) minmax(0,1fr);margin-right:-16px}
+.board.has-res.has-open{grid-template-rows:minmax(0,1fr) minmax(0,0fr);height:var(--open-h);row-gap:0;margin-right:0}
+.board.has-res.anim{transition:grid-template-columns .5s cubic-bezier(.2,.8,.2,1),grid-template-rows .5s cubic-bezier(.2,.8,.2,1),height .5s cubic-bezier(.2,.8,.2,1),margin-right .5s cubic-bezier(.2,.8,.2,1),row-gap .5s cubic-bezier(.2,.8,.2,1)}
+.board.has-res[data-n="4"]:not(.has-open){grid-template-columns:calc((100cqw - 24px) / 4) calc((100cqw - 24px) / 4) calc((100cqw - 24px) / 4) calc((100cqw - 24px) / 4) 0px 0px;height:calc(2 * calc((100cqw - 24px) / 4) + 8px)}
+.board.has-res[data-n="3"]:not(.has-open){grid-template-columns:calc((100cqw - 16px) / 3) calc((100cqw - 16px) / 3) calc((100cqw - 16px) / 3) 0px 0px;height:calc(2 * calc((100cqw - 16px) / 3) + 8px)}
+.board.has-res[data-n="4"][data-open="0"]{grid-template-columns:calc(100cqw - 260px) 44px 44px 44px 44px 44px}
+.board.has-res[data-n="4"][data-open="1"]{grid-template-columns:44px calc(100cqw - 260px) 44px 44px 44px 44px}
+.board.has-res[data-n="4"][data-open="2"]{grid-template-columns:44px 44px calc(100cqw - 260px) 44px 44px 44px}
+.board.has-res[data-n="4"][data-open="3"]{grid-template-columns:44px 44px 44px calc(100cqw - 260px) 44px 44px}
+.board.has-res[data-n="4"][data-open="4"]{grid-template-columns:44px 44px 44px 44px calc(100cqw - 260px) 44px}
+.board.has-res[data-n="3"][data-open="0"]{grid-template-columns:calc(100cqw - 208px) 44px 44px 44px 44px}
+.board.has-res[data-n="3"][data-open="1"]{grid-template-columns:44px calc(100cqw - 208px) 44px 44px 44px}
+.board.has-res[data-n="3"][data-open="2"]{grid-template-columns:44px 44px calc(100cqw - 208px) 44px 44px}
+.board.has-res[data-n="3"][data-open="3"]{grid-template-columns:44px 44px 44px calc(100cqw - 208px) 44px}
+.board.has-res:not(.has-open)>.tile.t-in{grid-row:2;grid-column:1}
+.board.has-res:not(.has-open)>.tile.is-disabled{grid-row:2;grid-column:2}
+.board.has-res.has-open>.tile.t-in{grid-row:1;grid-column:-3 / -2}
+.board.has-res.has-open>.tile.is-disabled{grid-row:1;grid-column:-2 / -1}
+}
+/* Narrow desktop (801–1180px, sidebar auto-collapsed): 6 widgets as 3 + 3 instead of 4 + 2. Trailing 0px tracks keep the open-state animation; -24px cancels their 3 gaps */
+@media (min-width:801px) and (max-width:1180px){
+.board.has-res[data-n="4"]:not(.has-open){grid-template-columns:calc((100cqw - 16px) / 3) calc((100cqw - 16px) / 3) calc((100cqw - 16px) / 3) 0px 0px 0px;height:calc(2 * calc((100cqw - 16px) / 3) + 8px);margin-right:-24px}
+.board.has-res[data-n="4"]:not(.has-open)>.tile[aria-label="Video library"]{grid-row:2;grid-column:1}
+.board.has-res[data-n="4"]:not(.has-open)>.tile.t-in{grid-row:2;grid-column:2}
+.board.has-res[data-n="4"]:not(.has-open)>.tile.is-disabled{grid-row:2;grid-column:3}
+}
+@media (max-width:800px){
+.board.has-res[data-n="4"]{grid-template-rows:var(--peek-h) var(--peek-h) var(--peek-h) var(--peek-h) var(--peek-h) var(--peek-h);height:calc(6 * var(--peek-h) + 40px)}
+.board.has-res[data-n="3"]{grid-template-rows:var(--peek-h) var(--peek-h) var(--peek-h) var(--peek-h) var(--peek-h);height:calc(5 * var(--peek-h) + 32px)}
+.board.has-res[data-n="4"][data-open="0"]{grid-template-rows:380px 44px 44px 44px 44px 44px}
+.board.has-res[data-n="4"][data-open="1"]{grid-template-rows:44px 380px 44px 44px 44px 44px}
+.board.has-res[data-n="4"][data-open="2"]{grid-template-rows:44px 44px 380px 44px 44px 44px}
+.board.has-res[data-n="4"][data-open="3"]{grid-template-rows:44px 44px 44px 380px 44px 44px}
+.board.has-res[data-n="4"][data-open="4"]{grid-template-rows:44px 44px 44px 44px 380px 44px}
+.board.has-res[data-n="3"][data-open="0"]{grid-template-rows:432px 44px 44px 44px 44px}
+.board.has-res[data-n="3"][data-open="1"]{grid-template-rows:44px 432px 44px 44px 44px}
+.board.has-res[data-n="3"][data-open="2"]{grid-template-rows:44px 44px 432px 44px 44px}
+.board.has-res[data-n="3"][data-open="3"]{grid-template-rows:44px 44px 44px 432px 44px}
+.board.has-res.has-open{height:640px}
+}
+/* ── Admin check-in tile: camera scanner + who's in ── */
+.ci-body{display:flex;justify-content:center;min-height:100%}
+.ci-scan{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px;width:100%;box-sizing:border-box}
+.ci-last{width:100%;max-width:280px;box-sizing:border-box;display:flex;flex-direction:column;gap:8px;padding:10px 12px;border:1px solid #2B2B2B;border-radius:10px;background:#121212}
+.ci-view{position:relative;width:100%;max-width:280px;aspect-ratio:1;box-sizing:border-box;border-radius:12px;background:#121212;border:1px solid #2B2B2B;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;overflow:hidden;text-align:center;padding:24px}
+.ci-view.live{background:#0C0C0C}
+.ci-c{position:absolute;width:22px;height:22px;border:0 solid #555555;transition:border-color .2s}
+.ci-view.live .ci-c{border-color:#EDEDED}
+.ci-c.tl{top:14px;left:14px;border-top-width:2px;border-left-width:2px;border-top-left-radius:6px}
+.ci-c.tr{top:14px;right:14px;border-top-width:2px;border-right-width:2px;border-top-right-radius:6px}
+.ci-c.bl{bottom:14px;left:14px;border-bottom-width:2px;border-left-width:2px;border-bottom-left-radius:6px}
+.ci-c.br{bottom:14px;right:14px;border-bottom-width:2px;border-right-width:2px;border-bottom-right-radius:6px}
+.ci-line{position:absolute;left:20px;right:20px;top:20px;height:2px;border-radius:1px;background:#EDEDED;opacity:.6;animation:ci-sweep 1.4s ease-in-out infinite alternate}
+@keyframes ci-sweep{to{top:calc(100% - 22px)}}
+.ci-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .3s ease}
+.ci-view.cam .ci-video{opacity:1}
+.ci-line{z-index:2}
+.ci-c{z-index:4}
+.ci-view.live .ci-c,.ci-view:has(.ci-hit) .ci-c{border-color:#EDEDED}
+.ci-idle{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:10px}
+.ci-state{position:absolute;z-index:2;bottom:26px;left:0;right:0;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#A3A3A3}
+.ci-view.cam .ci-state{color:#EDEDED;text-shadow:0 1px 2px rgba(0,0,0,.6)}
+.ci-hit{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:24px;background:rgba(12,12,12,.8);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);animation:ci-in .25s ease}
+@keyframes ci-in{from{opacity:0;transform:scale(.98)}to{opacity:1;transform:none}}
+/* Phone: the open tile is a fixed 380px tall, so the scanner and last-in card shrink to fit without scrolling (must stay below the .ci-* rules above) */
+@media (max-width:800px){.ci-scan{gap:8px;padding:12px}.ci-view{max-width:180px;padding:16px}.ci-hit{padding:16px;gap:6px}.ci-last{max-width:180px;padding:8px 10px;gap:6px}}
+/* ── Audit log page ── */
+.al-panel{overflow:visible}
+.al-panel>.rl-scroll{border-radius:0 0 9px 9px}
+.al-fwrap{position:relative;flex:none}
+.al-chip[data-on="true"]{border-color:#555555;background:#2A2A2A}
+.al-chip[aria-expanded="true"]{background:#2A2A2A}
+.al-ck{display:grid;place-items:center;width:14px;height:14px;flex:none;border:1px solid #444444;border-radius:4px;box-sizing:border-box;color:#121212}
+.al-ck[data-on="true"]{background:#EDEDED;border-color:#EDEDED}
+.al-slot{display:grid;place-items:center;width:14px;flex:none}
+.al-date{flex:1;min-width:0;height:28px;padding:0 6px;border:1px solid #333333;border-radius:6px;background:#161616;color:#EDEDED;font:inherit;font-size:12px;box-sizing:border-box}
+.al{min-width:940px}
+.al-grid{display:grid;grid-template-columns:16px 104px minmax(120px,1fr) 112px 120px minmax(130px,1fr) minmax(220px,2fr);align-items:center;column-gap:12px;padding:0 14px;min-height:44px;box-sizing:border-box}
+.al-head{min-height:32px;background:#1D1D1D;border-bottom:1px solid #262626;position:sticky;top:0;z-index:2}
+.al-row{width:100%;margin:0;border:0;border-bottom:1px solid #262626;background:transparent;color:#EDEDED;font:inherit;font-size:13px;text-align:left;cursor:pointer}
+.al-row:hover{background:#1E1E1E}
+.al-row[aria-expanded="true"]{background:#1E1E1E;border-bottom-color:transparent}
+.al-chev{color:#8A8A8A;transition:transform .15s}
+.al-row[aria-expanded="true"] .al-chev{transform:rotate(90deg);color:#EDEDED}
+.al-ts{font-family:"Geist Mono",ui-monospace,monospace;font-size:12px;color:#A3A3A3;white-space:nowrap}
+.al-cell{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.al-detail{display:flex;flex-direction:column;gap:10px;padding:2px 14px 14px 42px;background:#1E1E1E;border-bottom:1px solid #262626}
+.al-meta{font-family:"Geist Mono",ui-monospace,monospace;font-size:11.5px;color:#8A8A8A}
+.al-diff{max-width:880px;border:1px solid #2B2B2B;border-radius:8px;background:#161616;overflow:hidden}
+.al-drow{display:grid;grid-template-columns:minmax(110px,160px) minmax(0,1fr) 16px minmax(0,1fr);align-items:center;column-gap:12px;padding:7px 12px;border-bottom:1px solid #222222}
+.al-dhead{min-height:28px;padding:0 12px;background:#1A1A1A}
+.al-f{font-family:"Geist Mono",ui-monospace,monospace;font-size:12px;color:#A3A3A3}
+.al-v{font-family:"Geist Mono",ui-monospace,monospace;font-size:12.5px;overflow-wrap:anywhere}
+.al-old{color:#8A8A8A;text-decoration:line-through;text-decoration-color:#555555}
+.al-new{color:#EDEDED}
+.al-nil{color:#6B6B6B}
+.al-span .al-v{grid-column:2 / -1}
+.al-same .al-v{color:#8A8A8A}
+.al-more{display:flex;align-items:center;gap:6px;width:100%;height:30px;padding:0 12px;border:0;background:transparent;color:#8A8A8A;font:inherit;font-size:12px;text-align:left;cursor:pointer}
+.al-more:hover{background:#1A1A1A;color:#EDEDED}
+@media (max-width:800px){
+.al-chip .chip-lbl{display:none}
+.al-chip{width:28px;padding:0}
+}
+/* ── Rosters on mobile: drop Email so the table fits ── */
+@media (max-width:800px){
+.rl{min-width:0}
+.c-email,.c-email-h{display:none !important}
+.rl-row{column-gap:10px;padding:0 12px}
+.rl-d{grid-template-columns:16px 56px minmax(96px,1fr) 64px 84px}
+.rl-c{grid-template-columns:16px minmax(96px,1fr) minmax(80px,.8fr) 64px}
+.rl-dt{min-width:380px}
+.rl-ct{min-width:320px}
+.rl-head>[role="columnheader"]{min-width:0;overflow:hidden}
+}
+</style>
+</helmet>
+
+<div class="shell {{shellClass}}">
+
+  <!-- ───────── Sidebar ───────── -->
+  <nav class="side" aria-label="Primary">
+    <div class="side-top" style="display: flex; align-items: center; gap: 4px; position: relative">
+      <button type="button" class="sw" onClick="{{toggleSwitcher}}" aria-haspopup="menu" aria-expanded="{{switcherOpen}}" style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0; height: 40px; padding: 0 8px; border: 0; border-radius: 8px; background: transparent; color: #EDEDED; font: inherit; cursor: pointer; text-align: left">
+        <span class="mono" style="display: grid; place-items: center; width: 24px; height: 24px; border-radius: 6px; background: #EDEDED; color: #121212; font-size: 10px; font-weight: 500; flex: none">S2S</span>
+        <span style="flex: 1; min-width: 0; font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">S2S Org Test</span>
+        <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="#8A8A8A"><path d="M181.66,170.34a8,8,0,0,1,0,11.32l-48,48a8,8,0,0,1-11.32,0l-48-48a8,8,0,0,1,11.32-11.32L128,212.69l42.34-42.35A8,8,0,0,1,181.66,170.34Zm-96-84.68L128,43.31l42.34,42.35a8,8,0,0,0,11.32-11.32l-48-48a8,8,0,0,0-11.32,0l-48,48A8,8,0,0,0,85.66,85.66Z"></path></svg>
+      </button>
+      <button type="button" class="btn btn-ghost btn-icon side-toggle" aria-label="{{sideLabel}}" title="{{sideLabel}}" aria-expanded="{{sideExpanded}}" onClick="{{toggleSidebar}}">
+        <svg class="i" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40ZM40,56H80V200H40ZM216,200H96V56H216V200Z"></path></svg>
+      </button>
+
+      <sc-if value="{{switcherOpen}}" hint-placeholder-val="{{ false }}">
+        <div class="pop" role="menu" style="top: 44px; left: 0; width: 300px; max-width: calc(100vw - 16px)">
+          <div class="lbl" style="padding: 6px 8px 8px">Events</div>
+          <button type="button" class="pop-item" role="menuitem" onClick="{{closeSwitcher}}" style="height: 36px">
+            <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="#EDEDED"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"></path></svg>
+            <span style="flex: 1; min-width: 0; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Fall Showcase 2026</span>
+            <span class="mono" style="flex: none; font-size: 10.5px; letter-spacing: .06em; color: {{accent}}; border: 1px solid #333333; border-radius: 4px; padding: 2px 6px">LIVE</span>
+          </button>
+          <div class="pop-item" role="menuitem" style="height: 36px; cursor: default">
+            <span style="width: 14px; flex: none"></span>
+            <span style="flex: 1; min-width: 0; font-weight: 500; color: #A3A3A3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Spring Regionals 2027</span>
+            <button type="button" class="btn" style="flex: none; height: 24px; font-size: 11.5px">Make live</button>
+          </div>
+          <div style="height: 1px; background: #333333; margin: 6px 0"></div>
+          <button type="button" class="pop-item" role="menuitem" onClick="{{closeSwitcher}}">
+            <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"></path></svg>
+            New event
+          </button>
+        </div>
+      </sc-if>
+    </div>
+
+    <div class="nav-list" style="display: flex; flex-direction: column; gap: 2px; margin-top: 8px">
+      <a class="nav {{navDash}}" href="#" aria-current="{{curDash}}" onClick="{{goDash}}">
+        <svg class="i" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,16V96H40V56ZM40,112H96v88H40Zm176,88H112V112H216v88Z"></path></svg>
+        Dashboard
+      </a>
+
+      <div class="sec-label">
+        <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"></path></svg>
+        Rosters
+      </div>
+      <a class="nav {{navD}}" href="#" aria-current="{{curD}}" onClick="{{goDancers}}">
+        <svg class="i" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M231.16,166.63l-28.63-14.31A47.74,47.74,0,0,1,176,109.39V80a8,8,0,0,0-8-8,48.05,48.05,0,0,1-48-48,8,8,0,0,0-12.83-6.37L30.13,76l-.2.16a16,16,0,0,0-1.24,23.75L142.4,213.66a8,8,0,0,0,5.66,2.34H224a16,16,0,0,0,16-16V180.94A15.92,15.92,0,0,0,231.16,166.63ZM224,200H151.37L40,88.63l12.87-9.76,38.79,38.79A8,8,0,0,0,103,106.34L65.74,69.11l40-30.31A64.15,64.15,0,0,0,160,87.5v21.89a63.65,63.65,0,0,0,35.38,57.24L224,180.94ZM70.8,184H32a8,8,0,0,1,0-16H70.8a8,8,0,1,1,0,16Zm40,24a8,8,0,0,1-8,8H48a8,8,0,0,1,0-16h54.8A8,8,0,0,1,110.8,208Z"></path></svg>
+        Dancers
+        <span class="ct mono">{{navDancers}}</span>
+      </a>
+      <a class="nav {{navC}}" href="#" aria-current="{{curC}}" onClick="{{goCoaches}}">
+        <svg class="i" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M251.76,88.94l-120-64a8,8,0,0,0-7.52,0l-120,64a8,8,0,0,0,0,14.12L32,117.87v48.42a15.91,15.91,0,0,0,4.06,10.65C49.16,191.53,78.51,216,128,216a130,130,0,0,0,48-8.76V240a8,8,0,0,0,16,0V199.51a115.63,115.63,0,0,0,27.94-22.57A15.91,15.91,0,0,0,224,166.29V117.87l27.76-14.81a8,8,0,0,0,0-14.12ZM128,200c-43.27,0-68.72-21.14-80-33.71V126.4l76.24,40.66a8,8,0,0,0,7.52,0L176,143.47v46.34C163.4,195.69,147.52,200,128,200Zm80-33.75a97.83,97.83,0,0,1-16,14.25V134.93l16-8.53ZM188,118.94l-.22-.13-56-29.87a8,8,0,0,0-7.52,14.12L171,128l-43,22.93L25,96,128,41.07,231,96Z"></path></svg>
+        Coaches
+        <span class="ct mono">{{navCoaches}}</span>
+      </a>
+
+
+      <div class="sec-label">
+        <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"></path></svg>
+        Admin
+      </div>
+      <a class="nav {{navA}}" href="#" aria-current="{{curA}}" onClick="{{goAudit}}">
+        <svg class="i" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Zm-32-80a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,136Zm0,32a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,168Z"></path></svg>
+        Audit log
+      </a>
+      <a class="nav" href="#">
+        <svg class="i" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm109.94-52.79a8,8,0,0,0-3.89-5.4l-29.83-17-.12-33.62a8,8,0,0,0-2.83-6.08,111.91,111.91,0,0,0-36.72-20.67,8,8,0,0,0-6.46.59L128,41.85,97.88,25a8,8,0,0,0-6.47-.6A112.1,112.1,0,0,0,54.73,45.15a8,8,0,0,0-2.83,6.07l-.15,33.65-29.83,17a8,8,0,0,0-3.89,5.4,106.47,106.47,0,0,0,0,41.56,8,8,0,0,0,3.89,5.4l29.83,17,.12,33.62a8,8,0,0,0,2.83,6.08,111.91,111.91,0,0,0,36.72,20.67,8,8,0,0,0,6.46-.59L128,214.15,158.12,231a7.91,7.91,0,0,0,3.9,1,8.09,8.09,0,0,0,2.57-.42,112.1,112.1,0,0,0,36.68-20.73,8,8,0,0,0,2.83-6.07l.15-33.65,29.83-17a8,8,0,0,0,3.89-5.4A106.47,106.47,0,0,0,237.94,107.21Zm-15,34.91-28.57,16.25a8,8,0,0,0-3,3c-.58,1-1.19,2.06-1.81,3.06a7.94,7.94,0,0,0-1.22,4.21l-.15,32.25a95.89,95.89,0,0,1-25.37,14.3L134,199.13a8,8,0,0,0-3.91-1h-.19c-1.21,0-2.43,0-3.64,0a8.08,8.08,0,0,0-4.1,1l-28.84,16.1A96,96,0,0,1,67.88,201l-.11-32.2a8,8,0,0,0-1.22-4.22c-.62-1-1.23-2-1.8-3.06a8.09,8.09,0,0,0-3-3.06l-28.6-16.29a90.49,90.49,0,0,1,0-28.26L61.67,97.63a8,8,0,0,0,3-3c.58-1,1.19-2.06,1.81-3.06a7.94,7.94,0,0,0,1.22-4.21l.15-32.25a95.89,95.89,0,0,1,25.37-14.3L122,56.87a8,8,0,0,0,4.1,1c1.21,0,2.43,0,3.64,0a8.08,8.08,0,0,0,4.1-1l28.84-16.1A96,96,0,0,1,188.12,55l.11,32.2a8,8,0,0,0,1.22,4.22c.62,1,1.23,2,1.8,3.06a8.09,8.09,0,0,0,3,3.06l28.6,16.29A90.49,90.49,0,0,1,222.9,142.12Z"></path></svg>
+        Settings
+      </a>
+    </div>
+
+    <div class="side-spacer" style="flex: 1"></div>
+
+    <button type="button" class="side-foot" onClick="{{toggleRole}}" aria-haspopup="menu" aria-expanded="{{roleOpen}}" style="display: flex; align-items: center; gap: 10px; height: 48px; padding: 0 8px; border: 0; border-radius: 8px; background: transparent; color: #EDEDED; font: inherit; cursor: pointer; text-align: left">
+      <span class="mono" style="display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: #2B2B2B; color: #EDEDED; font-size: 11px; flex: none">CT</span>
+      <span style="display: flex; flex-direction: column; min-width: 0; flex: 1">
+        <span style="font-size: 13px; font-weight: 500">Cameron Tredoux</span>
+        <span style="font-size: 11.5px; color: #8A8A8A; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">camtredoux@gmail.com</span>
+      </span>
+      <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="#8A8A8A"><path d="M181.66,170.34a8,8,0,0,1,0,11.32l-48,48a8,8,0,0,1-11.32,0l-48-48a8,8,0,0,1,11.32-11.32L128,212.69l42.34-42.35A8,8,0,0,1,181.66,170.34Zm-96-84.68L128,43.31l42.34,42.35a8,8,0,0,0,11.32-11.32l-48-48a8,8,0,0,0-11.32,0l-48,48A8,8,0,0,0,85.66,85.66Z"></path></svg>
+    </button>
+
+    <!-- View-as switcher -->
+    <sc-if value="{{roleOpen}}" hint-placeholder-val="{{ false }}">
+      <div class="pop role-pop" role="menu" aria-label="View as">
+        <div class="lbl" style="padding: 6px 8px 8px">View as</div>
+        <button type="button" class="pop-item" role="menuitemradio" aria-checked="true" onClick="{{closeRole}}">
+          <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M208,40H48A16,16,0,0,0,32,56v56c0,52.72,25.52,84.67,46.93,102.19,23.06,18.86,46,25.27,47,25.53a8,8,0,0,0,4.2,0c1-.26,23.91-6.67,47-25.53C198.48,196.67,224,164.72,224,112V56A16,16,0,0,0,208,40Zm0,72c0,37.07-13.66,67.16-40.6,89.42A129.3,129.3,0,0,1,128,223.62a128.25,128.25,0,0,1-38.92-21.81C61.82,179.51,48,149.3,48,112l0-56,160,0Z"></path></svg>
+          <span style="flex: 1">Admin</span>
+          <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="#EDEDED"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"></path></svg>
+        </button>
+        <a class="pop-item" role="menuitemradio" aria-checked="false" href="Coach.dc.html">
+          <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M168,152a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,152Zm-8-40H96a8,8,0,0,0,0,16h64a8,8,0,0,0,0-16Zm56-64V216a16,16,0,0,1-16,16H56a16,16,0,0,1-16-16V48A16,16,0,0,1,56,32H92.26a47.92,47.92,0,0,1,71.48,0H200A16,16,0,0,1,216,48ZM96,64h64a32,32,0,0,0-64,0ZM200,48H173.25A47.93,47.93,0,0,1,176,64v8a8,8,0,0,1-8,8H88a8,8,0,0,1-8-8V64a47.93,47.93,0,0,1,2.75-16H56V216H200Z"></path></svg>
+          <span style="flex: 1">Coach</span>
+        </a>
+        <a class="pop-item" role="menuitemradio" aria-checked="false" href="Dancer.dc.html">
+          <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"></path></svg>
+          <span style="flex: 1">Dancer</span>
+        </a>
+      </div>
+    </sc-if>
+  </nav>
+
+  <!-- ───────── Content ───────── -->
+  <div class="content">
+
+    <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; min-height: 56px; padding: 8px 8px 8px 12px; box-sizing: border-box; position: relative">
+      <sc-if value="{{isDash}}" hint-placeholder-val="{{ true }}">
+      <h1 class="hdr-title" style="margin: 0; font-size: 15px; font-weight: 600">Fall Showcase 2026</h1>
+      <div class="hdr-status">
+        <span class="mono" style="display: inline-flex; align-items: center; gap: 8px; height: 24px; padding: 0 8px; border: 1px solid #333333; border-radius: 5px; font-size: 11.5px">
+          <span style="color: {{accent}}; letter-spacing: .06em">LIVE</span>
+          <span style="color: #EDEDED"><span class="day-word">Day </span>{{curDay}}/{{eventDays}}</span>
+        </span>
+        <span class="mono hdr-dates" style="font-size: 12px; color: #A3A3A3">{{hdrDates}}</span>
+      </div>
+      <div style="flex: 1"></div>
+      <div style="position: relative; flex: none">
+      <div class="split">
+        <a class="split-main" href="#" aria-label="Edit event">
+          <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M227.31,73.37,182.63,28.68a16,16,0,0,0-22.63,0L36.69,152A15.86,15.86,0,0,0,32,163.31V208a16,16,0,0,0,16,16H92.69A15.86,15.86,0,0,0,104,219.31L227.31,96a16,16,0,0,0,0-22.63ZM92.69,208H48V163.31l88-88L180.69,120ZM192,108.68,147.31,64l24-24L216,84.68Z"></path></svg>
+          <span class="ev-label">Edit</span>
+        </a>
+        <button type="button" class="split-caret" aria-label="More event actions" aria-haspopup="menu" aria-expanded="{{moreOpen}}" onClick="{{toggleMore}}" style="{{caretStyle}}">
+          <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"></path></svg>
+        </button>
+      </div>
+      <sc-if value="{{moreOpen}}" hint-placeholder-val="{{ false }}">
+        <div class="pop" role="menu" style="top: calc(100% + 4px); right: 0; width: 180px">
+          <button type="button" class="pop-item" role="menuitem" onClick="{{toggleMore}}" style="color: #F87171">
+            <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"></path></svg>
+            Delete event
+          </button>
+        </div>
+      </sc-if>
+      </div>
+      </sc-if>
+      <sc-if value="{{isSub}}" hint-placeholder-val="{{ false }}">
+        <nav class="hdr-crumb" aria-label="Breadcrumb" style="display: flex; align-items: center; gap: 8px; flex: none">
+          <a href="#" onClick="{{goDash}}" style="font-size: 15px; color: #8A8A8A; text-decoration: none; white-space: nowrap">Fall Showcase 2026</a>
+          <span aria-hidden="true" style="color: #555555">/</span>
+        </nav>
+        <h1 class="hdr-title" style="margin: 0; font-size: 15px; font-weight: 600">{{pageTitle}}</h1>
+        <div style="flex: 1"></div>
+        <sc-if value="{{isRoster}}" hint-placeholder-val="{{ false }}">
+        <div class="split" role="group" aria-label="Roster actions" style="flex: none">
+          <button type="button" class="split-main grp-btn" aria-label="Upload CSV">
+            <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M224,144v64a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V144a8,8,0,0,1,16,0v56H208V144a8,8,0,0,1,16,0ZM93.66,77.66,120,51.31V144a8,8,0,0,0,16,0V51.31l26.34,26.35a8,8,0,0,0,11.32-11.32l-40-40a8,8,0,0,0-11.32,0l-40,40A8,8,0,0,0,93.66,77.66Z"></path></svg>
+            <span class="btn-lbl">Upload</span>
+          </button>
+          <button type="button" class="split-main grp-btn" aria-label="{{addLabel}}" style="border-left: 1px solid #333333">
+            <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"></path></svg>
+            <span class="btn-lbl">Add</span>
+          </button>
+        </div>
+        </sc-if>
+        <sc-if value="{{isAudit}}" hint-placeholder-val="{{ false }}">
+        <div class="split" role="group" aria-label="Audit log actions" style="flex: none">
+          <button type="button" class="split-main grp-btn" aria-label="Export CSV">
+            <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M224,144v64a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V144a8,8,0,0,1,16,0v56H208V144a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,124.69V32a8,8,0,0,0-16,0v92.69L93.66,98.34a8,8,0,0,0-11.32,11.32Z"></path></svg>
+            <span class="btn-lbl">Export</span>
+          </button>
+        </div>
+        </sc-if>
+      </sc-if>
+    </header>
+
+    <div class="body {{bodyCls}}">
+
+      <!-- ───────── Roster page (Dancers / Coaches) ───────── -->
+      <sc-if value="{{isRoster}}" hint-placeholder-val="{{ false }}">
+        <div class="main">
+          <section class="panel rl-panel" aria-label="{{pageTitle}}">
+            <sc-if value="{{noSel}}" hint-placeholder-val="{{ true }}">
+              <div class="rl-tools">
+                <div class="seg" role="group" aria-label="Filter by status">
+                  <sc-for list="{{filters}}" as="f" hint-placeholder-count="3">
+                    <button type="button" aria-pressed="{{f.pressed}}" aria-label="{{f.label}}" title="{{f.label}}" onClick="{{f.pick}}">
+                      <sc-if value="{{f.isAll}}" hint-placeholder-val="{{ false }}"><svg class="i-sm seg-ico" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M80,64a8,8,0,0,1,8-8H216a8,8,0,0,1,0,16H88A8,8,0,0,1,80,64Zm136,56H88a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16Zm0,64H88a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16ZM44,52A12,12,0,1,0,56,64,12,12,0,0,0,44,52Zm0,64a12,12,0,1,0,12,12A12,12,0,0,0,44,116Zm0,64a12,12,0,1,0,12,12A12,12,0,0,0,44,180Z"></path></svg></sc-if>
+                      <sc-if value="{{f.isActive}}" hint-placeholder-val="{{ false }}"><svg class="i-sm seg-ico" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M173.66,98.34a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35A8,8,0,0,1,173.66,98.34ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"></path></svg></sc-if>
+                      <sc-if value="{{f.isPending}}" hint-placeholder-val="{{ false }}"><svg class="i-sm seg-ico" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm64-88a8,8,0,0,1-8,8H128a8,8,0,0,1-8-8V72a8,8,0,0,1,16,0v48h48A8,8,0,0,1,192,128Z"></path></svg></sc-if>
+                      <span class="seg-lbl">{{f.label}}</span><span class="n">{{f.n}}</span>
+                    </button>
+                  </sc-for>
+                </div>
+                <label class="search">
+                  <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="#8A8A8A"><path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"></path></svg>
+                  <input type="search" placeholder="{{searchPh}}" aria-label="{{searchPh}}" value="{{q}}" onChange="{{setQ}}">
+                </label>
+              </div>
+            </sc-if>
+            <sc-if value="{{hasSel}}" hint-placeholder-val="{{ false }}">
+              <div class="rl-tools">
+                <button type="button" class="btn btn-ghost btn-icon" aria-label="Clear selection" onClick="{{clearSel}}">
+                  <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"></path></svg>
+                </button>
+                <span class="mono" style="font-size: 12px; color: #EDEDED; white-space: nowrap">{{selCount}} selected</span>
+                <span class="vsep"></span>
+                <sc-if value="{{canResend}}" hint-placeholder-val="{{ true }}">
+                  <button type="button" class="btn" onClick="{{clearSel}}">
+                    <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M224,48H32a8,8,0,0,0-8,8V192a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A8,8,0,0,0,224,48ZM203.43,64,128,133.15,52.57,64ZM216,192H40V74.19l82.59,75.71a8,8,0,0,0,10.82,0L216,74.19V192Z"></path></svg>
+                    Resend invite
+                  </button>
+                </sc-if>
+                <sc-if value="{{isDancers}}" hint-placeholder-val="{{ true }}">
+                  <button type="button" class="btn" onClick="{{bulkCheckIn}}">
+                    <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"></path></svg>
+                    {{ciLabel}}
+                  </button>
+                </sc-if>
+                <span style="flex: 1"></span>
+                <button type="button" class="btn btn-ghost" onClick="{{removeSel}}" style="color: #F87171">
+                  <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"></path></svg>
+                  Remove
+                </button>
+              </div>
+            </sc-if>
+            <div class="rl-scroll">
+              <div class="rl {{tableKind}}" role="table" aria-label="{{pageTitle}}">
+                <div class="rl-row rl-head {{rowKind}}" role="row">
+                  <span class="c-chk" role="columnheader"><input type="checkbox" class="ck" aria-label="Select all" checked="{{allChecked}}" onChange="{{toggleAll}}"></span>
+                  <sc-for list="{{cols}}" as="c" hint-placeholder-count="5">
+                    <span class="{{c.cls}}" role="columnheader" aria-sort="{{c.ariaSort}}">
+                      <button type="button" class="lbl sort" data-on="{{c.on}}" onClick="{{c.sort}}">
+                        {{c.label}}
+                        <sc-if value="{{c.asc}}" hint-placeholder-val="{{ false }}"><svg class="i-sm" aria-hidden="true" style="width: 12px; height: 12px" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,165.66a8,8,0,0,1-11.32,0L128,91.31,53.66,165.66a8,8,0,0,1-11.32-11.32l80-80a8,8,0,0,1,11.32,0l80,80A8,8,0,0,1,213.66,165.66Z"></path></svg></sc-if>
+                        <sc-if value="{{c.desc}}" hint-placeholder-val="{{ false }}"><svg class="i-sm" aria-hidden="true" style="width: 12px; height: 12px" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"></path></svg></sc-if>
+                      </button>
+                    </span>
+                  </sc-for>
+                </div>
+                <div class="rl-body" role="rowgroup">
+                  <sc-for list="{{rosterRows}}" as="r" hint-placeholder-count="5">
+                    <div class="{{r.cls}}" role="row">
+                      <span class="c-chk" role="cell"><input type="checkbox" class="ck" aria-label="{{r.aria}}" checked="{{r.checked}}" onChange="{{r.toggle}}"></span>
+                      <span class="{{r.bibCls}}" role="cell">{{r.bib}}</span>
+                      <span class="c-name" role="cell">{{r.name}}</span>
+                      <span class="c-email" role="cell">{{r.email}}</span>
+                      <span class="{{r.schCls}}" role="cell">{{r.school}}</span>
+                      <span class="c-st" role="cell" style="color: {{r.stColor}}">{{r.statusLabel}}</span>
+                        <span class="{{r.ciCls}}" role="cell">
+                          <sc-if value="{{r.ci}}" hint-placeholder-val="{{ false }}">
+                            <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="#EDEDED"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"></path></svg>
+                            <span>Yes</span>
+                          </sc-if>
+                          <sc-if value="{{r.noCi}}" hint-placeholder-val="{{ true }}">
+                            <span style="color: #8A8A8A">No</span>
+                          </sc-if>
+                        </span>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{rosterEmpty}}" hint-placeholder-val="{{ false }}">
+                    <div class="rl-empty">
+                      <span>{{emptyText}}</span>
+                      <sc-if value="{{canClear}}" hint-placeholder-val="{{ false }}">
+                        <button type="button" class="btn" onClick="{{clearFilters}}">Clear filters</button>
+                      </sc-if>
+                    </div>
+                  </sc-if>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </sc-if>
+
+      <!-- ───────── Audit log page ───────── -->
+      <sc-if value="{{isAudit}}" hint-placeholder-val="{{ false }}">
+        <div class="main">
+          <section class="panel rl-panel al-panel" aria-label="Audit log">
+            <div class="rl-tools">
+              <div class="al-fwrap">
+                <button type="button" class="btn al-chip" data-on="{{al.dateOn}}" aria-haspopup="menu" aria-expanded="{{al.datePop}}" aria-label="Date range: {{al.dateLabel}}" onClick="{{al.toggleDate}}">
+                  <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Z"></path></svg>
+                  <span class="chip-lbl">{{al.dateLabel}}</span>
+                  <svg class="i-sm chip-lbl" aria-hidden="true" viewBox="0 0 256 256" fill="#8A8A8A"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"></path></svg>
+                </button>
+                <sc-if value="{{al.datePop}}" hint-placeholder-val="{{ false }}">
+                  <div class="pop" role="menu" style="top: calc(100% + 4px); left: 0; width: 260px">
+                    <sc-for list="{{al.presets}}" as="p" hint-placeholder-count="7">
+                      <button type="button" class="pop-item" role="menuitemradio" aria-checked="{{p.on}}" onClick="{{p.pick}}" style="height: 32px">
+                        <span class="al-slot">
+                          <sc-if value="{{p.on}}" hint-placeholder-val="{{ false }}"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="#EDEDED"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"></path></svg></sc-if>
+                        </span>
+                        <span>{{p.label}}</span>
+                        <span class="hint">{{p.hint}}</span>
+                      </button>
+                    </sc-for>
+                    <sc-if value="{{al.isCustom}}" hint-placeholder-val="{{ false }}">
+                      <div style="display: flex; align-items: center; gap: 6px; padding: 6px 8px 4px">
+                        <input type="date" class="al-date" aria-label="From date" value="{{al.from}}" onChange="{{al.setFrom}}">
+                        <span style="color: #8A8A8A">–</span>
+                        <input type="date" class="al-date" aria-label="To date" value="{{al.to}}" onChange="{{al.setTo}}">
+                      </div>
+                    </sc-if>
+                  </div>
+                </sc-if>
+              </div>
+
+              <div class="al-fwrap">
+                <button type="button" class="btn al-chip" data-on="{{al.actOn}}" aria-haspopup="menu" aria-expanded="{{al.actPop}}" aria-label="Action filter: {{al.actLabel}}" onClick="{{al.toggleAct}}">
+                  <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M240,128a8,8,0,0,1-8,8H204.94l-37.78,75.58A8,8,0,0,1,160,216h-.4a8,8,0,0,1-7.08-5.14L95.35,60.76,63.28,131.31A8,8,0,0,1,56,136H24a8,8,0,0,1,0-16H50.85L88.72,36.69a8,8,0,0,1,14.76.46l57.51,151,31.85-63.71A8,8,0,0,1,200,120h32A8,8,0,0,1,240,128Z"></path></svg>
+                  <span class="chip-lbl">{{al.actLabel}}</span>
+                  <svg class="i-sm chip-lbl" aria-hidden="true" viewBox="0 0 256 256" fill="#8A8A8A"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"></path></svg>
+                </button>
+                <sc-if value="{{al.actPop}}" hint-placeholder-val="{{ false }}">
+                  <div class="pop" role="menu" style="top: calc(100% + 4px); left: 0; width: 220px">
+                    <sc-for list="{{al.actions}}" as="o" hint-placeholder-count="7">
+                      <button type="button" class="pop-item" role="menuitemcheckbox" aria-checked="{{o.on}}" onClick="{{o.pick}}" style="height: 32px">
+                        <span class="al-ck" data-on="{{o.on}}">
+                          <sc-if value="{{o.on}}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" style="width: 10px; height: 10px" viewBox="0 0 256 256" fill="currentColor"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"></path></svg></sc-if>
+                        </span>
+                        <span>{{o.label}}</span>
+                        <span class="hint">{{o.n}}</span>
+                      </button>
+                    </sc-for>
+                  </div>
+                </sc-if>
+              </div>
+
+              <div class="al-fwrap">
+                <button type="button" class="btn al-chip" data-on="{{al.resOn}}" aria-haspopup="menu" aria-expanded="{{al.resPop}}" aria-label="Resource filter: {{al.resLabel}}" onClick="{{al.toggleRes}}">
+                  <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M230.91,172A8,8,0,0,1,228,182.91l-96,56a8,8,0,0,1-8.06,0l-96-56A8,8,0,0,1,36,169.09l92,53.65,92-53.65A8,8,0,0,1,230.91,172ZM220,121.09l-92,53.65L36,121.09A8,8,0,0,0,28,134.91l96,56a8,8,0,0,0,8.06,0l96-56A8,8,0,1,0,220,121.09ZM24,80a8,8,0,0,1,4-6.91l96-56a8,8,0,0,1,8.06,0l96,56a8,8,0,0,1,0,13.82l-96,56a8,8,0,0,1-8.06,0l-96-56A8,8,0,0,1,24,80Zm23.88,0L128,126.74,208.12,80,128,33.26Z"></path></svg>
+                  <span class="chip-lbl">{{al.resLabel}}</span>
+                  <svg class="i-sm chip-lbl" aria-hidden="true" viewBox="0 0 256 256" fill="#8A8A8A"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"></path></svg>
+                </button>
+                <sc-if value="{{al.resPop}}" hint-placeholder-val="{{ false }}">
+                  <div class="pop" role="menu" style="top: calc(100% + 4px); left: 0; width: 220px">
+                    <sc-for list="{{al.resources}}" as="o" hint-placeholder-count="8">
+                      <button type="button" class="pop-item" role="menuitemcheckbox" aria-checked="{{o.on}}" onClick="{{o.pick}}" style="height: 32px">
+                        <span class="al-ck" data-on="{{o.on}}">
+                          <sc-if value="{{o.on}}" hint-placeholder-val="{{ false }}"><svg aria-hidden="true" style="width: 10px; height: 10px" viewBox="0 0 256 256" fill="currentColor"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"></path></svg></sc-if>
+                        </span>
+                        <span>{{o.label}}</span>
+                        <span class="hint">{{o.n}}</span>
+                      </button>
+                    </sc-for>
+                  </div>
+                </sc-if>
+              </div>
+
+              <sc-if value="{{al.canClear}}" hint-placeholder-val="{{ false }}">
+                <button type="button" class="btn btn-ghost" onClick="{{al.clear}}" style="flex: none">Clear</button>
+              </sc-if>
+
+              <label class="search">
+                <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="#8A8A8A"><path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"></path></svg>
+                <input type="search" placeholder="Search actor, dancer, summary" aria-label="Search audit log" value="{{al.q}}" onChange="{{al.setQ}}">
+              </label>
+            </div>
+
+            <div class="rl-scroll">
+              <div class="al">
+                <div class="al-grid al-head">
+                  <span></span>
+                  <span class="lbl">Timestamp</span>
+                  <span class="lbl">Actor</span>
+                  <span class="lbl">Action</span>
+                  <span class="lbl">Resource</span>
+                  <span class="lbl">Dancer</span>
+                  <span class="lbl">Summary</span>
+                </div>
+                <sc-for list="{{al.rows}}" as="e" hint-placeholder-count="8">
+                  <button type="button" class="al-row al-grid" aria-expanded="{{e.open}}" onClick="{{e.toggle}}">
+                    <svg class="i-sm al-chev" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"></path></svg>
+                    <span class="al-ts" title="{{e.abs}}">{{e.rel}}</span>
+                    <span class="al-cell" style="font-weight: 500">{{e.actor}}</span>
+                    <span class="c-st al-cell" style="color: {{e.actColor}}">{{e.actionLabel}}</span>
+                    <span class="al-cell" style="color: #A3A3A3">{{e.resource}}</span>
+                    <span class="al-cell" style="color: {{e.dancerColor}}">{{e.dancer}}</span>
+                    <span class="al-cell" style="color: #A3A3A3">{{e.summary}}</span>
+                  </button>
+                  <sc-if value="{{e.open}}" hint-placeholder-val="{{ false }}">
+                    <div class="al-detail">
+                      <span class="al-meta">{{e.abs}} · {{e.resource}} {{e.rid}}</span>
+                      <div class="al-diff">
+                        <sc-if value="{{e.isDiff}}" hint-placeholder-val="{{ true }}">
+                          <div class="al-drow al-dhead"><span class="lbl">Field</span><span class="lbl">Before</span><span></span><span class="lbl">After</span></div>
+                          <sc-for list="{{e.diff}}" as="d" hint-placeholder-count="2">
+                            <div class="al-drow">
+                              <span class="al-f">{{d.f}}</span>
+                              <span class="{{d.bCls}}">{{d.b}}</span>
+                              <svg class="i-sm" aria-label="to" role="img" viewBox="0 0 256 256" fill="#6B6B6B"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"></path></svg>
+                              <span class="{{d.aCls}}">{{d.a}}</span>
+                            </div>
+                          </sc-for>
+                        </sc-if>
+                        <sc-if value="{{e.isValues}}" hint-placeholder-val="{{ false }}">
+                          <div class="al-drow al-dhead al-span"><span class="lbl">Field</span><span class="lbl" style="grid-column: 2 / -1">{{e.valuesHead}}</span></div>
+                          <sc-for list="{{e.values}}" as="d" hint-placeholder-count="3">
+                            <div class="al-drow al-span">
+                              <span class="al-f">{{d.f}}</span>
+                              <span class="{{d.cls}}">{{d.v}}</span>
+                            </div>
+                          </sc-for>
+                        </sc-if>
+                        <sc-if value="{{e.showSame}}" hint-placeholder-val="{{ false }}">
+                          <sc-for list="{{e.same}}" as="x" hint-placeholder-count="3">
+                            <div class="al-drow al-span al-same">
+                              <span class="al-f">{{x.f}}</span>
+                              <span class="al-v">{{x.v}}</span>
+                            </div>
+                          </sc-for>
+                        </sc-if>
+                        <sc-if value="{{e.hasSame}}" hint-placeholder-val="{{ false }}">
+                          <button type="button" class="al-more" aria-expanded="{{e.showSame}}" onClick="{{e.toggleSame}}">
+                            <svg class="i-sm" aria-hidden="true" style="{{e.sameChev}}" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"></path></svg>
+                            {{e.sameLabel}}
+                          </button>
+                        </sc-if>
+                      </div>
+                    </div>
+                  </sc-if>
+                </sc-for>
+                <sc-if value="{{al.empty}}" hint-placeholder-val="{{ false }}">
+                  <div class="rl-empty">
+                    <span>No events match</span>
+                    <button type="button" class="btn" onClick="{{al.clear}}">Clear filters</button>
+                  </div>
+                </sc-if>
+              </div>
+            </div>
+          </section>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{isDash}}" hint-placeholder-val="{{ true }}">
+      <div class="main">
+
+        <!-- Rosters: replaces the stat rail and both roster preview cards -->
+        <section class="panel" aria-label="Rosters">
+          <div class="rt-scroll">
+            <div class="rt">
+              <div class="rt-row rt-head">
+                <span class="lbl">Roster</span>
+                <span class="lbl" style="text-align: right">Total</span>
+                <span class="lbl rt-xs" style="text-align: right">Active</span>
+                <span class="lbl" style="text-align: right">Pending</span>
+                <span class="lbl rt-x">Activation</span>
+                <span></span>
+              </div>
+
+              <div class="rt-row">
+                <a href="#" onClick="{{goDancers}}" style="font-weight: 500; text-decoration: none">Dancers</a>
+                <span class="num">5</span>
+                <span class="num rt-xs">2</span>
+                <a class="num" href="#" onClick="{{goPending}}" aria-label="3 pending dancers, open roster filtered to pending" style="text-decoration: underline; text-decoration-color: #404040; text-underline-offset: 3px">3</a>
+                <span class="rt-x" style="display: flex; align-items: center; gap: 10px">
+                  <span class="bar"><span style="width: 40%"></span></span>
+                  <span class="mono" style="font-size: 11.5px; color: #A3A3A3; width: 32px; text-align: right">40%</span>
+                </span>
+                <span style="display: flex; justify-content: flex-end; gap: 4px">
+                  <button type="button" class="btn rt-up" aria-label="Upload dancers CSV" title="Upload CSV">
+                    <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M224,144v64a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V144a8,8,0,0,1,16,0v56H208V144a8,8,0,0,1,16,0ZM93.66,77.66,120,51.31V144a8,8,0,0,0,16,0V51.31l26.34,26.35a8,8,0,0,0,11.32-11.32l-40-40a8,8,0,0,0-11.32,0l-40,40A8,8,0,0,0,93.66,77.66Z"></path></svg>
+                    <span class="rt-up-lbl">Upload</span>
+                  </button>
+                </span>
+              </div>
+
+              <div class="rt-row">
+                <a href="#" onClick="{{goCoaches}}" style="font-weight: 500; text-decoration: none">Coaches</a>
+                <span class="num">1</span>
+                <span class="num rt-xs">1</span>
+                <span class="num" style="color: #8A8A8A">0</span>
+                <span class="rt-x" style="display: flex; align-items: center; gap: 10px">
+                  <span class="bar"><span style="width: 100%"></span></span>
+                  <span class="mono" style="font-size: 11.5px; color: #A3A3A3; width: 32px; text-align: right">100%</span>
+                </span>
+                <span style="display: flex; justify-content: flex-end; gap: 4px">
+                  <button type="button" class="btn rt-up" aria-label="Upload coaches CSV" title="Upload CSV">
+                    <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M224,144v64a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V144a8,8,0,0,1,16,0v56H208V144a8,8,0,0,1,16,0ZM93.66,77.66,120,51.31V144a8,8,0,0,0,16,0V51.31l26.34,26.35a8,8,0,0,0,11.32-11.32l-40-40a8,8,0,0,0-11.32,0l-40,40A8,8,0,0,0,93.66,77.66Z"></path></svg>
+                    <span class="rt-up-lbl">Upload</span>
+                  </button>
+                </span>
+              </div>
+
+              <div class="rt-row" style="border-bottom: 0; background: #1D1D1D; min-height: 40px">
+                <span style="color: #A3A3A3">All</span>
+                <span class="num" style="font-weight: 500">6</span>
+                <span class="num rt-xs" style="font-weight: 500">3</span>
+                <span class="num" style="font-weight: 500">3</span>
+                <span class="rt-x" style="display: flex; align-items: center; gap: 10px">
+                  <span class="bar"><span style="width: 50%"></span></span>
+                  <span class="mono" style="font-size: 11.5px; color: #EDEDED; width: 32px; text-align: right">50%</span>
+                </span>
+                <span></span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Widget board: one tile open at a time, the rest fold into strips -->
+        <div class="board has-res {{boardState}} {{boardAnim}}" ref="{{boardRef}}" data-n="{{tileCount}}" data-open="{{openIdx}}">
+
+          <!-- Requests -->
+          <sc-if value="{{hasRequests}}" hint-placeholder-val="{{ true }}">
+            <section class="{{tReq.cls}}" aria-label="Requests">
+              <button type="button" class="t-layer t-peek" onClick="{{tReq.open}}" aria-label="Expand requests">
+                <span class="t-head">
+                  <span class="lbl">Requests</span>
+                  <span class="t-exp"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M216,48V96a8,8,0,0,1-16,0V67.31l-50.34,50.35a8,8,0,0,1-11.32-11.32L188.69,56H160a8,8,0,0,1,0-16h48A8,8,0,0,1,216,48ZM106.34,138.34,56,188.69V160a8,8,0,0,0-16,0v48a8,8,0,0,0,8,8H96a8,8,0,0,0,0-16H67.31l50.35-50.34a8,8,0,0,0-11.32-11.32Z"></path></svg></span>
+                </span>
+                <span class="t-pbody">
+                  <span style="display: flex; align-items: baseline; gap: 8px">
+                    <span style="font-size: 32px; font-weight: 600; letter-spacing: -0.03em; line-height: 1">{{requestCount}}</span>
+                    <span style="font-size: 12.5px; color: #8A8A8A">to match</span>
+                  </span>
+                  <span class="pk-extra" style="display: flex; flex-direction: column; gap: 4px">
+                    <sc-for list="{{requestsPeek}}" as="r" hint-placeholder-count="2">
+                      <span style="display: flex; align-items: center; gap: 8px; min-width: 0">
+                        <span class="mono" style="flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: #A3A3A3">{{r.email}}</span>
+                        <span class="mono" style="flex: none; font-size: 11px; color: #8A8A8A">{{r.when}}</span>
+                      </span>
+                    </sc-for>
+                  </span>
+                </span>
+              </button>
+              <button type="button" class="t-layer t-strip" onClick="{{tReq.open}}" aria-label="Open requests">
+                <svg class="i" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M208,32H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32Zm0,16V152h-28.7A15.86,15.86,0,0,0,168,156.69L148.69,176H107.31L88,156.69A15.86,15.86,0,0,0,76.69,152H48V48Zm0,160H48V168H76.69L96,187.31A15.86,15.86,0,0,0,107.31,192h41.38A15.86,15.86,0,0,0,160,187.31L179.31,168H208v40Z"></path></svg>
+                <span class="mono" style="font-size: 11.5px; color: #EDEDED">{{requestCount}}</span>
+                <span class="t-strip-label">Requests</span>
+              </button>
+              <div class="t-layer t-full">
+                <div class="ph t-fhead" onClick="{{headerCollapse}}" title="Collapse" style="height: 44px; min-height: 0; box-sizing: border-box; padding: 0 8px 0 14px">
+                  <span class="lbl">Requests</span>
+                  <span class="mono" style="font-size: 12px; color: #A3A3A3">{{requestCount}}</span>
+                  <span style="flex: 1"></span>
+                  <button type="button" class="btn btn-ghost btn-icon" aria-label="Collapse requests" onClick="{{collapseTile}}"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,53.66,163.31,104H192a8,8,0,0,1,0,16H144a8,8,0,0,1-8-8V64a8,8,0,0,1,16,0V92.69l50.34-50.35a8,8,0,0,1,11.32,11.32ZM112,136H64a8,8,0,0,0,0,16H92.69L42.34,202.34a8,8,0,0,0,11.32,11.32L104,163.31V192a8,8,0,0,0,16,0V144A8,8,0,0,0,112,136Z"></path></svg></button>
+                </div>
+                <div class="t-fbody">
+                  <sc-for list="{{requestsAll}}" as="r" hint-placeholder-count="3">
+                    <div class="act" style="grid-template-columns: 16px minmax(0, 1fr) auto auto; height: 48px">
+                      <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M224,48H32a8,8,0,0,0-8,8V192a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A8,8,0,0,0,224,48ZM203.43,64,128,133.15,52.57,64ZM216,192H40V74.19l82.59,75.71a8,8,0,0,0,10.82,0L216,74.19V192Z"></path></svg>
+                      <span class="mono" style="font-size: 12.5px; color: #EDEDED; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{r.email}}</span>
+                      <span class="mono" style="font-size: 11.5px; color: #8A8A8A">{{r.when}}</span>
+                      <button type="button" class="btn" onClick="{{r.open}}" aria-haspopup="dialog" style="height: 26px; font-size: 12px">Match</button>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </section>
+          </sc-if>
+
+          <!-- Schedule -->
+          <section class="{{tSch.cls}}" aria-label="Schedule">
+            <button type="button" class="t-layer t-peek" onClick="{{tSch.open}}" aria-label="Expand schedule">
+              <sc-if value="{{scheduleUploaded}}" hint-placeholder-val="{{ true }}">
+                <span class="sch-bg" aria-hidden="true">
+                  <span class="sch-sheet">
+                    <span class="sch-line" style="width: 55%; height: 10px; background: #6B6B6B"></span>
+                    <span class="sch-row"><span style="width: 18%"></span><span style="width: 52%"></span></span>
+                    <span class="sch-row"><span style="width: 18%"></span><span style="width: 64%"></span></span>
+                    <span class="sch-row"><span style="width: 18%"></span><span style="width: 40%"></span></span>
+                    <span class="sch-row"><span style="width: 18%"></span><span style="width: 58%"></span></span>
+                    <span class="sch-line" style="width: 35%; height: 8px; background: #6B6B6B; margin-top: 6px"></span>
+                    <span class="sch-row"><span style="width: 18%"></span><span style="width: 46%"></span></span>
+                    <span class="sch-row"><span style="width: 18%"></span><span style="width: 70%"></span></span>
+                    <span class="sch-row"><span style="width: 18%"></span><span style="width: 38%"></span></span>
+                    <span class="sch-row"><span style="width: 18%"></span><span style="width: 60%"></span></span>
+                    <span class="sch-row"><span style="width: 18%"></span><span style="width: 50%"></span></span>
+                    <span class="sch-line" style="width: 42%; height: 8px; background: #6B6B6B; margin-top: 6px"></span>
+                    <span class="sch-row"><span style="width: 18%"></span><span style="width: 56%"></span></span>
+                    <span class="sch-row"><span style="width: 18%"></span><span style="width: 44%"></span></span>
+                    <span class="sch-row"><span style="width: 18%"></span><span style="width: 66%"></span></span>
+                  </span>
+                </span>
+              </sc-if>
+              <span class="t-head">
+                <span class="lbl" style="color: #C4C4C4">Schedule</span>
+                <span class="t-exp"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M216,48V96a8,8,0,0,1-16,0V67.31l-50.34,50.35a8,8,0,0,1-11.32-11.32L188.69,56H160a8,8,0,0,1,0-16h48A8,8,0,0,1,216,48ZM106.34,138.34,56,188.69V160a8,8,0,0,0-16,0v48a8,8,0,0,0,8,8H96a8,8,0,0,0,0-16H67.31l50.35-50.34a8,8,0,0,0-11.32-11.32Z"></path></svg></span>
+              </span>
+              <span class="t-pbody" style="justify-content: space-between">
+                <sc-if value="{{scheduleUploaded}}" hint-placeholder-val="{{ true }}">
+                  <span style="flex: 1"></span>
+                  <span class="mono" style="font-size: 12px; color: #EDEDED; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">schedule.pdf</span>
+                </sc-if>
+                <sc-if value="{{scheduleEmpty}}" hint-placeholder-val="{{ false }}">
+                  <span style="flex: 1"></span>
+                  <span style="font-size: 12.5px; color: #8A8A8A">No schedule yet</span>
+                </sc-if>
+              </span>
+            </button>
+            <button type="button" class="t-layer t-strip" onClick="{{tSch.open}}" aria-label="Open schedule">
+              <svg class="i" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Z"></path></svg>
+              <span class="t-strip-label">Schedule</span>
+            </button>
+            <div class="t-layer t-full">
+              <div class="ph t-fhead" onClick="{{headerCollapse}}" title="Collapse" style="height: 44px; min-height: 0; box-sizing: border-box; padding: 0 8px 0 14px">
+                <span class="lbl">Schedule</span>
+                <sc-if value="{{scheduleUploaded}}" hint-placeholder-val="{{ true }}">
+                  <span class="mono" style="font-size: 12px; color: #A3A3A3">schedule.pdf</span>
+                </sc-if>
+                <span style="flex: 1"></span>
+                <sc-if value="{{scheduleUploaded}}" hint-placeholder-val="{{ true }}">
+                  <button type="button" class="btn" style="height: 24px; padding: 0 8px; border-radius: 5px; font-size: 12px">
+                    <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M224,48V96a8,8,0,0,1-8,8H168a8,8,0,0,1,0-16h28.69L182.06,73.37a79.56,79.56,0,0,0-56.13-23.43h-.45A79.52,79.52,0,0,0,69.59,72.71,8,8,0,0,1,58.41,61.27a96,96,0,0,1,135,.79L208,76.69V48a8,8,0,0,1,16,0ZM186.41,183.29a80,80,0,0,1-112.47-.66L59.31,168H88a8,8,0,0,0,0-16H40a8,8,0,0,0-8,8v48a8,8,0,0,0,16,0V179.31l14.63,14.63A95.43,95.43,0,0,0,130,222.06h.53a95.36,95.36,0,0,0,67.07-27.33,8,8,0,0,0-11.18-11.44Z"></path></svg>
+                    Replace
+                  </button>
+                </sc-if>
+                <button type="button" class="btn btn-ghost btn-icon" aria-label="Collapse schedule" onClick="{{collapseTile}}"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,53.66,163.31,104H192a8,8,0,0,1,0,16H144a8,8,0,0,1-8-8V64a8,8,0,0,1,16,0V92.69l50.34-50.35a8,8,0,0,1,11.32,11.32ZM112,136H64a8,8,0,0,0,0,16H92.69L42.34,202.34a8,8,0,0,0,11.32,11.32L104,163.31V192a8,8,0,0,0,16,0V144A8,8,0,0,0,112,136Z"></path></svg></button>
+              </div>
+              <sc-if value="{{scheduleUploaded}}" hint-placeholder-val="{{ true }}">
+                <div class="t-fbody" style="position: relative; background: #141414">
+                  <div style="position: absolute; top: 16px; bottom: 16px; left: 50%; transform: translateX(-50%); aspect-ratio: 8.5 / 11; max-width: calc(100% - 32px); background: #E5E5E5; border-radius: 2px; box-shadow: 0 4px 24px rgba(0,0,0,.4); display: grid; place-items: center">
+                    <span class="mono" style="font-size: 12px; color: #555555">[Schedule PDF preview]</span>
+                  </div>
+                </div>
+              </sc-if>
+              <sc-if value="{{scheduleEmpty}}" hint-placeholder-val="{{ false }}">
+                <div class="t-fbody" style="padding: 12px; display: flex">
+                  <label style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; border: 1px dashed #3A3A3A; border-radius: 8px; cursor: pointer; position: relative">
+                    <svg class="i" aria-hidden="true" style="width: 20px; height: 20px" viewBox="0 0 256 256" fill="#A3A3A3"><path d="M178.34,165.66,160,147.31V208a8,8,0,0,1-16,0V147.31l-18.34,18.35a8,8,0,0,1-11.32-11.32l32-32a8,8,0,0,1,11.32,0l32,32a8,8,0,0,1-11.32,11.32ZM160,40A88.08,88.08,0,0,0,81.29,88.68,64,64,0,1,0,72,216h40a8,8,0,0,0,0-16H72a48,48,0,0,1,0-96c1.1,0,2.2,0,3.29.12A88,88,0,0,0,72,128a8,8,0,0,0,16,0,72,72,0,1,1,100.8,66,8,8,0,0,0,3.2,15.34,7.9,7.9,0,0,0,3.2-.68A88,88,0,0,0,160,40Z"></path></svg>
+                    <span style="display: flex; align-items: center; gap: 8px; color: #A3A3A3">Drop a PDF or image, or <span class="btn">Browse</span></span>
+                    <span class="mono" style="font-size: 11px; color: #8A8A8A">Max 25 MB</span>
+                    <input type="file" accept="application/pdf,image/*" style="position: absolute; width: 1px; height: 1px; opacity: 0">
+                  </label>
+                </div>
+              </sc-if>
+            </div>
+          </section>
+
+          <!-- Callbacks -->
+          <section class="{{tCb.cls}}" aria-label="Callbacks">
+            <button type="button" class="t-layer t-peek" onClick="{{tCb.open}}" aria-label="Expand callbacks">
+              <span class="t-head">
+                <span class="lbl">Callbacks</span>
+                <span role="img" aria-label="{{cbConnLabel}}" title="{{cbConnLabel}}" style="display: inline-grid; place-items: center; color: {{cbConnColor}}">
+                  <sc-if value="{{cbOnline}}" hint-placeholder-val="{{ true }}"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M140,204a12,12,0,1,1-12-12A12,12,0,0,1,140,204ZM237.08,87A172,172,0,0,0,18.92,87,8,8,0,0,0,29.08,99.37a156,156,0,0,1,197.84,0A8,8,0,0,0,237.08,87ZM205,122.77a124,124,0,0,0-153.94,0A8,8,0,0,0,61,135.31a108,108,0,0,1,134.06,0,8,8,0,0,0,11.24-1.3A8,8,0,0,0,205,122.77Zm-32.26,35.76a76.05,76.05,0,0,0-89.42,0,8,8,0,0,0,9.42,12.94,60,60,0,0,1,70.58,0,8,8,0,1,0,9.42-12.94Z"></path></svg></sc-if>
+                  <sc-if value="{{cbOffline}}" hint-placeholder-val="{{ false }}"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M213.92,210.62a8,8,0,1,1-11.84,10.76l-52-57.15a60,60,0,0,0-57.41,7.24,8,8,0,1,1-9.42-12.93A75.43,75.43,0,0,1,128,144c1.28,0,2.55,0,3.82.1L104.9,114.49A108,108,0,0,0,61,135.31,8,8,0,0,1,49.73,134,8,8,0,0,1,51,122.77a124.27,124.27,0,0,1,41.71-21.66L69.37,75.4a155.43,155.43,0,0,0-40.29,24A8,8,0,0,1,18.92,87,171.87,171.87,0,0,1,58,62.86L42.08,45.38A8,8,0,1,1,53.92,34.62ZM128,192a12,12,0,1,0,12,12A12,12,0,0,0,128,192ZM237.08,87A172.3,172.3,0,0,0,106,49.4a8,8,0,1,0,2,15.87A158.33,158.33,0,0,1,128,64a156.25,156.25,0,0,1,98.92,35.37A8,8,0,0,0,237.08,87ZM195,135.31a8,8,0,0,0,11.24-1.3,8,8,0,0,0-1.3-11.24,124.25,124.25,0,0,0-51.73-24.2A8,8,0,1,0,150,114.24,108.12,108.12,0,0,1,195,135.31Z"></path></svg></sc-if>
+                </span>
+                <span class="t-exp"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M216,48V96a8,8,0,0,1-16,0V67.31l-50.34,50.35a8,8,0,0,1-11.32-11.32L188.69,56H160a8,8,0,0,1,0-16h48A8,8,0,0,1,216,48ZM106.34,138.34,56,188.69V160a8,8,0,0,0-16,0v48a8,8,0,0,0,8,8H96a8,8,0,0,0,0-16H67.31l50.35-50.34a8,8,0,0,0-11.32-11.32Z"></path></svg></span>
+              </span>
+              <span class="t-pbody">
+                <span style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+                  <span style="font-size: 13px; font-weight: 500; color: #EDEDED; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">Teen Contemporary</span>
+                  <span class="mono" style="font-size: 11.5px; color: #8A8A8A">Finals · 35m ago</span>
+                </span>
+                <span class="pk-extra" style="display: flex; flex-wrap: wrap; gap: 4px">
+                  <span class="chip mono" style="height: 22px; cursor: inherit">122</span>
+                  <span class="chip mono" style="height: 22px; cursor: inherit">220</span>
+                </span>
+              </span>
+            </button>
+            <button type="button" class="t-layer t-strip" onClick="{{tCb.open}}" aria-label="Open callbacks">
+              <svg class="i" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M228.54,86.66l-176.06-54A16,16,0,0,0,32,48V192a16,16,0,0,0,16,16,16,16,0,0,0,4.52-.65L136,181.73V192a16,16,0,0,0,16,16h32a16,16,0,0,0,16-16v-29.9l28.54-8.75A16.09,16.09,0,0,0,240,138V102A16.09,16.09,0,0,0,228.54,86.66ZM136,165,48,192V48l88,27Zm48,27H152V176.82L184,167Zm40-54-.11,0L152,160.08V79.92l71.89,22,.11,0v36Z"></path></svg>
+              <span role="img" aria-label="{{cbConnLabel}}" title="{{cbConnLabel}}" style="display: inline-grid; place-items: center; color: {{cbConnColor}}">
+                <sc-if value="{{cbOnline}}" hint-placeholder-val="{{ true }}"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M140,204a12,12,0,1,1-12-12A12,12,0,0,1,140,204ZM237.08,87A172,172,0,0,0,18.92,87,8,8,0,0,0,29.08,99.37a156,156,0,0,1,197.84,0A8,8,0,0,0,237.08,87ZM205,122.77a124,124,0,0,0-153.94,0A8,8,0,0,0,61,135.31a108,108,0,0,1,134.06,0,8,8,0,0,0,11.24-1.3A8,8,0,0,0,205,122.77Zm-32.26,35.76a76.05,76.05,0,0,0-89.42,0,8,8,0,0,0,9.42,12.94,60,60,0,0,1,70.58,0,8,8,0,1,0,9.42-12.94Z"></path></svg></sc-if>
+                <sc-if value="{{cbOffline}}" hint-placeholder-val="{{ false }}"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M213.92,210.62a8,8,0,1,1-11.84,10.76l-52-57.15a60,60,0,0,0-57.41,7.24,8,8,0,1,1-9.42-12.93A75.43,75.43,0,0,1,128,144c1.28,0,2.55,0,3.82.1L104.9,114.49A108,108,0,0,0,61,135.31,8,8,0,0,1,49.73,134,8,8,0,0,1,51,122.77a124.27,124.27,0,0,1,41.71-21.66L69.37,75.4a155.43,155.43,0,0,0-40.29,24A8,8,0,0,1,18.92,87,171.87,171.87,0,0,1,58,62.86L42.08,45.38A8,8,0,1,1,53.92,34.62ZM128,192a12,12,0,1,0,12,12A12,12,0,0,0,128,192ZM237.08,87A172.3,172.3,0,0,0,106,49.4a8,8,0,1,0,2,15.87A158.33,158.33,0,0,1,128,64a156.25,156.25,0,0,1,98.92,35.37A8,8,0,0,0,237.08,87ZM195,135.31a8,8,0,0,0,11.24-1.3,8,8,0,0,0-1.3-11.24,124.25,124.25,0,0,0-51.73-24.2A8,8,0,1,0,150,114.24,108.12,108.12,0,0,1,195,135.31Z"></path></svg></sc-if>
+              </span>
+              <span class="t-strip-label">Callbacks</span>
+            </button>
+            <div class="t-layer t-full">
+              <div class="ph t-fhead" onClick="{{headerCollapse}}" title="Collapse" style="height: 44px; min-height: 0; box-sizing: border-box; padding: 0 8px 0 14px">
+                <span class="lbl">Callbacks</span>
+                <span role="img" aria-label="{{cbConnLabel}}" title="{{cbConnLabel}}" style="display: inline-grid; place-items: center; color: {{cbConnColor}}">
+                  <sc-if value="{{cbOnline}}" hint-placeholder-val="{{ true }}"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M140,204a12,12,0,1,1-12-12A12,12,0,0,1,140,204ZM237.08,87A172,172,0,0,0,18.92,87,8,8,0,0,0,29.08,99.37a156,156,0,0,1,197.84,0A8,8,0,0,0,237.08,87ZM205,122.77a124,124,0,0,0-153.94,0A8,8,0,0,0,61,135.31a108,108,0,0,1,134.06,0,8,8,0,0,0,11.24-1.3A8,8,0,0,0,205,122.77Zm-32.26,35.76a76.05,76.05,0,0,0-89.42,0,8,8,0,0,0,9.42,12.94,60,60,0,0,1,70.58,0,8,8,0,1,0,9.42-12.94Z"></path></svg></sc-if>
+                  <sc-if value="{{cbOffline}}" hint-placeholder-val="{{ false }}"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M213.92,210.62a8,8,0,1,1-11.84,10.76l-52-57.15a60,60,0,0,0-57.41,7.24,8,8,0,1,1-9.42-12.93A75.43,75.43,0,0,1,128,144c1.28,0,2.55,0,3.82.1L104.9,114.49A108,108,0,0,0,61,135.31,8,8,0,0,1,49.73,134,8,8,0,0,1,51,122.77a124.27,124.27,0,0,1,41.71-21.66L69.37,75.4a155.43,155.43,0,0,0-40.29,24A8,8,0,0,1,18.92,87,171.87,171.87,0,0,1,58,62.86L42.08,45.38A8,8,0,1,1,53.92,34.62ZM128,192a12,12,0,1,0,12,12A12,12,0,0,0,128,192ZM237.08,87A172.3,172.3,0,0,0,106,49.4a8,8,0,1,0,2,15.87A158.33,158.33,0,0,1,128,64a156.25,156.25,0,0,1,98.92,35.37A8,8,0,0,0,237.08,87ZM195,135.31a8,8,0,0,0,11.24-1.3,8,8,0,0,0-1.3-11.24,124.25,124.25,0,0,0-51.73-24.2A8,8,0,1,0,150,114.24,108.12,108.12,0,0,1,195,135.31Z"></path></svg></sc-if>
+                </span>
+                <span style="flex: 1"></span>
+                <button type="button" class="btn" style="height: 24px; padding: 0 8px; border-radius: 5px; font-size: 12px">
+                  <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M224,128a8,8,0,0,1-8,8H136v80a8,8,0,0,1-16,0V136H40a8,8,0,0,1,0-16h80V40a8,8,0,0,1,16,0v80h80A8,8,0,0,1,224,128Z"></path></svg>
+                  New callback
+                </button>
+                <button type="button" class="btn btn-ghost btn-icon" aria-label="Collapse callbacks" onClick="{{collapseTile}}"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,53.66,163.31,104H192a8,8,0,0,1,0,16H144a8,8,0,0,1-8-8V64a8,8,0,0,1,16,0V92.69l50.34-50.35a8,8,0,0,1,11.32,11.32ZM112,136H64a8,8,0,0,0,0,16H92.69L42.34,202.34a8,8,0,0,0,11.32,11.32L104,163.31V192a8,8,0,0,0,16,0V144A8,8,0,0,0,112,136Z"></path></svg></button>
+              </div>
+              <div class="t-fbody">
+                <sc-for list="{{callbacks}}" as="c" hint-placeholder-count="3">
+                  <div style="display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-bottom: 1px solid #262626">
+                    <div style="display: flex; align-items: center; gap: 8px">
+                      <span style="font-size: 13px; font-weight: 500">{{c.title}}</span>
+                      <span class="mono" style="font-size: 11.5px; color: #8A8A8A">{{c.round}}</span>
+                      <span style="flex: 1"></span>
+                      <span class="mono" style="font-size: 11px; color: {{c.statusColor}}; border: 1px solid #333333; border-radius: 4px; padding: 1px 6px">{{c.status}}</span>
+                    </div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 6px">
+                      <sc-for list="{{c.dancers}}" as="d" hint-placeholder-count="2">
+                        <a class="chip" href="#"><span class="mono" style="color: #8A8A8A">{{d.bib}}</span>{{d.name}}</a>
+                      </sc-for>
+                      <sc-if value="{{c.empty}}" hint-placeholder-val="{{ false }}">
+                        <span style="font-size: 12.5px; color: #8A8A8A">No dancers called back yet</span>
+                      </sc-if>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </section>
+
+          <!-- Video library -->
+          <section class="{{tVid.cls}}" aria-label="Video library">
+            <button type="button" class="t-layer t-peek" onClick="{{tVid.open}}" aria-label="Expand video library">
+              <span class="t-head">
+                <span class="lbl">Videos</span>
+                <span class="t-exp"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M216,48V96a8,8,0,0,1-16,0V67.31l-50.34,50.35a8,8,0,0,1-11.32-11.32L188.69,56H160a8,8,0,0,1,0-16h48A8,8,0,0,1,216,48ZM106.34,138.34,56,188.69V160a8,8,0,0,0-16,0v48a8,8,0,0,0,8,8H96a8,8,0,0,0,0-16H67.31l50.35-50.34a8,8,0,0,0-11.32-11.32Z"></path></svg></span>
+              </span>
+              <span class="t-pbody">
+                <span class="vid-peek" style="flex: 1; min-height: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 4px">
+                  <span style="display: grid; place-items: center; background: #222222; border-radius: 4px; color: #555555"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z"></path></svg></span>
+                  <span style="display: grid; place-items: center; background: #222222; border-radius: 4px; color: #555555"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z"></path></svg></span>
+                  <span style="display: grid; place-items: center; background: #222222; border-radius: 4px; color: #555555"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z"></path></svg></span>
+                  <span style="display: grid; place-items: center; background: #222222; border-radius: 4px; color: #555555"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z"></path></svg></span>
+                </span>
+                <span style="display: flex; align-items: baseline; gap: 6px"><span class="mono" style="font-size: 13px; color: #EDEDED">{{videoCount}}</span><span style="font-size: 12.5px; color: #8A8A8A">videos</span></span>
+              </span>
+            </button>
+            <button type="button" class="t-layer t-strip" onClick="{{tVid.open}}" aria-label="Open video library">
+              <svg class="i" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm48.24-94.78-64-40A8,8,0,0,0,100,88v80a8,8,0,0,0,12.24,6.78l64-40a8,8,0,0,0,0-13.56ZM116,153.57V102.43L156.91,128Z"></path></svg>
+              <span class="mono" style="font-size: 11.5px; color: #EDEDED">{{videoCount}}</span>
+              <span class="t-strip-label">Videos</span>
+            </button>
+            <div class="t-layer t-full">
+              <div class="ph t-fhead" onClick="{{headerCollapse}}" title="Collapse" style="height: 44px; min-height: 0; box-sizing: border-box; padding: 0 8px 0 14px">
+                <span class="lbl">Video library</span>
+                <span class="mono" style="font-size: 12px; color: #A3A3A3">{{videoCount}}</span>
+                <span style="flex: 1"></span>
+                <button type="button" class="btn" style="height: 24px; padding: 0 8px; border-radius: 5px; font-size: 12px">
+                  <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M224,144v64a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V144a8,8,0,0,1,16,0v56H208V144a8,8,0,0,1,16,0ZM93.66,77.66,120,51.31V144a8,8,0,0,0,16,0V51.31l26.34,26.35a8,8,0,0,0,11.32-11.32l-40-40a8,8,0,0,0-11.32,0l-40,40A8,8,0,0,0,93.66,77.66Z"></path></svg>
+                  Upload
+                </button>
+                <button type="button" class="btn btn-ghost btn-icon" aria-label="Collapse video library" onClick="{{collapseTile}}"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,53.66,163.31,104H192a8,8,0,0,1,0,16H144a8,8,0,0,1-8-8V64a8,8,0,0,1,16,0V92.69l50.34-50.35a8,8,0,0,1,11.32,11.32ZM112,136H64a8,8,0,0,0,0,16H92.69L42.34,202.34a8,8,0,0,0,11.32,11.32L104,163.31V192a8,8,0,0,0,16,0V144A8,8,0,0,0,112,136Z"></path></svg></button>
+              </div>
+              <div class="t-fbody" style="padding: 14px">
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr)); gap: 14px">
+                  <sc-for list="{{videos}}" as="v" hint-placeholder-count="4">
+                    <a href="#" style="display: flex; flex-direction: column; gap: 8px; text-decoration: none; color: #EDEDED">
+                      <span style="position: relative; display: grid; place-items: center; aspect-ratio: 16 / 9; background: #222222; border: 1px solid #2B2B2B; border-radius: 8px; color: #A3A3A3">
+                        <svg aria-hidden="true" style="width: 22px; height: 22px" viewBox="0 0 256 256" fill="currentColor"><path d="M240,128a15.74,15.74,0,0,1-7.6,13.51L88.32,229.65a16,16,0,0,1-16.2.3A15.86,15.86,0,0,1,64,216.13V39.87a15.86,15.86,0,0,1,8.12-13.82,16,16,0,0,1,16.2.3L232.4,114.49A15.74,15.74,0,0,1,240,128Z"></path></svg>
+                        <span class="mono" style="position: absolute; right: 6px; bottom: 6px; font-size: 11px; color: #EDEDED; background: rgba(0,0,0,.6); border-radius: 4px; padding: 1px 5px">{{v.dur}}</span>
+                      </span>
+                      <span style="display: flex; flex-direction: column; gap: 2px">
+                        <span style="font-size: 13px; font-weight: 500">{{v.name}}</span>
+                        <span class="mono" style="font-size: 11.5px; color: #8A8A8A">{{v.bib}} · {{v.title}}</span>
+                      </span>
+                    </a>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Check-in: camera scanner (second row, before Results) -->
+          <section class="{{tIn.cls}}" aria-label="Check-in">
+            <button type="button" class="t-layer t-peek" onClick="{{tIn.open}}" aria-label="Expand check-in">
+              <span class="t-head">
+                <span class="lbl">Check-in</span>
+                <span class="t-exp"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M216,48V96a8,8,0,0,1-16,0V67.31l-50.34,50.35a8,8,0,0,1-11.32-11.32L188.69,56H160a8,8,0,0,1,0-16h48A8,8,0,0,1,216,48ZM106.34,138.34,56,188.69V160a8,8,0,0,0-16,0v48a8,8,0,0,0,8,8H96a8,8,0,0,0,0-16H67.31l50.35-50.34a8,8,0,0,0-11.32-11.32Z"></path></svg></span>
+              </span>
+              <span class="t-pbody">
+                <span style="display: flex; align-items: baseline; gap: 6px">
+                  <span style="font-size: 32px; font-weight: 600; letter-spacing: -0.03em; line-height: 1">{{ciCount}}</span>
+                  <span class="mono" style="font-size: 14px; color: #8A8A8A">/{{ciTotal}}</span>
+                  <span style="font-size: 12.5px; color: #8A8A8A">checked in</span>
+                </span>
+                <span class="bar pk-extra" style="display: block; flex: none"><span style="width: {{ciPct}}%"></span></span>
+              </span>
+            </button>
+            <button type="button" class="t-layer t-strip" onClick="{{tIn.open}}" aria-label="Open check-in">
+              <svg class="i" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M224,40V80a8,8,0,0,1-16,0V48H176a8,8,0,0,1,0-16h40A8,8,0,0,1,224,40ZM80,208H48V176a8,8,0,0,0-16,0v40a8,8,0,0,0,8,8H80a8,8,0,0,0,0-16Zm136-40a8,8,0,0,0-8,8v32H176a8,8,0,0,0,0,16h40a8,8,0,0,0,8-8V176A8,8,0,0,0,216,168ZM40,88a8,8,0,0,0,8-8V48H80a8,8,0,0,0,0-16H40a8,8,0,0,0-8,8V80A8,8,0,0,0,40,88ZM80,72h96a8,8,0,0,1,8,8v96a8,8,0,0,1-8,8H80a8,8,0,0,1-8-8V80A8,8,0,0,1,80,72Zm8,96h80V88H88Z"></path></svg>
+              <span class="mono" style="font-size: 11.5px; color: #EDEDED">{{ciCount}}/{{ciTotal}}</span>
+              <span class="t-strip-label">Check-in</span>
+            </button>
+            <div class="t-layer t-full">
+              <div class="ph t-fhead" onClick="{{headerCollapse}}" title="Collapse" style="height: 44px; min-height: 0; box-sizing: border-box; padding: 0 8px 0 14px">
+                <span class="lbl">Check-in</span>
+                <span class="mono" style="font-size: 12px; color: #A3A3A3">{{ciCount}}/{{ciTotal}}</span>
+                <span style="flex: 1"></span>
+                <a class="btn btn-ghost" href="https://claude.ai/artifact/7Crc6K3coCRchsxBWxNPSi" target="_blank" rel="noopener" title="Open the check-in desk in a full page"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M224,104a8,8,0,0,1-16,0V59.32l-66.33,66.34a8,8,0,0,1-11.32-11.32L196.68,48H152a8,8,0,0,1,0-16h64a8,8,0,0,1,8,8Zm-40,24a8,8,0,0,0-8,8v72H48V80h72a8,8,0,0,0,0-16H48A16,16,0,0,0,32,80V208a16,16,0,0,0,16,16H176a16,16,0,0,0,16-16V136A8,8,0,0,0,184,128Z"></path></svg>Full page</a>
+                <button type="button" class="btn btn-ghost btn-icon" aria-label="Collapse check-in" onClick="{{collapseTile}}"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,53.66,163.31,104H192a8,8,0,0,1,0,16H144a8,8,0,0,1-8-8V64a8,8,0,0,1,16,0V92.69l50.34-50.35a8,8,0,0,1,11.32,11.32ZM112,136H64a8,8,0,0,0,0,16H92.69L42.34,202.34a8,8,0,0,0,11.32,11.32L104,163.31V192a8,8,0,0,0,16,0V144A8,8,0,0,0,112,136Z"></path></svg></button>
+              </div>
+              <div class="t-fbody">
+                <div class="ci-body">
+                  <div class="ci-scan">
+                    <div class="{{ciViewCls}}" role="region" aria-label="QR scanner" aria-live="polite">
+                      <video class="ci-video" ref="{{videoRef}}" aria-hidden="true"></video>
+                      <span class="ci-c tl"></span><span class="ci-c tr"></span><span class="ci-c bl"></span><span class="ci-c br"></span>
+                      <sc-if value="{{scanIdle}}" hint-placeholder-val="{{ true }}">
+                        <div class="ci-idle">
+                          <span style="color: #8A8A8A"><svg class="i" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor" style="width: 32px; height: 32px"><path d="M104,40H56A16,16,0,0,0,40,56v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V56A16,16,0,0,0,104,40Zm0,64H56V56h48v48Zm0,32H56a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V152A16,16,0,0,0,104,136Zm0,64H56V152h48v48ZM200,40H152a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V56A16,16,0,0,0,200,40Zm0,64H152V56h48v48Zm-64,72V144a8,8,0,0,1,16,0v32a8,8,0,0,1-16,0Zm80-16a8,8,0,0,1-8,8H184v40a8,8,0,0,1-8,8H144a8,8,0,0,1,0-16h24V144a8,8,0,0,1,16,0v8h24A8,8,0,0,1,216,160Zm0,32v16a8,8,0,0,1-16,0V192a8,8,0,0,1,16,0Z"></path></svg></span>
+                          <button type="button" class="btn btn-primary" onClick="{{startScan}}" style="height: 32px"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M208,56H180.28L166.65,35.56A8,8,0,0,0,160,32H96a8,8,0,0,0-6.65,3.56L75.71,56H48A24,24,0,0,0,24,80V192a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V80A24,24,0,0,0,208,56Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V80a8,8,0,0,1,8-8H80a8,8,0,0,0,6.66-3.56L100.28,48h55.43l13.63,20.44A8,8,0,0,0,176,72h32a8,8,0,0,1,8,8ZM128,88a44,44,0,1,0,44,44A44.05,44.05,0,0,0,128,88Zm0,72a28,28,0,1,1,28-28A28,28,0,0,1,128,160Z"></path></svg>Open camera</button>
+                        </div>
+                      </sc-if>
+                      <sc-if value="{{scanLive}}" hint-placeholder-val="{{ false }}">
+                        <span class="ci-line"></span>
+                        <span class="mono ci-state">{{scanLabel}}</span>
+                      </sc-if>
+                      <sc-if value="{{scanHit}}" hint-placeholder-val="{{ false }}">
+                        <div class="ci-hit">
+                          <span style="color: #EDEDED"><svg class="i" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor" style="width: 32px; height: 32px"><path d="M173.66,98.34a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35A8,8,0,0,1,173.66,98.34ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"></path></svg></span>
+                          <span class="mono" style="font-size: 32px; font-weight: 500; line-height: 1">{{scanBib}}</span>
+                          <span style="font-size: 14px; font-weight: 600">{{scanName}}</span>
+                          <span class="mono" style="font-size: 11.5px; color: #A3A3A3">Checked in · {{scanTime}}</span>
+                        </div>
+                      </sc-if>
+                      <sc-if value="{{scanDone}}" hint-placeholder-val="{{ false }}">
+                        <div class="ci-hit">
+                          <span style="color: #EDEDED"><svg class="i" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor" style="width: 32px; height: 32px"><path d="M173.66,98.34a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35A8,8,0,0,1,173.66,98.34ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"></path></svg></span>
+                          <span style="font-size: 13px">Everyone is checked in</span>
+                        </div>
+                      </sc-if>
+                    </div>
+                    <sc-if value="{{scanning}}" hint-placeholder-val="{{ false }}">
+                      <span style="display: flex; gap: 8px">
+                        <sc-if value="{{scanHit}}" hint-placeholder-val="{{ false }}">
+                          <button type="button" class="btn" onClick="{{startScan}}"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M224,40V80a8,8,0,0,1-16,0V48H176a8,8,0,0,1,0-16h40A8,8,0,0,1,224,40ZM80,208H48V176a8,8,0,0,0-16,0v40a8,8,0,0,0,8,8H80a8,8,0,0,0,0-16Zm136-40a8,8,0,0,0-8,8v32H176a8,8,0,0,0,0,16h40a8,8,0,0,0,8-8V176A8,8,0,0,0,216,168ZM40,88a8,8,0,0,0,8-8V48H80a8,8,0,0,0,0-16H40a8,8,0,0,0-8,8V80A8,8,0,0,0,40,88ZM80,72h96a8,8,0,0,1,8,8v96a8,8,0,0,1-8,8H80a8,8,0,0,1-8-8V80A8,8,0,0,1,80,72Zm8,96h80V88H88Z"></path></svg>Scan next</button>
+                        </sc-if>
+                        <button type="button" class="btn btn-ghost" onClick="{{stopScan}}">Close camera</button>
+                      </span>
+                    </sc-if>
+                    <div class="ci-last" aria-live="polite">
+                      <span class="lbl">Last checked in</span>
+                      <sc-if value="{{ciHasLast}}" hint-placeholder-val="{{ true }}">
+                        <div style="display: flex; align-items: baseline; gap: 10px; min-width: 0">
+                          <span class="mono" style="flex: none; font-size: 20px; font-weight: 500; line-height: 1; color: #EDEDED">{{ciLast.bib}}</span>
+                          <span style="flex: 1; min-width: 0; font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ciLast.name}}</span>
+                          <span class="mono" style="flex: none; font-size: 11.5px; color: #8A8A8A">{{ciLast.time}}</span>
+                        </div>
+                      </sc-if>
+                      <sc-if value="{{ciNoLast}}" hint-placeholder-val="{{ false }}">
+                        <span style="font-size: 13px; color: #8A8A8A">No one checked in yet</span>
+                      </sc-if>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Results (disabled): own row when all collapsed, a strip when a tile is open -->
+          <section class="{{tRes.cls}}" aria-label="Results" aria-disabled="true">
+            <button type="button" class="t-layer t-peek" disabled>
+              <span class="t-head">
+                <span class="lbl">Results</span>
+                <span class="t-exp"><svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M208,80H176V56a48,48,0,0,0-96,0V80H48A16,16,0,0,0,32,96V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V96A16,16,0,0,0,208,80ZM96,56a32,32,0,0,1,64,0V80H96ZM208,208H48V96H208V208Z"></path></svg></span>
+              </span>
+              <span class="t-pbody">
+                <span style="font-size: 12.5px; color: #6B6B6B">Coming soon</span>
+              </span>
+            </button>
+            <button type="button" class="t-layer t-strip" disabled aria-label="Results, coming soon">
+              <svg class="i" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M208,80H176V56a48,48,0,0,0-96,0V80H48A16,16,0,0,0,32,96V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V96A16,16,0,0,0,208,80ZM96,56a32,32,0,0,1,64,0V80H96ZM208,208H48V96H208V208Z"></path></svg>
+              <span class="t-strip-label">Results</span>
+            </button>
+          </section>
+        </div>
+      </div>
+
+      <!-- ───────── Right rail ───────── -->
+      <aside class="panel rail" aria-label="Event" style="overflow: visible">
+        <div class="rail-sec rail-event" style="padding: 14px; display: flex; flex-direction: column; gap: 12px">
+          <div style="display: flex; align-items: center; justify-content: space-between">
+            <span class="mono" style="font-size: 11px; letter-spacing: .06em; color: {{accent}}; border: 1px solid #333333; border-radius: 4px; padding: 2px 6px">LIVE</span>
+            <span class="mono" style="font-size: 12px; color: #A3A3A3">{{timeLeft}}</span>
+          </div>
+          <div style="display: flex; align-items: baseline; gap: 8px; font-variant-numeric: tabular-nums">
+            <span style="font-size: 32px; font-weight: 600; letter-spacing: -0.035em; line-height: 1">Day {{curDay}}</span>
+            <span style="font-size: 14px; font-weight: 500; color: #8A8A8A">of {{eventDays}}</span>
+          </div>
+          <div role="img" aria-label="{{dayAria}}" style="display: flex; gap: 4px">
+            <sc-for list="{{segs}}" as="d" hint-placeholder-count="3">
+              <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px">
+                <span style="display: block; height: 10px; border-radius: 3px; background: {{d.bg}}"></span>
+                <span class="mono" style="font-size: 11.5px; color: {{d.color}}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{d.label}}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div class="rail-sec">
+          <div class="ph"><span class="lbl">Details</span></div>
+          <dl style="margin: 0; padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 12px">
+            <div style="display: flex; align-items: center; gap: 10px">
+              <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; position: relative">
+                <dt style="font-size: 11.5px; color: #8A8A8A">Dates · 2026</dt>
+                <dd style="margin: 0; display: flex; align-items: center; gap: 6px">
+                  <button type="button" class="chip" aria-label="Start date" aria-expanded="{{startOpen}}" onClick="{{toggleStart}}" style="flex: 1; justify-content: center; {{startChipStyle}}">{{startLabel}}</button>
+                  <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="#8A8A8A"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"></path></svg>
+                  <button type="button" class="chip" aria-label="End date" aria-expanded="{{endOpen}}" onClick="{{toggleEnd}}" style="flex: 1; justify-content: center; {{endChipStyle}}">{{endLabel}}</button>
+                </dd>
+                <sc-if value="{{calOpen}}" hint-placeholder-val="{{ false }}">
+                  <div role="dialog" aria-label="Choose date" style="position: absolute; z-index: 30; top: calc(100% + 6px); left: 0; right: 0; padding: 8px; border: 1px solid #333333; border-radius: 10px; background: #202020; box-shadow: 0 12px 32px rgba(0,0,0,.5)">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px">
+                      <button type="button" class="btn btn-ghost btn-icon" aria-label="Previous month" onClick="{{prevMonth}}" style="width: 24px; height: 24px">
+                        <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M165.66,202.34a8,8,0,0,1-11.32,11.32l-80-80a8,8,0,0,1,0-11.32l80-80a8,8,0,0,1,11.32,11.32L91.31,128Z"></path></svg>
+                      </button>
+                      <span style="font-size: 12.5px; font-weight: 500">{{monthLabel}}</span>
+                      <button type="button" class="btn btn-ghost btn-icon" aria-label="Next month" onClick="{{nextMonth}}" style="width: 24px; height: 24px">
+                        <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z"></path></svg>
+                      </button>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px">
+                      <sc-for list="{{weekdays}}" as="w" hint-placeholder-count="7">
+                        <span class="mono" style="height: 20px; line-height: 20px; text-align: center; font-size: 10.5px; color: #8A8A8A">{{w}}</span>
+                      </sc-for>
+                      <sc-for list="{{cells}}" as="c" hint-placeholder-count="35">
+                        <button type="button" aria-label="{{c.aria}}" disabled="{{c.blank}}" onClick="{{c.pick}}" style="height: 28px; padding: 0; border: 0; border-radius: 5px; font: inherit; font-size: 12px; font-variant-numeric: tabular-nums; cursor: pointer; {{c.style}}">{{c.label}}</button>
+                      </sc-for>
+                    </div>
+                  </div>
+                </sc-if>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px">
+              <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; position: relative">
+                <dt style="font-size: 11.5px; color: #8A8A8A">Times · MDT</dt>
+                <dd style="margin: 0; display: flex; align-items: center; gap: 6px">
+                  <button type="button" class="chip mono" aria-label="Start time" aria-expanded="{{timeStartOpen}}" onClick="{{toggleTime}}" style="flex: 1; justify-content: center; {{timeChipStyle}}">{{startTime}}</button>
+                  <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="#8A8A8A"><path d="M221.66,133.66l-72,72a8,8,0,0,1-11.32-11.32L196.69,136H40a8,8,0,0,1,0-16H196.69L138.34,61.66a8,8,0,0,1,11.32-11.32l72,72A8,8,0,0,1,221.66,133.66Z"></path></svg>
+                  <button type="button" class="chip mono" aria-label="End time" aria-expanded="{{timeEndOpen}}" onClick="{{toggleTimeEnd}}" style="flex: 1; justify-content: center; {{timeEndChipStyle}}">{{endTime}}</button>
+                </dd>
+                <sc-if value="{{timeOpen}}" hint-placeholder-val="{{ false }}">
+                  <div role="dialog" aria-label="Choose time" style="position: absolute; z-index: 30; top: calc(100% + 6px); left: 0; right: 0; box-sizing: border-box; padding: 6px; border: 1px solid #333333; border-radius: 10px; background: #202020; box-shadow: 0 12px 32px rgba(0,0,0,.5); display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; max-height: 158px; overflow-y: auto">
+                    <sc-for list="{{times}}" as="t" hint-placeholder-count="12">
+                      <button type="button" class="mono" onClick="{{t.pick}}" style="height: 28px; padding: 0; border: 0; border-radius: 5px; font-size: 12px; cursor: pointer; {{t.style}}">{{t.label}}</button>
+                    </sc-for>
+                  </div>
+                </sc-if>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px">
+              <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1">
+                <dt style="font-size: 11.5px; color: #8A8A8A">Location</dt>
+                <dd style="margin: 0; display: flex; flex-direction: column; gap: 2px; min-width: 0">
+                  <span style="font-size: 13px; color: #EDEDED">[Venue name]</span>
+                  <span style="font-size: 12px; color: #A3A3A3">[Street address, City, State]</span>
+                </dd>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px">
+              <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1">
+                <dt style="font-size: 11.5px; color: #8A8A8A">Contact</dt>
+                <dd style="margin: 0; display: flex; align-items: center; gap: 4px; min-width: 0">
+                  <a href="mailto:info@studio2stadium.com" style="text-decoration: none; font-size: 13px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">info@studio2stadium.com</a>
+                </dd>
+              </div>
+            </div>
+          </dl>
+        </div>
+
+      </aside>
+      </sc-if>
+    </div>
+  </div>
+
+  <!-- ───────── Mobile bottom bar ───────── -->
+  <nav class="bbar" aria-label="Primary (mobile)">
+    <a class="bb {{navDash}}" href="#" aria-label="Dashboard" aria-current="{{curDash}}" onClick="{{goDash}}"><span class="bb-ico"><svg aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,16V96H40V56ZM40,112H96v88H40Zm176,88H112V112H216v88Z"></path></svg></span><span class="bb-lbl" aria-hidden="true"><span>Dashboard</span></span></a>
+    <a class="bb {{navD}}" href="#" aria-label="Dancers" aria-current="{{curD}}" onClick="{{goDancers}}"><span class="bb-ico"><svg aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M231.16,166.63l-28.63-14.31A47.74,47.74,0,0,1,176,109.39V80a8,8,0,0,0-8-8,48.05,48.05,0,0,1-48-48,8,8,0,0,0-12.83-6.37L30.13,76l-.2.16a16,16,0,0,0-1.24,23.75L142.4,213.66a8,8,0,0,0,5.66,2.34H224a16,16,0,0,0,16-16V180.94A15.92,15.92,0,0,0,231.16,166.63ZM224,200H151.37L40,88.63l12.87-9.76,38.79,38.79A8,8,0,0,0,103,106.34L65.74,69.11l40-30.31A64.15,64.15,0,0,0,160,87.5v21.89a63.65,63.65,0,0,0,35.38,57.24L224,180.94ZM70.8,184H32a8,8,0,0,1,0-16H70.8a8,8,0,1,1,0,16Zm40,24a8,8,0,0,1-8,8H48a8,8,0,0,1,0-16h54.8A8,8,0,0,1,110.8,208Z"></path></svg></span><span class="bb-lbl" aria-hidden="true"><span>Dancers</span></span></a>
+    <a class="bb {{navC}}" href="#" aria-label="Coaches" aria-current="{{curC}}" onClick="{{goCoaches}}"><span class="bb-ico"><svg aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M251.76,88.94l-120-64a8,8,0,0,0-7.52,0l-120,64a8,8,0,0,0,0,14.12L32,117.87v48.42a15.91,15.91,0,0,0,4.06,10.65C49.16,191.53,78.51,216,128,216a130,130,0,0,0,48-8.76V240a8,8,0,0,0,16,0V199.51a115.63,115.63,0,0,0,27.94-22.57A15.91,15.91,0,0,0,224,166.29V117.87l27.76-14.81a8,8,0,0,0,0-14.12ZM128,200c-43.27,0-68.72-21.14-80-33.71V126.4l76.24,40.66a8,8,0,0,0,7.52,0L176,143.47v46.34C163.4,195.69,147.52,200,128,200Zm80-33.75a97.83,97.83,0,0,1-16,14.25V134.93l16-8.53ZM188,118.94l-.22-.13-56-29.87a8,8,0,0,0-7.52,14.12L171,128l-43,22.93L25,96,128,41.07,231,96Z"></path></svg></span><span class="bb-lbl" aria-hidden="true"><span>Coaches</span></span></a>
+    <a class="bb {{navA}}" href="#" aria-label="Audit log" aria-current="{{curA}}" onClick="{{goAudit}}"><span class="bb-ico"><svg aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M213.66,82.34l-56-56A8,8,0,0,0,152,24H56A16,16,0,0,0,40,40V216a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V88A8,8,0,0,0,213.66,82.34ZM160,51.31,188.69,80H160ZM200,216H56V40h88V88a8,8,0,0,0,8,8h48V216Zm-32-80a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,136Zm0,32a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h64A8,8,0,0,1,168,168Z"></path></svg></span><span class="bb-lbl" aria-hidden="true"><span>Audit log</span></span></a>
+    <a class="bb" href="#" aria-label="Settings" onClick="{{goSettings}}"><span class="bb-ico"><svg aria-hidden="true" viewBox="0 0 256 256" fill="currentColor"><path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160Zm109.94-52.79a8,8,0,0,0-3.89-5.4l-29.83-17-.12-33.62a8,8,0,0,0-2.83-6.08,111.91,111.91,0,0,0-36.72-20.67,8,8,0,0,0-6.46.59L128,41.85,97.88,25a8,8,0,0,0-6.47-.6A112.1,112.1,0,0,0,54.73,45.15a8,8,0,0,0-2.83,6.07l-.15,33.65-29.83,17a8,8,0,0,0-3.89,5.4,106.47,106.47,0,0,0,0,41.56,8,8,0,0,0,3.89,5.4l29.83,17,.12,33.62a8,8,0,0,0,2.83,6.08,111.91,111.91,0,0,0,36.72,20.67,8,8,0,0,0,6.46-.59L128,214.15,158.12,231a7.91,7.91,0,0,0,3.9,1,8.09,8.09,0,0,0,2.57-.42,112.1,112.1,0,0,0,36.68-20.73,8,8,0,0,0,2.83-6.07l.15-33.65,29.83-17a8,8,0,0,0,3.89-5.4A106.47,106.47,0,0,0,237.94,107.21Zm-15,34.91-28.57,16.25a8,8,0,0,0-3,3c-.58,1-1.19,2.06-1.81,3.06a7.94,7.94,0,0,0-1.22,4.21l-.15,32.25a95.89,95.89,0,0,1-25.37,14.3L134,199.13a8,8,0,0,0-3.91-1h-.19c-1.21,0-2.43,0-3.64,0a8.08,8.08,0,0,0-4.1,1l-28.84,16.1A96,96,0,0,1,67.88,201l-.11-32.2a8,8,0,0,0-1.22-4.22c-.62-1-1.23-2-1.8-3.06a8.09,8.09,0,0,0-3-3.06l-28.6-16.29a90.49,90.49,0,0,1,0-28.26L61.67,97.63a8,8,0,0,0,3-3c.58-1,1.19-2.06,1.81-3.06a7.94,7.94,0,0,0,1.22-4.21l.15-32.25a95.89,95.89,0,0,1,25.37-14.3L122,56.87a8,8,0,0,0,4.1,1c1.21,0,2.43,0,3.64,0a8.08,8.08,0,0,0,4.1-1l28.84-16.1A96,96,0,0,1,188.12,55l.11,32.2a8,8,0,0,0,1.22,4.22c.62,1,1.23,2,1.8,3.06a8.09,8.09,0,0,0,3,3.06l28.6,16.29A90.49,90.49,0,0,1,222.9,142.12Z"></path></svg></span><span class="bb-lbl" aria-hidden="true"><span>Settings</span></span></a>
+  </nav>
+
+  <!-- ───────── Match request dialog ───────── -->
+  <sc-if value="{{dialogOpen}}" hint-placeholder-val="{{ false }}">
+    <div style="position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,.6); display: grid; place-items: center; padding: 16px">
+      <div role="dialog" aria-modal="true" aria-labelledby="rq-title" style="width: 100%; max-width: 420px; background: #1D1D1D; border: 1px solid #333333; border-radius: 12px; box-shadow: 0 24px 64px rgba(0,0,0,.6); overflow: hidden">
+        <h2 id="rq-title" style="margin: 0; padding: 16px 16px 0; font-size: 15px; font-weight: 600">Match sign-in to a dancer</h2>
+        <div style="display: flex; flex-direction: column; gap: 14px; padding: 16px">
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <span class="lbl">Signed in as</span>
+            <div style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 10px; border: 1px solid #2B2B2B; border-radius: 6px; background: #161616">
+              <svg class="i-sm" aria-hidden="true" viewBox="0 0 256 256" fill="#8A8A8A"><path d="M224,48H32a8,8,0,0,0-8,8V192a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A8,8,0,0,0,224,48ZM203.43,64,128,133.15,52.57,64ZM216,192H40V74.19l82.59,75.71a8,8,0,0,0,10.82,0L216,74.19V192Z"></path></svg>
+              <span class="mono" style="flex: 1; min-width: 0; font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{dialogEmail}}</span>
+              <span class="mono" style="font-size: 11px; color: #8A8A8A">{{dialogWhen}}</span>
+            </div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <label class="lbl" for="rq-dancer">Dancer row</label>
+            <span class="sel-wrap">
+              <select id="rq-dancer" class="sel" value="{{dialogSel}}" onChange="{{pickDancer}}" style="height: 32px">
+                <option value="">Choose dancer…</option>
+                <optgroup label="Not activated">
+                  <option value="125">125 · Jason Jones</option>
+                  <option value="122">122 · Jane Doe</option>
+                  <option value="220">220 · Abbey Nugent</option>
+                </optgroup>
+                <optgroup label="Active">
+                  <option value="126">126 · Mary Miller</option>
+                  <option value="230">230 · Juna Park</option>
+                </optgroup>
+              </select>
+              <svg class="i-sm" aria-hidden="true" style="top: 9px" viewBox="0 0 256 256" fill="#A3A3A3"><path d="M213.66,101.66l-80,80a8,8,0,0,1-11.32,0l-80-80A8,8,0,0,1,53.66,90.34L128,164.69l74.34-74.35a8,8,0,0,1,11.32,11.32Z"></path></svg>
+            </span>
+          </div>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 8px; padding: 12px 16px; border-top: 1px solid #2B2B2B; background: #1A1A1A">
+          <button type="button" class="btn btn-ghost" onClick="{{closeDialog}}" style="height: 32px">Cancel</button>
+          <button type="button" class="btn btn-primary" disabled="{{switchDisabled}}" onClick="{{confirmSwitch}}" style="height: 32px">Switch email</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#6EE7A0&quot;,&quot;options&quot;:[&quot;#6EE7A0&quot;,&quot;#FBBF24&quot;,&quot;#7DD3FC&quot;,&quot;#EDEDED&quot;]},&quot;scheduleUploaded&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true},&quot;eventDays&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;min&quot;:1,&quot;max&quot;:5,&quot;default&quot;:3},&quot;currentDay&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;min&quot;:1,&quot;max&quot;:5,&quot;default&quot;:2},&quot;callbacksConn&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;connected&quot;,&quot;connecting&quot;,&quot;offline&quot;],&quot;default&quot;:&quot;connected&quot;},&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900}}">
+class Component extends DCLogic {
+  constructor(...args) {
+    super(...args);
+    this.state = { switcherOpen: false, moreOpen: false };
+  }
+  componentDidMount() {
+    // 801–1360px: collapse the sidebar so 4 widgets stay ~200px+ wide beside the right rail (3 columns from 1180px, rail wraps at 1000px). Collapse on entering the range; re-expand on leaving upward if we collapsed it
+    if (!window.matchMedia) return;
+    this.narrowMq = window.matchMedia('(min-width: 801px) and (max-width: 1360px)');
+    this.onNarrow = () => {
+      const st = this.state || {};
+      if (this.narrowMq.matches) { if (!st.collapsed) this.setState({ collapsed: true, autoCollapsed: true }); }
+      else if (st.autoCollapsed && window.innerWidth > 1360) this.setState({ collapsed: false, autoCollapsed: false });
+    };
+    this.onNarrow();
+    if (this.narrowMq.addEventListener) this.narrowMq.addEventListener('change', this.onNarrow);
+    else if (this.narrowMq.addListener) this.narrowMq.addListener(this.onNarrow);
+  }
+  componentWillUnmount() {
+    if (this.stopCamera) this.stopCamera();
+    if (this.narrowMq && this.onNarrow) {
+      if (this.narrowMq.removeEventListener) this.narrowMq.removeEventListener('change', this.onNarrow);
+      else if (this.narrowMq.removeListener) this.narrowMq.removeListener(this.onNarrow);
+    }
+  }
+  renderVals() {
+    const accent = this.props.accent ?? '#6EE7A0';
+    const uploaded = this.props.scheduleUploaded ?? true;
+    const eventDays = Math.max(1, Math.min(5, Math.round(this.props.eventDays ?? 3)));
+    const curDay = Math.max(1, Math.min(eventDays, Math.round(this.props.currentDay ?? 2)));
+    const evStart = Date.UTC(2026, 9, 22);
+    const isoDay = (i) => new Date(evStart + i * 86400000).toISOString().slice(0, 10);
+    const s = this.state || {};
+    const done = s.done || {};
+    const all = [
+      { id: 'r1', email: 'jasonjones08@gmail.com', when: '12m' },
+      { id: 'r2', email: 'janed.dance@icloud.com', when: '1h' },
+      { id: 'r3', email: 'abbey.n2011@yahoo.com', when: '3h' }
+    ];
+    const open = all.filter((r) => !done[r.id]);
+    const requests = open.slice(0, 3).map((r) => ({
+      email: r.email,
+      when: r.when,
+      open: () => this.setState({ openId: r.id, sel: '' })
+    }));
+    const tileIds = ['sch'].concat(open.length ? ['req'] : []).concat(['cb', 'vid']);
+    const allIds = tileIds.concat(['in']);
+    const openTile = s.tile && allIds.indexOf(s.tile) >= 0 ? s.tile : null;
+    const setTile = (id) => {
+      clearTimeout(this.animTimer);
+      if (id !== 'in' && this.stopCamera) this.stopCamera();
+      this.setState(id === 'in' ? { tile: id, anim: true } : { tile: id, anim: true, scanning: false, lastScan: null, camState: null });
+      this.animTimer = setTimeout(() => this.setState({ anim: false }), 600);
+      // Scroll in step with the open animation (same 500ms ease-out, same frame) so it reads as one motion
+      if (this.scrollRaf) cancelAnimationFrame(this.scrollRaf);
+      const b = this.boardEl;
+      if (id && b) {
+        const mobile = window.matchMedia && window.matchMedia('(max-width: 800px)').matches;
+        let sc = b.parentElement;
+        while (sc && sc !== document.body && !/(auto|scroll)/.test(getComputedStyle(sc).overflowY)) sc = sc.parentElement;
+        const useWin = !sc || sc === document.body;
+        const from = useWin ? (window.scrollY || 0) : sc.scrollTop;
+        const viewTop = useWin ? 0 : sc.getBoundingClientRect().top;
+        const to = Math.max(0, from + b.getBoundingClientRect().top - viewTop - 8 + (mobile ? allIds.indexOf(id) * 52 : 0));
+        const dist = to - from;
+        if (Math.abs(dist) > 1) {
+          const t0 = performance.now();
+          const step = (now) => {
+            const p = Math.min(1, (now - t0) / 500);
+            const y = from + dist * (1 - Math.pow(1 - p, 4));
+            if (useWin) window.scrollTo(0, y); else sc.scrollTop = y;
+            if (p < 1) this.scrollRaf = requestAnimationFrame(step);
+          };
+          this.scrollRaf = requestAnimationFrame(step);
+        }
+      }
+    };
+    const tile = (id) => ({
+      cls: 'tile ' + (openTile ? (openTile === id ? 'is-open' : 'is-strip') : 'is-peek'),
+      open: () => setTile(id)
+    });
+    const names = { '125': 'Jason Jones', '126': 'Mary Miller', '122': 'Jane Doe', '230': 'Juna Park', '220': 'Abbey Nugent' };
+    const callbacks = [
+      { title: 'Teen Contemporary', round: 'Finals', status: 'Posted 35m', statusColor: '#A3A3A3', bibs: ['122', '220'] },
+      { title: 'Senior Jazz', round: 'Round 2', status: 'Posted 2h', statusColor: '#A3A3A3', bibs: ['125', '126', '230'] },
+      { title: 'Junior Hip Hop', round: 'Round 1', status: 'Draft', statusColor: '#EDEDED', bibs: [] }
+    ].map((c) => Object.assign({}, c, { empty: c.bibs.length === 0, dancers: c.bibs.map((b) => ({ bib: b, name: names[b] })) }));
+    const videos = [
+      { name: 'Jason Jones', bib: '125', title: 'Jazz solo', dur: '2:14' },
+      { name: 'Mary Miller', bib: '126', title: 'Contemporary', dur: '1:58' },
+      { name: 'Juna Park', bib: '230', title: 'Hip hop', dur: '2:30' },
+      { name: 'Jane Doe', bib: '122', title: 'Lyrical', dur: '2:05' }
+    ];
+    const active = open.find((r) => r.id === s.openId);
+    const fmt = (d) => { const x = new Date(d + 'T00:00:00Z'); return isNaN(x) ? d : x.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' }); };
+    const startDate = s.startDate || isoDay(0);
+    const endDate = s.endDate || isoDay(eventDays - 1);
+    const startTime = s.startTime || '12:00';
+    const endTime = s.endTime || '18:00';
+    const toMin = (t) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));
+    const nowMin = 15 * 60 + 12;
+    const span = Math.max(1, toMin(endTime) - toMin(startTime));
+    const pct = Math.max(0, Math.min(100, Math.round((nowMin - toMin(startTime)) / span * 100)));
+    const minsLeft = Math.max(0, toMin(endTime) - nowMin);
+    const segs = [];
+    for (let i = 0; i < eventDays; i++) {
+      const dt = new Date(evStart + i * 86400000);
+      const label = dt.toLocaleDateString('en-US', { weekday: 'short', timeZone: 'UTC' }) + ' ' + dt.getUTCDate();
+      const n = i + 1;
+      segs.push({
+        label: label,
+        color: n === curDay ? '#EDEDED' : '#8A8A8A',
+        bg: n < curDay ? '#D4D4D4' : (n === curDay ? 'linear-gradient(to right, ' + accent + ' ' + pct + '%, #313131 ' + pct + '%)' : '#313131')
+      });
+    }
+    const mmddyy = (iso) => iso.slice(5, 7) + '/' + iso.slice(8, 10) + '/' + iso.slice(2, 4);
+    const picker = s.picker || null;
+    const on = 'border-color: #555555; background: #2A2A2A';
+    const pad = (n) => String(n).padStart(2, '0');
+    const target = picker === 'end' ? endDate : startDate;
+    const vm = s.viewMonth || target.slice(0, 7);
+    const vy = Number(vm.slice(0, 4));
+    const vmo = Number(vm.slice(5, 7));
+    const shift = (k) => { const d = new Date(Date.UTC(vy, vmo - 1 + k, 1)); this.setState({ viewMonth: d.getUTCFullYear() + '-' + pad(d.getUTCMonth() + 1) }); };
+    const firstDow = new Date(Date.UTC(vy, vmo - 1, 1)).getUTCDay();
+    const dim = new Date(Date.UTC(vy, vmo, 0)).getUTCDate();
+    const cells = [];
+    for (let i = 0; i < firstDow; i++) cells.push({ label: '', aria: '', blank: true, pick: null, style: 'background: transparent; visibility: hidden' });
+    for (let d = 1; d <= dim; d++) {
+      const id = vy + '-' + pad(vmo) + '-' + pad(d);
+      const sel = id === startDate || id === endDate;
+      const inRange = id > startDate && id < endDate;
+      cells.push({
+        label: String(d), aria: fmt(id), blank: false,
+        style: sel ? 'background: #EDEDED; color: #121212; font-weight: 600' : (inRange ? 'background: #272727; color: #EDEDED' : 'background: transparent; color: #A3A3A3'),
+        pick: () => this.setState(picker === 'end' ? { endDate: id, picker: null } : { startDate: id, picker: 'end', viewMonth: null })
+      });
+    }
+    const times = [];
+    for (let m = 6 * 60; m <= 22 * 60; m += 30) {
+      const t = pad(Math.floor(m / 60)) + ':' + pad(m % 60);
+      const cur = picker === 'timeEnd' ? endTime : startTime;
+      times.push({ label: t, style: t === cur ? 'background: #EDEDED; color: #121212; font-weight: 600' : 'background: transparent; color: #A3A3A3', pick: () => this.setState(picker === 'timeEnd' ? { endTime: t, picker: null } : { startTime: t, picker: 'timeEnd' }) });
+    }
+    // ── Roster pages ──
+    const page = s.page || 'dash';
+    const isD = page === 'dancers';
+    const isRoster = page === 'dancers' || page === 'coaches';
+    const go = (p, extra) => (e) => {
+      if (e && e.preventDefault) e.preventDefault();
+      if (this.stopCamera) this.stopCamera();
+      this.setState(Object.assign({ scanning: false, lastScan: null, camState: null, page: p, rsel: {}, q: '', filter: 'all', sortKey: null, sortDir: 1, switcherOpen: false, moreOpen: false, picker: null, alPop: null }, extra || {}));
+    };
+    const removed = s.removed || {};
+    const ciMap = s.ci || {};
+    const dancersBase = [
+      { id: '122', bib: '122', name: 'Jane Doe', email: 'abbey.nugent@yahoo.com', status: 'Pending', ci: false },
+      { id: '125', bib: '125', name: 'Jason Jones', email: 'abbeyhopenugent93@gmail.com', status: 'Pending', ci: false },
+      { id: '126', bib: '126', name: 'Mary Miller', email: 'abbeyapptesting@gmail.com', status: 'Active', ci: false },
+      { id: '220', bib: '220', name: 'Abbey Nugent', email: 'studiotostadium@gmail.com', status: 'Pending', ci: true },
+      { id: '230', bib: '230', name: 'Juna Park', email: 'junapark04@gmail.com', status: 'Active', ci: true }
+    ].filter((r) => !removed[r.id]);
+    const coachesBase = [
+      { id: 'c1', name: 'Abbey Nugent', email: 'studiotostadiumaws@gmail.com', school: 'Summit', status: 'Active' }
+    ].filter((r) => !removed[r.id]);
+    const base = (isD ? dancersBase : coachesBase).map((r) => Object.assign({}, r, { ci: ciMap[r.id] !== undefined ? ciMap[r.id] : !!r.ci }));
+    const filter = s.filter || 'all';
+    const q = s.q || '';
+    const ql = q.trim().toLowerCase();
+    const nActive = base.filter((r) => r.status === 'Active').length;
+    const filters = [['all', 'All', base.length], ['active', 'Active', nActive], ['pending', 'Pending', base.length - nActive]].map((f) => ({
+      label: f[1], n: f[2], pressed: filter === f[0], isAll: f[0] === 'all', isActive: f[0] === 'active', isPending: f[0] === 'pending', pick: () => this.setState({ filter: f[0], rsel: {} })
+    }));
+    const visible = base
+      .filter((r) => filter === 'all' || r.status.toLowerCase() === filter)
+      .filter((r) => !ql || [r.bib, r.name, r.email, r.school].some((v) => v && String(v).toLowerCase().indexOf(ql) >= 0));
+    const sortKey = s.sortKey || (isD ? 'bib' : 'name');
+    const sortDir = s.sortDir || 1;
+    const keyOf = (r) => sortKey === 'bib' ? Number(r.bib) : (sortKey === 'ci' ? (r.ci ? 1 : 0) : String(r[sortKey] || '').toLowerCase());
+    visible.sort((a, b) => { const av = keyOf(a); const bv = keyOf(b); return (av < bv ? -1 : av > bv ? 1 : 0) * sortDir; });
+    const colDefs = isD
+      ? [['bib', 'Bib #'], ['name', 'Name'], ['email', 'Email'], ['status', 'Status'], ['ci', 'Checked in']]
+      : [['name', 'Name'], ['email', 'Email'], ['school', 'School'], ['status', 'Status']];
+    const cols = colDefs.map((c) => ({
+      label: c[1],
+      cls: c[0] === 'email' ? 'c-email-h' : '',
+      on: sortKey === c[0],
+      asc: sortKey === c[0] && sortDir === 1,
+      desc: sortKey === c[0] && sortDir === -1,
+      ariaSort: sortKey === c[0] ? (sortDir === 1 ? 'ascending' : 'descending') : 'none',
+      sort: () => this.setState({ sortKey: c[0], sortDir: sortKey === c[0] ? -sortDir : 1 })
+    }));
+    const rsel = s.rsel || {};
+    const selRows = base.filter((r) => rsel[r.id]);
+    const anyOut = selRows.some((r) => !r.ci);
+    const allChecked = visible.length > 0 && visible.every((r) => rsel[r.id]);
+    const rosterRows = visible.map((r) => ({
+      bib: r.bib, name: r.name, email: r.email, school: r.school || '',
+      statusLabel: r.status.toUpperCase(),
+      stColor: r.status === 'Active' ? '#EDEDED' : '#8A8A8A',
+      isD: isD, isC: !isD, ci: !!r.ci, noCi: !r.ci,
+      bibCls: 'c-bib' + (isD ? '' : ' rl-hide'),
+      ciCls: 'c-ci' + (isD ? '' : ' rl-hide'),
+      schCls: 'c-sch' + (isD ? ' rl-hide' : ''),
+      checked: !!rsel[r.id],
+      aria: 'Select ' + r.name,
+      cls: 'rl-row ' + (isD ? 'rl-d' : 'rl-c') + (rsel[r.id] ? ' is-sel' : ''),
+      toggle: () => { const n = Object.assign({}, rsel); if (n[r.id]) delete n[r.id]; else n[r.id] = true; this.setState({ rsel: n }); }
+    }));
+
+    // Check-in (shares the roster's check-in state)
+    const ciAt = Object.assign({ '220': '09:48', '230': '10:12' }, s.ciAt || {});
+    const ciAll = dancersBase.map((d) => ({ id: d.id, bib: d.bib, name: d.name, ci: ciMap[d.id] !== undefined ? ciMap[d.id] : !!d.ci }));
+    const ciIn = ciAll.filter((d) => d.ci).sort((a, b) => ((ciAt[a.id] || '') < (ciAt[b.id] || '') ? 1 : -1));
+    const checkInNow = (id) => {
+      const st = this.state || {};
+      const cm = Object.assign({}, st.ci || {}); cm[id] = true;
+      const at = Object.assign({}, st.ciAt || {}); at[id] = '15:12';
+      this.setState({ ci: cm, ciAt: at, ciLastId: id });
+    };
+    // Camera: live feed in the viewfinder; QR read with BarcodeDetector, else jsQR.
+    // Falls back to a simulated scan when the camera can't be opened (no permission, sandboxed preview, no camera).
+    const isInNow = (d) => { const cm = (this.state || {}).ci || {}; return cm[d.id] !== undefined ? cm[d.id] : !!d.ci; };
+    this.onCode = (text) => {
+      this.scanPaused = true;
+      const bibs = String(text || '').match(/\d{2,4}/g) || [];
+      const d = dancersBase.find((x) => bibs.indexOf(x.bib) >= 0) || dancersBase.find((x) => !isInNow(x));
+      if (!d) { this.setState({ lastScan: 'none' }); return; }
+      if (!isInNow(d)) checkInNow(d.id);
+      this.setState({ lastScan: d.id });
+    };
+    this.stopCamera = () => {
+      clearTimeout(this.scanTimer);
+      if (this.scanRaf) cancelAnimationFrame(this.scanRaf);
+      this.scanRaf = 0;
+      if (this.stream) { this.stream.getTracks().forEach((t) => t.stop()); this.stream = null; }
+      if (this.videoEl) this.videoEl.srcObject = null;
+    };
+    const scanFrames = () => {
+      const tick = async () => {
+        const v = this.videoEl;
+        if (!this.stream || !v) return;
+        if (!this.scanPaused && !this.decoding && v.readyState >= 2) {
+          this.decoding = true;
+          try {
+            let text = null;
+            if ('BarcodeDetector' in window) {
+              this.detector = this.detector || new window.BarcodeDetector({ formats: ['qr_code'] });
+              const codes = await this.detector.detect(v);
+              if (codes && codes[0]) text = codes[0].rawValue;
+            } else if (window.jsQR && v.videoWidth) {
+              const c = this.scanCanvas || (this.scanCanvas = document.createElement('canvas'));
+              const k = Math.min(1, 480 / Math.max(v.videoWidth, v.videoHeight));
+              c.width = Math.round(v.videoWidth * k); c.height = Math.round(v.videoHeight * k);
+              const ctx = c.getContext('2d', { willReadFrequently: true });
+              ctx.drawImage(v, 0, 0, c.width, c.height);
+              const r = window.jsQR(ctx.getImageData(0, 0, c.width, c.height).data, c.width, c.height, { inversionAttempts: 'dontInvert' });
+              if (r && r.data) text = r.data;
+            }
+            if (text) this.onCode(text);
+          } catch (err) { /* keep scanning */ }
+          this.decoding = false;
+        }
+        this.scanRaf = requestAnimationFrame(tick);
+      };
+      this.scanRaf = requestAnimationFrame(tick);
+    };
+    const demoScan = () => { clearTimeout(this.scanTimer); this.scanTimer = setTimeout(() => this.onCode(''), 1800); };
+    const startScan = async () => {
+      this.scanPaused = false;
+      const st0 = this.state || {};
+      if (this.stream) { this.setState({ scanning: true, lastScan: null }); return; }
+      if (st0.scanning && st0.camState === 'demo') { this.setState({ lastScan: null }); demoScan(); return; }
+      this.setState({ scanning: true, lastScan: null, camState: 'starting' });
+      try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('no camera');
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
+        if (!(this.state || {}).scanning) { stream.getTracks().forEach((t) => t.stop()); return; }
+        this.stream = stream;
+        const v = this.videoEl;
+        if (v) { v.srcObject = stream; try { await v.play(); } catch (err) { /* autoplay blocked */ } }
+        this.setState({ camState: 'live' });
+        scanFrames();
+      } catch (err) {
+        this.setState({ camState: 'demo', camErr: (err && err.name) || '' });
+        demoScan();
+      }
+    };
+    const stopScan = () => { this.stopCamera(); this.setState({ scanning: false, lastScan: null, camState: null }); };
+    const scanning = !!s.scanning;
+    const hit = s.lastScan && s.lastScan !== 'none' ? ciAll.find((d) => d.id === s.lastScan) : null;
+    const lastIn = ciIn.find((d) => d.id === s.ciLastId) || ciIn[0] || null;
+
+    return {
+      ciCount: ciIn.length,
+      ciTotal: ciAll.length,
+      ciPct: ciAll.length ? Math.round(ciIn.length / ciAll.length * 100) : 0,
+      ciLast: lastIn ? { bib: lastIn.bib, name: lastIn.name, time: ciAt[lastIn.id] || '' } : { bib: '', name: '', time: '' },
+      ciHasLast: !!lastIn,
+      ciNoLast: !lastIn,
+      ciViewCls: 'ci-view' + (scanning ? ' live' : '') + (s.camState === 'live' ? ' cam' : ''),
+      scanLabel: s.camState === 'starting' ? 'Starting camera' : (s.camState === 'demo' ? (s.camErr === 'NotFoundError' ? 'No camera · demo scan' : 'Camera blocked · demo scan') : 'Scanning'),
+      videoRef: (el) => { this.videoEl = el; if (el) { el.muted = true; el.autoplay = true; el.playsInline = true; el.setAttribute('playsinline', ''); el.setAttribute('muted', ''); } },
+      scanning: scanning,
+      scanIdle: !scanning,
+      scanLive: scanning && !s.lastScan,
+      scanHit: scanning && !!hit,
+      scanDone: scanning && s.lastScan === 'none',
+      scanBib: hit ? hit.bib : '',
+      scanName: hit ? hit.name : '',
+      scanTime: hit ? (ciAt[hit.id] || '') : '',
+      startScan: startScan,
+      stopScan: stopScan,
+      isDash: page === 'dash',
+      isRoster: isRoster,
+      isAudit: page === 'audit',
+      isSub: isRoster || page === 'audit',
+      isDancers: isD,
+      bodyCls: (isRoster || page === 'audit') ? 'full' : '',
+      pageTitle: page === 'audit' ? 'Audit log' : (isD ? 'Dancers' : 'Coaches'),
+      al: this.auditVals(s),
+      navA: page === 'audit' ? 'on' : '',
+      curA: page === 'audit' ? 'page' : 'false',
+      goAudit: go('audit'),
+      goSettings: (e) => { if (e && e.preventDefault) e.preventDefault(); },
+      addLabel: isD ? 'Add dancer' : 'Add coach',
+      searchPh: isD ? 'Search bib, name, email' : 'Search name, email, school',
+      rowKind: isD ? 'rl-d' : 'rl-c',
+      tableKind: isD ? 'rl-dt' : 'rl-ct',
+      filters: filters,
+      cols: cols,
+      rosterRows: rosterRows,
+      rosterEmpty: visible.length === 0,
+      emptyText: ql ? 'No matches for “' + q.trim() + '”' : 'No ' + (filter === 'all' ? '' : filter + ' ') + (isD ? 'dancers' : 'coaches'),
+      canClear: !!ql || filter !== 'all',
+      clearFilters: () => this.setState({ q: '', filter: 'all' }),
+      q: q,
+      setQ: (e) => this.setState({ q: e.target.value }),
+      allChecked: allChecked,
+      toggleAll: () => { const n = Object.assign({}, rsel); visible.forEach((r) => { if (allChecked) delete n[r.id]; else n[r.id] = true; }); this.setState({ rsel: n }); },
+      hasSel: selRows.length > 0,
+      noSel: selRows.length === 0,
+      selCount: selRows.length,
+      canResend: selRows.some((r) => r.status === 'Pending'),
+      ciLabel: anyOut ? 'Check in' : 'Undo check-in',
+      clearSel: () => this.setState({ rsel: {} }),
+      bulkCheckIn: () => { const m = Object.assign({}, ciMap); selRows.forEach((r) => { m[r.id] = anyOut; }); this.setState({ ci: m }); },
+      removeSel: () => { const m = Object.assign({}, removed); selRows.forEach((r) => { m[r.id] = true; }); this.setState({ removed: m, rsel: {} }); },
+      navDash: page === 'dash' ? 'on' : '',
+      navD: page === 'dancers' ? 'on' : '',
+      navC: page === 'coaches' ? 'on' : '',
+      curDash: page === 'dash' ? 'page' : 'false',
+      curD: page === 'dancers' ? 'page' : 'false',
+      curC: page === 'coaches' ? 'page' : 'false',
+      goDash: go('dash'),
+      goDancers: go('dancers'),
+      goCoaches: go('coaches'),
+      goPending: go('dancers', { filter: 'pending' }),
+      navDancers: dancersBase.length,
+      navCoaches: coachesBase.length,
+      shellClass: s.collapsed ? 'collapsed' : '',
+      eventDays: eventDays,
+      curDay: curDay,
+      segs: segs,
+      dayAria: 'Day ' + curDay + ' of ' + eventDays + ', ' + pct + '% through today',
+      timeLeft: (minsLeft >= 60 ? Math.floor(minsLeft / 60) + 'h ' : '') + (minsLeft % 60) + 'm left today',
+      hdrDates: eventDays === 1 ? mmddyy(startDate) : mmddyy(startDate) + ' – ' + mmddyy(endDate),
+      tReq: tile('req'),
+      tSch: tile('sch'),
+      tCb: tile('cb'),
+      tVid: tile('vid'),
+      tRes: { cls: 'tile is-disabled ' + (openTile ? 'is-strip' : 'is-peek') },
+      tIn: { cls: tile('in').cls + ' t-in', open: tile('in').open },
+      tileCount: tileIds.length,
+      openIdx: openTile ? allIds.indexOf(openTile) : -1,
+      boardState: openTile ? 'has-open' : '',
+      boardAnim: s.anim ? 'anim' : '',
+      boardRef: (el) => { this.boardEl = el; },
+      collapseTile: () => setTile(null),
+      headerCollapse: (e) => {
+        const hit = e && e.target && e.target.closest ? e.target.closest('button, a, input, select, label') : null;
+        if (hit) return;
+        setTile(null);
+      },
+      requestsPeek: requests.slice(0, 2),
+      requestsAll: open.map((r) => ({ email: r.email, when: r.when, open: () => this.setState({ openId: r.id, sel: '' }) })),
+      callbacks: callbacks,
+      videos: videos,
+      videoCount: videos.length,
+      sideLabel: s.collapsed ? 'Expand sidebar' : 'Collapse sidebar',
+      sideExpanded: !s.collapsed,
+      toggleSidebar: () => this.setState({ collapsed: !(this.state && this.state.collapsed), autoCollapsed: false, switcherOpen: false }),
+      startDate: startDate,
+      endDate: endDate,
+      startLabel: fmt(startDate),
+      endLabel: fmt(endDate),
+      startTime: startTime,
+      startOpen: picker === 'start',
+      endOpen: picker === 'end',
+      endTime: endTime,
+      timeOpen: picker === 'time' || picker === 'timeEnd',
+      timeStartOpen: picker === 'time',
+      timeEndOpen: picker === 'timeEnd',
+      timeEndChipStyle: picker === 'timeEnd' ? on : '',
+      toggleTimeEnd: () => this.setState({ picker: picker === 'timeEnd' ? null : 'timeEnd' }),
+      calOpen: picker === 'start' || picker === 'end',
+      startChipStyle: picker === 'start' ? on : '',
+      endChipStyle: picker === 'end' ? on : '',
+      timeChipStyle: picker === 'time' ? on : '',
+      toggleStart: () => this.setState({ picker: picker === 'start' ? null : 'start', viewMonth: null }),
+      toggleEnd: () => this.setState({ picker: picker === 'end' ? null : 'end', viewMonth: null }),
+      toggleTime: () => this.setState({ picker: picker === 'time' ? null : 'time' }),
+      prevMonth: () => shift(-1),
+      nextMonth: () => shift(1),
+      monthLabel: new Date(Date.UTC(vy, vmo - 1, 1)).toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' }),
+      weekdays: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+      cells: cells,
+      times: times,
+      dialogOpen: !!active,
+      dialogEmail: active ? active.email : '',
+      dialogWhen: active ? active.when : '',
+      dialogSel: s.sel || '',
+      switchDisabled: !s.sel,
+      pickDancer: (e) => this.setState({ sel: e.target.value }),
+      closeDialog: () => this.setState({ openId: null, sel: '' }),
+      confirmSwitch: () => {
+        const next = Object.assign({}, (this.state && this.state.done) || {});
+        next[this.state.openId] = true;
+        this.setState({ done: next, openId: null, sel: '' });
+      },
+      requests: requests,
+      requestCount: open.length,
+      hasRequests: requests.length > 0,
+      accent: accent,
+      cbOnline: (this.props.callbacksConn ?? 'connected') !== 'offline',
+      cbOffline: (this.props.callbacksConn ?? 'connected') === 'offline',
+      cbConnColor: ({ connected: accent, connecting: '#8A8A8A', offline: '#F87171' })[this.props.callbacksConn ?? 'connected'] || accent,
+      cbConnLabel: ({ connected: 'Live: connected', connecting: 'Live: connecting', offline: 'Live: offline' })[this.props.callbacksConn ?? 'connected'] || 'Live: connected',
+      scheduleUploaded: uploaded,
+      scheduleEmpty: !uploaded,
+      switcherOpen: !!s.switcherOpen,
+      moreOpen: !!s.moreOpen,
+      caretStyle: s.moreOpen ? 'background: #2A2A2A; color: #FFFFFF' : '',
+      toggleSwitcher: () => this.setState({ switcherOpen: !s.switcherOpen, moreOpen: false }),
+      closeSwitcher: () => this.setState({ switcherOpen: false }),
+      toggleMore: () => this.setState({ moreOpen: !s.moreOpen, switcherOpen: false }),
+      roleOpen: !!s.roleOpen,
+      toggleRole: () => this.setState({ roleOpen: !s.roleOpen, switcherOpen: false, moreOpen: false }),
+      closeRole: () => this.setState({ roleOpen: false })
+    };
+  }
+
+  auditVals(s) {
+    const MIN = 60000, H = 3600000, D = 86400000;
+    const NOW = Date.UTC(2026, 9, 23, 21, 12);
+    const entries = [
+      { id: 'a1', at: NOW - 35 * MIN, actor: 'Cameron Tredoux', action: 'Create', resource: 'Callback', summary: 'Posted Teen Contemporary · Finals', rid: 'cb_7f21a9d4',
+        diff: [['title', null, 'Teen Contemporary'], ['round', null, 'Finals'], ['dancers', null, '122, 220'], ['status', null, 'posted']] },
+      { id: 'a2', at: NOW - 2 * H - 14 * MIN, actor: 'Kaia Nugent', action: 'Update', resource: 'Dancer', dancer: '126 · Mary Miller', summary: 'Matched sign-in email', rid: 'dn_4c19e0b2',
+        diff: [['email', 'mary.miller@gmail.com', 'abbeyapptesting@gmail.com'], ['status', 'pending', 'active']],
+        same: [['bib', '126'], ['name', 'Mary Miller'], ['checkedIn', 'false']] },
+      { id: 'a3', at: NOW - 5 * H, actor: 'Kaia Nugent', action: 'Check in', resource: 'Dancer', dancer: '230 · Juna Park', summary: 'Checked in', rid: 'dn_8a03f7c1',
+        diff: [['checkedIn', 'false', 'true'], ['checkedInAt', null, '2026-10-23 10:12 MDT']] },
+      { id: 'a4', at: NOW - 1 * D - 3 * H, actor: 'Cameron Tredoux', action: 'Activate', resource: 'Event', summary: 'Activated event', rid: '13ae188b',
+        diff: [['isActive', 'false', 'true']] },
+      { id: 'a5', at: NOW - 10 * D - 2 * H, actor: 'Kaia Nugent', action: 'Update', resource: 'Event', summary: 'Updated event', rid: '13ae188b',
+        diff: [['startTime', '10:00', '12:00'], ['endTime', '17:00', '18:00'], ['contactEmail', null, 'info@studio2stadium.com']],
+        same: [['name', 'Fall Showcase 2026'], ['startDate', '2026-10-22'], ['endDate', '2026-10-24'], ['timezone', 'America/Denver'], ['eventTier', 'enterprise'], ['isActive', 'false']] },
+      { id: 'a6', at: NOW - 10 * D - 3 * H, actor: 'Cameron Tredoux', action: 'Create', resource: 'Event', summary: 'Created event', rid: '13ae188b',
+        diff: [['name', null, 'Fall Showcase 2026'], ['startDate', null, '2026-10-22'], ['endDate', null, '2026-10-24'], ['timezone', null, 'America/Denver'], ['eventTier', null, 'enterprise']] },
+      { id: 'a7', at: NOW - 32 * D, actor: 'Kaia Nugent', action: 'Resend invite', resource: 'Invite', summary: 'Resent 3 invites', rid: 'inv_batch_31',
+        diff: [['recipients', null, '122 Jane Doe, 125 Jason Jones, 220 Abbey Nugent'], ['channel', null, 'email']] },
+      { id: 'a8', at: NOW - 58 * D, actor: 'Kaia Nugent', action: 'Upload', resource: 'CSV upload', summary: 'Uploaded 1 coach · 1 activated · 0 pending', rid: 'csv_e21d',
+        diff: [['file', null, 'coaches.csv'], ['rows', null, '1'], ['created', null, '1'], ['skipped', null, '0']] },
+      { id: 'a9', at: NOW - 60 * D, actor: 'Kaia Nugent', action: 'Upload', resource: 'CSV upload', summary: 'Uploaded 3 dancers · 0 activated · 3 pending', rid: 'csv_b90a',
+        diff: [['file', null, 'dancers.csv'], ['rows', null, '3'], ['created', null, '3'], ['skipped', null, '0']] },
+      { id: 'a10', at: NOW - 62 * D, actor: 'Kaia Nugent', action: 'Create', resource: 'Video', dancer: '125 · Jason Jones', summary: 'Created video Jazz solo', rid: 'vid_3e77',
+        diff: [['title', null, 'Jazz solo'], ['category', null, 'Solos'], ['duration', null, '2:14']] },
+      { id: 'a11', at: NOW - 62 * D - H, actor: 'Kaia Nugent', action: 'Create', resource: 'Video category', summary: 'Created video category Solos', rid: 'vcat_01',
+        diff: [['name', null, 'Solos']] },
+      { id: 'a12', at: NOW - 63 * D, actor: 'Kaia Nugent', action: 'Delete', resource: 'Video', dancer: '122 · Jane Doe', summary: 'Deleted video Lyrical (draft)', rid: 'vid_1a2c',
+        diff: [['title', 'Lyrical (draft)', null], ['category', 'Solos', null], ['duration', '1:47', null]] }
+    ];
+    const rel = (t) => {
+      const m = Math.round((NOW - t) / MIN);
+      if (m < 60) return m + 'm ago';
+      const h = Math.round(m / 60);
+      if (h < 24) return h + 'h ago';
+      const d = Math.round(h / 24);
+      if (d < 30) return d + (d === 1 ? ' day ago' : ' days ago');
+      const mo = Math.round(d / 30);
+      return mo + (mo === 1 ? ' month ago' : ' months ago');
+    };
+    const abs = (t) => { const d = new Date(t - 6 * H); return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' }) + ' · ' + d.toISOString().slice(11, 16) + ' MDT'; };
+    const short = (iso) => { const d = new Date(iso + 'T00:00:00Z'); return isNaN(d) ? iso : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }); };
+    const dayStart = (iso) => Date.parse(iso + 'T06:00:00Z');
+    const todayIso = new Date(NOW - 6 * H).toISOString().slice(0, 10);
+    const preset = s.alDate || 'all';
+    const from = s.alFrom || '2026-10-01';
+    const to = s.alTo || todayIso;
+    const range = preset === 'today' ? [dayStart(todayIso), Infinity]
+      : preset === 'event' ? [dayStart('2026-10-22'), dayStart('2026-10-25')]
+      : preset === '7d' ? [NOW - 7 * D, Infinity]
+      : preset === '30d' ? [NOW - 30 * D, Infinity]
+      : preset === '90d' ? [NOW - 90 * D, Infinity]
+      : preset === 'custom' ? [dayStart(from), dayStart(to) + D]
+      : [-Infinity, Infinity];
+    const acts = s.alAct || {};
+    const ress = s.alRes || {};
+    const nAct = Object.keys(acts).length;
+    const nRes = Object.keys(ress).length;
+    const qRaw = s.alQ || '';
+    const q = qRaw.trim().toLowerCase();
+    const pop = s.alPop || null;
+    const opened = s.alOpen || {};
+    const sameOpen = s.alSame || {};
+    const setPop = (p) => this.setState({ alPop: pop === p ? null : p });
+    const toggleIn = (key, cur, v) => { const n = Object.assign({}, cur); if (n[v]) delete n[v]; else n[v] = true; const o = {}; o[key] = n; this.setState(o); };
+    const optList = (list, k, cur, key) => list.map((v) => ({ label: v, n: entries.filter((e) => e[k] === v).length, on: !!cur[v], pick: () => toggleIn(key, cur, v) }));
+    const chipLabel = (name, cur) => { const k = Object.keys(cur); return k.length === 0 ? name : (k.length === 1 ? k[0] : name + ' · ' + k.length); };
+    const presets = [['all', 'All time', ''], ['today', 'Today', short(todayIso)], ['event', 'This event', 'Oct 22–24'], ['7d', 'Last 7 days', ''], ['30d', 'Last 30 days', ''], ['90d', 'Last 90 days', ''], ['custom', 'Custom range', '']];
+    const cur = presets.find((p) => p[0] === preset) || presets[0];
+    const dateLabel = preset === 'custom' ? short(from) + ' – ' + short(to) : cur[1];
+    const VALUE_ACTIONS = { 'Create': 'Value', 'Upload': 'Value', 'Resend invite': 'Value', 'Delete': 'Removed value' };
+    const rows = entries
+      .filter((e) => e.at >= range[0] && e.at < range[1])
+      .filter((e) => nAct === 0 || acts[e.action])
+      .filter((e) => nRes === 0 || ress[e.resource])
+      .filter((e) => !q || [e.actor, e.summary, e.dancer, e.resource, e.action].some((v) => v && v.toLowerCase().indexOf(q) >= 0))
+      .map((e) => {
+        const isValues = !!VALUE_ACTIONS[e.action];
+        const same = (e.same || []).map((x) => ({ f: x[0], v: x[1] }));
+        const showSame = !!sameOpen[e.id];
+        return {
+          rel: rel(e.at), abs: abs(e.at), actor: e.actor,
+          actionLabel: e.action.toUpperCase(),
+          actColor: e.action === 'Delete' ? '#F87171' : '#EDEDED',
+          resource: e.resource,
+          dancer: e.dancer || '—',
+          dancerColor: e.dancer ? '#EDEDED' : '#6B6B6B',
+          summary: e.summary, rid: e.rid,
+          open: !!opened[e.id],
+          toggle: () => toggleIn('alOpen', opened, e.id),
+          isDiff: !isValues, isValues: isValues,
+          valuesHead: VALUE_ACTIONS[e.action] || 'Value',
+          diff: e.diff.map((d) => ({
+            f: d[0], b: d[1] == null ? '—' : d[1], a: d[2] == null ? '—' : d[2],
+            bCls: 'al-v ' + (d[1] == null ? 'al-nil' : 'al-old'),
+            aCls: 'al-v ' + (d[2] == null ? 'al-nil' : 'al-new')
+          })),
+          values: e.diff.map((d) => ({ f: d[0], v: d[2] != null ? d[2] : d[1], cls: 'al-v ' + (d[2] != null ? 'al-new' : 'al-old') })),
+          hasSame: same.length > 0, showSame: showSame, same: same,
+          sameLabel: (showSame ? 'Hide ' : 'Show ') + same.length + ' unchanged',
+          sameChev: showSame ? 'transform: rotate(180deg)' : '',
+          toggleSame: () => toggleIn('alSame', sameOpen, e.id)
+        };
+      });
+    return {
+      rows: rows,
+      empty: rows.length === 0,
+      canClear: preset !== 'all' || nAct > 0 || nRes > 0 || !!q,
+      clear: () => this.setState({ alDate: 'all', alAct: {}, alRes: {}, alQ: '', alPop: null }),
+      q: qRaw,
+      setQ: (e) => this.setState({ alQ: e.target.value }),
+      dateLabel: dateLabel,
+      dateOn: preset !== 'all',
+      datePop: pop === 'date',
+      toggleDate: () => setPop('date'),
+      presets: presets.map((p) => ({ label: p[1], hint: p[2], on: preset === p[0], pick: () => this.setState({ alDate: p[0], alPop: p[0] === 'custom' ? 'date' : null }) })),
+      isCustom: preset === 'custom',
+      from: from, to: to,
+      setFrom: (e) => this.setState({ alFrom: e.target.value }),
+      setTo: (e) => this.setState({ alTo: e.target.value }),
+      actLabel: chipLabel('Action', acts),
+      actOn: nAct > 0,
+      actPop: pop === 'action',
+      toggleAct: () => setPop('action'),
+      actions: optList(['Create', 'Update', 'Delete', 'Activate', 'Check in', 'Upload', 'Resend invite'], 'action', acts, 'alAct'),
+      resLabel: chipLabel('Resource', ress),
+      resOn: nRes > 0,
+      resPop: pop === 'resource',
+      toggleRes: () => setPop('resource'),
+      resources: optList(['Event', 'Dancer', 'Coach', 'Invite', 'CSV upload', 'Video', 'Video category', 'Callback'], 'resource', ress, 'alRes')
+    };
+  }
+}
+</script>
+</body>
+</html>

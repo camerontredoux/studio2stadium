@@ -8,6 +8,19 @@
       href="https://d1wf5hycmlyms9.cloudfront.net/favicon.ico"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // Apply a stored dark org theme before first paint (org pages only).
+      try {
+        if (location.pathname.startsWith("/o/")) {
+          var t = JSON.parse(localStorage.getItem("org-theme") || '"light"');
+          if (
+            t === "dark" ||
+            (t === "system" && matchMedia("(prefers-color-scheme: dark)").matches)
+          )
+            document.documentElement.classList.add("dark");
+        }
+      } catch (e) {}
+    </script>
     <title>Studio 2 Stadium</title>
   </head>
   <body>

@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
+import { toastManager } from "@/components/ui/toast-manager";
 import { useEditSubmission } from "@/features/recruiting/api/mutations";
 import { recruitingQueries } from "@/features/recruiting/api/queries";
+import { handleApiError } from "@/lib/api/errors";
 import { getYouTubeId } from "@/utils/get-youtube-id";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
@@ -62,6 +64,16 @@ function EditForm({ initialYoutubeId }: { initialYoutubeId: string }) {
           setSaved(true);
           setTimeout(() => setSaved(false), 2000);
         },
+        onError: handleApiError({
+          onError: (error) => {
+            toastManager.add({
+              title: "Error",
+              description: error.message,
+              type: "error",
+            });
+          },
+          onValidation: (_, message) => setVideoError(message),
+        }),
       },
     );
   };

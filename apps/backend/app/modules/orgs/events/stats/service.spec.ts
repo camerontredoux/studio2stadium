@@ -150,4 +150,80 @@ test.group("EventStatsService", (group) => {
     const stats = await svc.execute(event.id);
     assert.lengthOf(stats.recentUploads, 5);
   });
+
+  test("excludes staff view-as rosters from every count", async ({
+    assert,
+  }) => {
+    const dancer = await createUser({ username: "d1", email: "d1@x.co" });
+    const admin = await createUser({ username: "admin", email: "admin@x.co" });
+
+    await db.insert(eventRosters).values([
+      // Real participants: 1 activated dancer, 1 pending coach
+      {
+        eventId: event.id,
+        type: "dancer",
+        email: "d1@x.co",
+        firstName: "D",
+        lastName: "One",
+        userId: dancer.id,
+      },
+      {
+        eventId: event.id,
+        type: "coach",
+        email: "coach@x.co",
+        firstName: "C",
+        lastName: "O",
+      },
+      // Staff "view-as" sandboxes owned by an admin, one per type
+      {
+        eventId: event.id,
+        type: "coach",
+        email: "admin@x.co",
+        firstName: "A",
+        lastName: "D",
+        userId: admin.id,
+        isStaff: true,
+      },
+      {
+        eventId: event.id,
+        type: "dancer",
+        email: "admin@x.co",
+        firstName: "A",
+        lastName: "D",
+        userId: admin.id,
+        isStaff: true,
+      },
+      // Unactivated staff rows must not land in the pending buckets either
+      {
+        eventId: event.id,
+        type: "coach",
+        email: "staff-pending@x.co",
+        firstName: "S",
+        lastName: "P",
+        isStaff: true,
+      },
+      {
+        eventId: event.id,
+        type: "dancer",
+        email: "staff-pending@x.co",
+        firstName: "S",
+        lastName: "P",
+        isStaff: true,
+      },
+    ]);
+
+    const svc = new EventStatsService();
+    const stats = await svc.execute(event.id);
+
+    assert.equal(stats.coaches.activated, 0);
+    assert.equal(stats.coaches.pending, 1);
+    assert.equal(stats.coaches.total, 1);
+
+    assert.equal(stats.dancers.activated, 1);
+    assert.equal(stats.dancers.pending, 0);
+    assert.equal(stats.dancers.total, 1);
+
+    assert.equal(stats.registered, 1);
+    assert.equal(stats.pending, 1);
+  });
 });

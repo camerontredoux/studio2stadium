@@ -6,6 +6,7 @@ interface ProfileViewedEmailData {
   dancerName: string;
   schoolName: string;
   schoolProfileUrl: string;
+  schoolLogoUrl?: string;
   freemium?: boolean;
   upgradeUrl?: string;
 }
@@ -26,6 +27,7 @@ export default class ProfileViewedEmailMail extends BaseMail {
       dancerName,
       schoolName,
       schoolProfileUrl,
+      schoolLogoUrl,
       freemium,
       upgradeUrl,
     } = this.data;
@@ -34,6 +36,7 @@ export default class ProfileViewedEmailMail extends BaseMail {
       dancerName,
       schoolName,
       schoolProfileUrl,
+      schoolLogoUrl,
       freemium,
       upgradeUrl,
     });

@@ -8,12 +8,29 @@ export const accountSchemas = {
   updateAccount: z.object({
     username: z
       .string()
-      .min(4)
-      .max(MAX_USERNAME_LENGTH)
+      .min(4, "Username must be at least 4 characters long")
+      .max(
+        MAX_USERNAME_LENGTH,
+        `Username must be at most ${MAX_USERNAME_LENGTH} characters long`,
+      )
       .regex(/^[a-zA-Z0-9_]+$/, "Username must be alphanumeric"),
-    firstName: z.string().min(2).max(MAX_NAME_LENGTH).optional(),
-    lastName: z.string().min(2).max(MAX_NAME_LENGTH).optional(),
-    displayEmail: z.email().optional(),
+    firstName: z
+      .string()
+      .min(2, "First name must be at least 2 characters long")
+      .max(
+        MAX_NAME_LENGTH,
+        `First name must be at most ${MAX_NAME_LENGTH} characters long`,
+      )
+      .optional(),
+    lastName: z
+      .string()
+      .min(2, "Last name must be at least 2 characters long")
+      .max(
+        MAX_NAME_LENGTH,
+        `Last name must be at most ${MAX_NAME_LENGTH} characters long`,
+      )
+      .optional(),
+    displayEmail: z.email("Enter a valid email address").optional(),
     phone: z.string().nullable(),
     notifications: z.boolean().optional(),
   }),

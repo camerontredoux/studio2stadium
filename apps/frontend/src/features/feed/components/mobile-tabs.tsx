@@ -13,7 +13,7 @@ export function MobileTabs({ children }: MobileTabsProps) {
     <div className="mobile:pb-0 w-full p-2 pt-0 lg:hidden">
       <Tabs defaultValue="feed">
         <TabsList
-          className="bg-background sticky top-12 z-10 w-full border-b"
+          className="bg-background top-header sticky z-10 w-full border-b"
           variant="underline"
         >
           <TabsTab className="flex-1" value="feed">

@@ -15,8 +15,8 @@ export const Route = createFileRoute("/_app/(routes)/dancers")({
     }
   },
   loader: ({ context: { queryClient }, deps: { search } }) => {
-    queryClient.ensureQueryData(exploreQueries.dancersFilters());
-    queryClient.ensureQueryData(exploreQueries.dancers(search));
+    queryClient.prefetchQuery(exploreQueries.dancersFilters());
+    queryClient.prefetchQuery(exploreQueries.dancers(search));
   },
   component: ExplorePage,
 });

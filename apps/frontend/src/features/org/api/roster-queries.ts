@@ -1,3 +1,5 @@
+import { infiniteQueryOptions } from "@tanstack/react-query";
+
 import { $api, client, type ApiSchemas } from "@/lib/api/client";
 
 export type RosterType = "dancer" | "coach";
@@ -13,7 +15,7 @@ export interface RosterListParams {
   limit?: number;
   search?: string;
   status?: RosterStatus;
-  org?: string;
+  checkedIn?: boolean;
   sortBy?:
     | "lastName"
     | "firstName"
@@ -32,7 +34,7 @@ export interface RosterListParams {
  * matches every variation of that endpoint regardless of params, so a single
  * mutation can invalidate every roster list query on the page.
  */
-const ROSTER_LIST_KEY_PREFIX = [
+export const ROSTER_LIST_KEY_PREFIX = [
   "get",
   "/orgs/{slug}/events/{id}/rosters",
 ] as const;
@@ -40,7 +42,7 @@ const ROSTER_FILTERS_KEY_PREFIX = [
   "get",
   "/orgs/{slug}/events/{id}/rosters/filters",
 ] as const;
-const ROSTER_STATS_KEY_PREFIX = [
+export const ROSTER_STATS_KEY_PREFIX = [
   "get",
   "/orgs/{slug}/events/{id}/rosters/stats",
 ] as const;
@@ -53,13 +55,46 @@ export const rosterQueries = {
         query: params,
       },
     }),
-  filters: (slug: string, eventId: string, type: RosterType) =>
-    $api.queryOptions("get", "/orgs/{slug}/events/{id}/rosters/filters", {
-      params: {
-        path: { slug, id: eventId },
-        query: { type },
+  /**
+   * The roster a page at a time. The key extends `list`'s key, so every patch
+   * and invalidation aimed at the roster lists reaches it too.
+   */
+  listPages: (
+    slug: string,
+    eventId: string,
+    params: Omit<RosterListParams, "page" | "limit">,
+    pageSize: number,
+  ) => {
+    const query = { ...params, limit: pageSize };
+    return infiniteQueryOptions({
+      queryKey: [
+        ...ROSTER_LIST_KEY_PREFIX,
+        { params: { path: { slug, id: eventId }, query } },
+        "pages",
+      ] as const,
+      queryFn: async ({ pageParam, signal }) => {
+        const { data, error } = await client.GET(
+          "/orgs/{slug}/events/{id}/rosters",
+          {
+            params: {
+              path: { slug, id: eventId },
+              query: { ...query, page: pageParam },
+            },
+            signal,
+          },
+        );
+        if (error) throw error;
+        return data;
       },
-    }),
+      initialPageParam: 0,
+      // Drop a list once nothing shows it. Returning to a stale cached list
+      // refetches every page it had loaded (121 requests for a deep audit
+      // scroll); a fresh one loads page 0 and pages on as it scrolls.
+      gcTime: 0,
+      getNextPageParam: (lastPage, pages) =>
+        pages.length * pageSize < lastPage.total ? pages.length : undefined,
+    });
+  },
   stats: (slug: string, eventId: string, type: RosterType) =>
     $api.queryOptions("get", "/orgs/{slug}/events/{id}/rosters/stats", {
       params: {
@@ -68,6 +103,18 @@ export const rosterQueries = {
       },
     }),
 };
+
+export function useCreateRoster() {
+  return $api.useMutation("post", "/orgs/{slug}/events/{id}/rosters", {
+    meta: {
+      invalidateQueries: [
+        ROSTER_LIST_KEY_PREFIX,
+        ROSTER_FILTERS_KEY_PREFIX,
+        ROSTER_STATS_KEY_PREFIX,
+      ],
+    },
+  });
+}
 
 export function useUpdateRoster() {
   return $api.useMutation(
@@ -91,10 +138,7 @@ export function useSetRosterPaid() {
     "/orgs/{slug}/events/{id}/rosters/{rosterId}/paid",
     {
       meta: {
-        invalidateQueries: [
-          ROSTER_LIST_KEY_PREFIX,
-          ROSTER_STATS_KEY_PREFIX,
-        ],
+        invalidateQueries: [ROSTER_LIST_KEY_PREFIX, ROSTER_STATS_KEY_PREFIX],
       },
     },
   );
@@ -147,6 +191,18 @@ export const rosterSearchQueries = {
         },
       },
     ),
+  /** School accounts, for linking a coach's entry. */
+  schoolUsers: (slug: string, eventId: string, q: string) =>
+    $api.queryOptions(
+      "get",
+      "/orgs/{slug}/events/{id}/reconciliation/school-users",
+      {
+        params: {
+          path: { slug, id: eventId },
+          query: { q },
+        },
+      },
+    ),
 };
 
 /**
@@ -161,7 +217,6 @@ export async function downloadRosterCsv(
     type: RosterType;
     search?: string;
     status?: RosterStatus;
-    org?: string;
   },
 ): Promise<void> {
   const res = await client.GET("/orgs/{slug}/events/{id}/rosters/export", {
@@ -172,12 +227,15 @@ export async function downloadRosterCsv(
     parseAs: "text",
   });
 
+  // The callers toast "Export failed" on a throw; don't download an empty file.
+  if (!res.response.ok) throw res.error;
+
   const csv = (res.data as unknown as string) ?? "";
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `${params.type}s-export.csv`;
+  a.download = `${params.type === "coach" ? "coaches" : "dancers"}-export.csv`;
   document.body.appendChild(a);
   a.click();
   a.remove();

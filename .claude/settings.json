@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Read|Grep",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/prod-readonly-guard.mjs\" --only-agent s2s-prod-readonly || { echo 'prod-readonly guard failed to run; the call is refused.' >&2; exit 2; }"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -9,6 +9,7 @@ import hash from "@adonisjs/core/services/hash";
 import { and, eq, isNull } from "drizzle-orm";
 import { SignupEvent } from "./event.ts";
 import type { Validator } from "./validator.ts";
+import { rosterTypeMembershipConflict } from "#shared/org/membership";
 
 @inject()
 export class Service {
@@ -65,6 +66,7 @@ export class Service {
           name: input.name,
           location: input.location,
           city: input.city,
+          commonRecruiting: input.commonRecruiting,
         });
 
         // Path C: opportunistically link pending coach roster rows for this email.
@@ -112,9 +114,7 @@ export class Service {
         await tx
           .insert(orgMemberships)
           .values({ userId, orgId: event.orgId, type: "coach", role: "member" })
-          .onConflictDoNothing({
-            target: [orgMemberships.userId, orgMemberships.orgId],
-          });
+          .onConflictDoNothing(rosterTypeMembershipConflict());
       }
     }
 

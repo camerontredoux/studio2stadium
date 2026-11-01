@@ -72,7 +72,7 @@ export class Service {
       );
     }
 
-    const disk = drive.use("r2");
+    const disk = drive.use();
     const verified: BlogAttachment[] = [];
     let totalSize = 0;
 

@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/file-upload";
 import { Progress } from "@/components/ui/progress";
 import { toastManager } from "@/components/ui/toast-manager";
+import { MAX_VIDEO_DURATION_SECONDS } from "@/utils/video-duration";
 import { CloudUploadIcon, TrashIcon, VideoIcon } from "lucide-react";
 
 interface VideoUploadFieldProps {
@@ -22,7 +23,6 @@ interface VideoUploadFieldProps {
 }
 
 const MAX_VIDEO_SIZE = 500 * 1024 * 1024; // 500MB
-const MAX_DURATION_SECONDS = 120; // 2 minutes
 
 export function VideoUploadField({
   value,
@@ -91,7 +91,8 @@ export function VideoUploadField({
         )}
       </FileUpload>
       <FieldDescription>
-        Max video size is 500MB, up to {MAX_DURATION_SECONDS / 60} minutes.
+        Max video size is 500MB, up to {MAX_VIDEO_DURATION_SECONDS / 60}{" "}
+        minutes.
       </FieldDescription>
     </>
   );

@@ -18,6 +18,7 @@ import { SubmissionVideoDialog } from "./submission-video-dialog";
 
 interface SchoolSubmissionCardProps {
   submission: SchoolSubmission;
+  onWatchingChange: (id: string | null) => void;
 }
 
 function statusBadge(status: SchoolSubmission["status"]) {
@@ -66,6 +67,7 @@ function watchedBadge(watched: boolean) {
 
 export function SchoolSubmissionCard({
   submission,
+  onWatchingChange,
 }: SchoolSubmissionCardProps) {
   const { dancer } = submission;
   const queryClient = useQueryClient();
@@ -83,6 +85,8 @@ export function SchoolSubmissionCard({
   };
 
   const handleOpenChange = (open: boolean) => {
+    onWatchingChange(open ? submission.id : null);
+
     if (open && !submission.watched) {
       const previous = optimisticUpdate({ watched: true });
       updateMutation.mutate(

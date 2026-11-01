@@ -4,7 +4,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_app/(routes)/resources/blog")({
   loader: ({ context: { queryClient } }) => {
-    queryClient.ensureQueryData(blogQueries.all());
+    queryClient.prefetchQuery(blogQueries.all());
   },
   component: BlogPage,
 });

@@ -1,6 +1,7 @@
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { toastManager } from "@/components/ui/toast-manager";
 import { useVideoProcessing } from "@/lib/video-processing";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useMarkAllNotificationsRead } from "./api/mutations";
@@ -29,7 +30,18 @@ export function Page() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => markAllRead.mutate()}
+            onClick={() =>
+              markAllRead.mutate(
+                {},
+                {
+                  onError: () =>
+                    toastManager.add({
+                      title: "Couldn't mark notifications as read",
+                      type: "error",
+                    }),
+                },
+              )
+            }
           >
             Mark all as read
           </Button>

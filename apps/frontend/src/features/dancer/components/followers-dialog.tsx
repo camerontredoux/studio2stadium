@@ -12,6 +12,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
 import { type ApiSchemas } from "@/lib/api/client";
@@ -80,7 +81,9 @@ function FollowToggleButton({
 
 function FollowersList() {
   const { data: followers } = useSuspenseQuery(dancerQueries.followers());
-  const { data: followingIds } = useQuery(queries.followingIds("dancer"));
+  const { data: followingIds, isPending: isFollowingPending } = useQuery(
+    queries.followingIds("dancer"),
+  );
 
   return followers.length > 0 ? (
     <div className="flex flex-col gap-4 pb-4">
@@ -122,7 +125,11 @@ function FollowersList() {
                 </span>
               </div>
 
-              <FollowToggleButton school={school} isFollowing={isFollowing} />
+              {isFollowingPending ? (
+                <Skeleton className="h-8 w-20 rounded-lg sm:h-7" />
+              ) : (
+                <FollowToggleButton school={school} isFollowing={isFollowing} />
+              )}
             </div>
           </div>
         );
@@ -137,15 +144,17 @@ function FollowersList() {
 
 export function DancerFollowersDialog({
   children,
+  nativeButton = true,
 }: {
   children: React.ReactElement;
+  nativeButton?: boolean;
 }) {
   return (
     <Dialog>
       <DialogTrigger
         render={children}
         className="cursor-pointer"
-        nativeButton={false}
+        nativeButton={nativeButton}
       />
       <DialogContent showCloseButton={false}>
         <DialogHeader>

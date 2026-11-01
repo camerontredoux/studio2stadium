@@ -8,6 +8,8 @@ import {
   LuX,
 } from "react-icons/lu";
 
+import { Link } from "@tanstack/react-router";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -31,7 +33,6 @@ type RecommendedSchool =
 interface SchoolMatchCardProps {
   school: RecommendedSchool;
   className?: string;
-  onViewProfile?: (username: string) => void;
 }
 
 const TIER_STYLES = {
@@ -122,11 +123,7 @@ function BooleanFactor({ label, icon, met }: BooleanFactorProps) {
   );
 }
 
-export function SchoolMatchCard({
-  school,
-  className,
-  onViewProfile,
-}: SchoolMatchCardProps) {
+export function SchoolMatchCard({ school, className }: SchoolMatchCardProps) {
   const tierStyle = school.matchTier
     ? TIER_STYLES[school.matchTier]
     : { badge: "outline" as const, ring: "", bg: "" };
@@ -158,11 +155,14 @@ export function SchoolMatchCard({
                 className="min-w-0 overflow-hidden"
                 style={{ flex: "1 1 0" }}
               >
-                <CardTitle
-                  className="cursor-pointer truncate text-base hover:underline"
-                  onClick={() => onViewProfile?.(school.username)}
-                >
-                  {school.name}
+                <CardTitle className="truncate text-base">
+                  <Link
+                    to="/explore/$username"
+                    params={{ username: school.username }}
+                    className="hover:underline"
+                  >
+                    {school.name}
+                  </Link>
                 </CardTitle>
                 <CardDescription className="mt-0.5 flex items-center gap-1">
                   <LuMapPin className="size-3 shrink-0" />

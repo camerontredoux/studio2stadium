@@ -1,15 +1,21 @@
 import { middleware } from "#start/kernel";
+import { unprocessableEntity } from "#utils/responses";
 import router from "@adonisjs/core/services/router";
 
 const CreateEventController = () => import("./create/controller.ts");
 const UpdateEventController = () => import("./update/controller.ts");
 const DeleteEventController = () => import("./delete/controller.ts");
-const ListEventsController = () => import("./list/controller.ts");
+// Through the alias, not "./list/controller.ts": Tuyau finds a lazy
+// controller's file by suffix, and that suffix also matches
+// dancers/profile/get-profile-checklist/controller.ts.
+const ListEventsController = () =>
+  import("#modules/orgs/events/list/controller");
 const UploadCoachesController = () => import("./upload-coaches/controller.ts");
 const UploadDancersController = () => import("./upload-dancers/controller.ts");
 const UploadPreviewController = () => import("./upload-preview/controller.ts");
 const EventStatsController = () => import("./stats/controller.ts");
 const ListRosterController = () => import("./rosters/list/controller.ts");
+const CreateRosterController = () => import("./rosters/create/controller.ts");
 const UpdateRosterController = () => import("./rosters/update/controller.ts");
 const SetRosterPaidController = () =>
   import("./rosters/set-paid/controller.ts");
@@ -33,8 +39,12 @@ const ListAuditLogController = () => import("./audit-log/list/controller.ts");
 const AuditLogStatsController = () => import("./audit-log/stats/controller.ts");
 const ListAuditLogChildrenController = () =>
   import("./audit-log/children/controller.ts");
-const ListReconciliationController = () =>
-  import("./reconciliation/list-controller.ts");
+const ListInvitesController = () =>
+  import("./reconciliation/invites-controller.ts");
+const ListOrphansController = () =>
+  import("./reconciliation/orphans-controller.ts");
+const ReconciliationCountsController = () =>
+  import("./reconciliation/counts-controller.ts");
 const ResendInviteController = () =>
   import("./reconciliation/resend-controller.ts");
 const RevokeInviteController = () =>
@@ -58,10 +68,15 @@ const AudioUploadUrlController = () =>
 const ViewAsController = () => import("./view-as/controller.ts");
 const CheckInController = () => import("./check-in/controller.ts");
 const AdminCheckInController = () => import("./rosters/check-in/controller.ts");
+const RosterCheckInCodeController = () =>
+  import("./rosters/check-in-code/controller.ts");
 const ResetCheckInController = () =>
   import("./rosters/check-in/reset/controller.ts");
 const CheckInStatusController = () => import("./check-in/status-controller.ts");
+const ScanCheckInController = () => import("./check-in/scan/controller.ts");
 const ScheduleController = () => import("./schedule/controller.ts");
+const ScheduleFileController = () => import("./schedule-file/controller.ts");
+const ScheduleUrlController = () => import("./schedule-url/controller.ts");
 const TestEmailsController = () => import("./test-emails/controller.ts");
 
 router
@@ -73,7 +88,10 @@ router
         middleware.org(),
         middleware.orgMember(),
         middleware.orgAdmin(),
-      ]);
+      ])
+      // Declared by hand: the generator infers only some of the statuses the
+      // controller returns and drops 422 (validation, Event Tier rules).
+      .openapi({ responses: { ...unprocessableEntity } });
     router
       .patch(":slug/events/:id", [UpdateEventController])
       .use([
@@ -81,7 +99,10 @@ router
         middleware.org(),
         middleware.orgMember(),
         middleware.orgAdmin(),
-      ]);
+      ])
+      // Declared by hand: the generator infers only some of the statuses the
+      // controller returns and drops 422 (validation, Event Tier rules).
+      .openapi({ responses: { ...unprocessableEntity } });
     router
       .delete(":slug/events/:id", [DeleteEventController])
       .use([
@@ -157,6 +178,19 @@ router
         middleware.orgMember(),
         middleware.orgAdmin(),
       ]);
+    router
+      .post(":slug/events/:id/rosters", [CreateRosterController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ])
+      .openapi({
+        summary: "Add one Roster Entry",
+        description:
+          "Adds a dancer or coach to an Org Event's roster by hand, writing the same rows a one-line CSV upload writes: the entry, then the account's org membership or a pending invite, and the matching email. Send userId to link an existing account; its email replaces the one sent. 409 when the email, account or bib number is already on this event's roster; 422 when a field the upload requires for the type is missing.",
+      });
     router
       .patch(":slug/events/:id/rosters/:rosterId", [UpdateRosterController])
       .use([
@@ -273,7 +307,25 @@ router
         middleware.orgAdmin(),
       ]);
     router
-      .get(":slug/events/:id/reconciliation", [ListReconciliationController])
+      .get(":slug/events/:id/reconciliation/invites", [ListInvitesController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .get(":slug/events/:id/reconciliation/orphans", [ListOrphansController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ]);
+    router
+      .get(":slug/events/:id/reconciliation/counts", [
+        ReconciliationCountsController,
+      ])
       .use([
         middleware.auth(),
         middleware.org(),
@@ -349,6 +401,8 @@ router
         middleware.org(),
         middleware.orgEvent("dancerSelfRead"),
         middleware.orgMember(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("check_in"),
       ]);
     router
       .post(":slug/events/:id/check-in", [CheckInController])
@@ -357,7 +411,14 @@ router
         middleware.org(),
         middleware.orgEvent(),
         middleware.orgMember(),
-      ]);
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("check_in"),
+      ])
+      .openapi({
+        summary: "Check yourself in",
+        description:
+          "Sets the requesting Dancer's check-in time on an event with self check-in turned on, through the same path as a scanned pass. 403 when self check-in is off or the requester is not a Dancer on the roster; 422 before check-in opens.",
+      });
     router
       .post(":slug/events/:id/rosters/check-in/reset", [ResetCheckInController])
       .use([
@@ -365,6 +426,8 @@ router
         middleware.org(),
         middleware.orgMember(),
         middleware.orgAdmin(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("check_in"),
       ]);
     router
       .post(":slug/events/:id/rosters/:rosterId/check-in", [
@@ -375,7 +438,37 @@ router
         middleware.org(),
         middleware.orgMember(),
         middleware.orgAdmin(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("check_in"),
       ]);
+    router
+      .get(":slug/events/:id/rosters/:rosterId/check-in-code", [
+        RosterCheckInCodeController,
+      ])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ])
+      .openapi({
+        summary: "Get a dancer's check-in pass code",
+        description:
+          "Returns the signed code a Dancer's check-in pass QR encodes, so an organizer can show the pass at the desk. 404 when the Roster Entry is not a Dancer in this event of this org.",
+      });
+    router
+      .post(":slug/events/:id/check-in/scan", [ScanCheckInController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgMember(),
+        middleware.orgAdmin(),
+      ])
+      .openapi({
+        summary: "Check a dancer in from their pass",
+        description:
+          "Verifies the signed code from a Dancer's check-in pass QR and sets their check-in time if it is not set yet. A repeat scan returns already_checked_in and changes nothing.",
+      });
     router
       .get(":slug/events/:id/schedule", [ScheduleController])
       .use([
@@ -384,6 +477,32 @@ router
         middleware.orgEvent("dancerSelfRead"),
         middleware.orgMember(),
       ]);
+    router
+      .get(":slug/events/:id/schedule/file", [ScheduleFileController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgEvent("dancerSelfRead"),
+        middleware.orgMember(),
+      ])
+      .openapi({
+        summary: "Get an Org Event's schedule file",
+        description:
+          "Streams the schedule file through the API, for clients that cannot read it from storage directly. Send ?v=<schedule key> to let the browser cache it; revalidation with If-None-Match gets a 304. 404 when the Org Event has no schedule.",
+      });
+    router
+      .get(":slug/events/:id/schedule/url", [ScheduleUrlController])
+      .use([
+        middleware.auth(),
+        middleware.org(),
+        middleware.orgEvent("dancerSelfRead"),
+        middleware.orgMember(),
+      ])
+      .openapi({
+        summary: "Get a signed URL for an Org Event's schedule file",
+        description:
+          "Returns a storage URL, valid for an hour, that a browser can fetch without credentials so the file never passes through the API. 404 when the Org Event has no schedule.",
+      });
 
     // Video categories
     router
@@ -391,8 +510,11 @@ router
       .use([
         middleware.auth(),
         middleware.org(),
+        middleware.orgEvent("scoped"),
         middleware.orgEvent("dancerSelfRead"),
         middleware.orgMember(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("video_library"),
       ]);
     router
       .post(":slug/events/:id/video-categories", [
@@ -401,8 +523,11 @@ router
       .use([
         middleware.auth(),
         middleware.org(),
+        middleware.orgEvent("scoped"),
         middleware.orgMember(),
         middleware.orgAdmin(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("video_library"),
       ]);
     router
       .delete(":slug/events/:id/video-categories/:categoryId", [
@@ -411,8 +536,11 @@ router
       .use([
         middleware.auth(),
         middleware.org(),
+        middleware.orgEvent("scoped"),
         middleware.orgMember(),
         middleware.orgAdmin(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("video_library"),
       ]);
 
     // Videos
@@ -421,32 +549,44 @@ router
       .use([
         middleware.auth(),
         middleware.org(),
+        middleware.orgEvent("scoped"),
         middleware.orgEvent("dancerSelfRead"),
         middleware.orgMember(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("video_library"),
       ]);
     router
       .post(":slug/events/:id/videos", [CreateVideoController])
       .use([
         middleware.auth(),
         middleware.org(),
+        middleware.orgEvent("scoped"),
         middleware.orgMember(),
         middleware.orgAdmin(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("video_library"),
       ]);
     router
       .patch(":slug/events/:id/videos/:videoId", [UpdateVideoController])
       .use([
         middleware.auth(),
         middleware.org(),
+        middleware.orgEvent("scoped"),
         middleware.orgMember(),
         middleware.orgAdmin(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("video_library"),
       ]);
     router
       .delete(":slug/events/:id/videos/:videoId", [DeleteVideoController])
       .use([
         middleware.auth(),
         middleware.org(),
+        middleware.orgEvent("scoped"),
         middleware.orgMember(),
         middleware.orgAdmin(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("video_library"),
       ]);
     router
       .post(":slug/events/:id/videos/audio-upload-url", [
@@ -455,8 +595,11 @@ router
       .use([
         middleware.auth(),
         middleware.org(),
+        middleware.orgEvent("scoped"),
         middleware.orgMember(),
         middleware.orgAdmin(),
+        middleware.orgRequestedEvent(),
+        middleware.orgFeature("video_library"),
       ]);
   })
   .prefix("orgs");

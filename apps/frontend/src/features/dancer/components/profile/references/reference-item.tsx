@@ -10,8 +10,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { toastManager } from "@/components/ui/toast-manager";
 import { useDeleteReference } from "@/features/dancer/api/mutations";
 import type { Reference } from "@/features/dancer/types";
+import { handleApiError } from "@/lib/api/errors";
 import { PencilIcon, TrashIcon, UserCircle2Icon } from "lucide-react";
 import * as React from "react";
 import { ReferencesDialog } from "./references-dialog";
@@ -32,7 +34,18 @@ export function ReferenceItem({
   const handleDelete = () => {
     deleteReference(
       { params: { path: { id: reference.id } } },
-      { onSuccess: () => setDeleteOpen(false) },
+      {
+        onSuccess: () => setDeleteOpen(false),
+        onError: handleApiError({
+          onError: (error) => {
+            toastManager.add({
+              title: "Error",
+              description: error.message,
+              type: "error",
+            });
+          },
+        }),
+      },
     );
   };
 

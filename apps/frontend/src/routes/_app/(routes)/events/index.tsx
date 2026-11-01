@@ -13,9 +13,9 @@ export const Route = createFileRoute("/_app/(routes)/events/")({
     }
   },
   loader: ({ context: { queryClient }, deps: { search } }) => {
-    queryClient.ensureQueryData(eventQueries.filters());
-    queryClient.ensureQueryData(eventQueries.events(search));
-    queryClient.ensureQueryData(eventQueries.globalEvents());
+    queryClient.prefetchQuery(eventQueries.filters());
+    queryClient.prefetchQuery(eventQueries.events(search));
+    queryClient.prefetchQuery(eventQueries.globalEvents());
   },
   component: Page,
 });

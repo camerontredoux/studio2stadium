@@ -1,14 +1,23 @@
 import { format, parseISO } from "date-fns";
 
 import {
-  Select,
-  SelectItem,
-  SelectPopup,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Menu,
+  MenuGroup,
+  MenuGroupLabel,
+  MenuPopup,
+  MenuRadioGroup,
+  MenuRadioItem,
+  MenuTrigger,
+} from "@/components/event/menu";
+import { ShellSidebarBrand } from "@/components/event/shell";
 import type { MyRoster } from "@/features/org/context/org-context";
+import { useOrg } from "@/features/org/context/use-org";
+import { monogram } from "@/features/org/live/shared/monogram";
 
+/**
+ * For a dancer on several Org Events' rosters: the sidebar brand opening an
+ * "Events" menu to pick which event the dashboard shows.
+ */
 export function DancerEventSwitcher({
   rosters,
   value,
@@ -18,33 +27,40 @@ export function DancerEventSwitcher({
   value: string;
   onValueChange: (eventId: string) => void;
 }) {
-  const items = rosters.map((roster) => ({
-    value: roster.eventId,
-    label: `${roster.eventName} · ${format(parseISO(roster.eventStartDate), "MMM d, yyyy")}`,
-  }));
-
+  const { org } = useOrg();
   return (
-    <Select
-      items={items}
-      value={value}
-      onValueChange={(eventId) => {
-        if (eventId) onValueChange(eventId);
-      }}
-    >
-      <SelectTrigger
-        size="sm"
-        className="w-full min-w-52 sm:w-auto"
-        aria-label="View event"
-      >
-        <SelectValue />
-      </SelectTrigger>
-      <SelectPopup>
-        {items.map((item) => (
-          <SelectItem key={item.value} value={item.value}>
-            {item.label}
-          </SelectItem>
-        ))}
-      </SelectPopup>
-    </Select>
+    <Menu>
+      <MenuTrigger
+        render={
+          <ShellSidebarBrand
+            mark={monogram(org.name)}
+            name={org.name}
+            aria-label={`${org.name}: switch event`}
+          />
+        }
+      />
+      <MenuPopup align="start" className="w-[300px] max-w-[calc(100vw-16px)]">
+        <MenuGroup>
+          <MenuGroupLabel>Events</MenuGroupLabel>
+          <MenuRadioGroup
+            value={value}
+            onValueChange={(eventId: string) => {
+              if (eventId) onValueChange(eventId);
+            }}
+          >
+            {rosters.map((roster) => (
+              <MenuRadioItem
+                key={roster.eventId}
+                value={roster.eventId}
+                indicator="start"
+                hint={format(parseISO(roster.eventStartDate), "MM/dd/yy")}
+              >
+                {roster.eventName}
+              </MenuRadioItem>
+            ))}
+          </MenuRadioGroup>
+        </MenuGroup>
+      </MenuPopup>
+    </Menu>
   );
 }

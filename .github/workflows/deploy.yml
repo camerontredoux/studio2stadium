@@ -1,19 +1,21 @@
 name: Deploy
 
 on:
-  pull_request:
-    paths:
-      - 'apps/backend/**'
-      - 'packages/openapi/**'
-      - 'package.json'
-      - 'pnpm-lock.yaml'
+  workflow_dispatch:
   push:
     paths:
       - 'apps/backend/**'
       - 'packages/openapi/**'
       - 'package.json'
       - 'pnpm-lock.yaml'
+      - 'Dockerfile'
+      - 'fly.toml'
+      - '.github/workflows/deploy.yml'
     branches: [main]
+
+concurrency:
+  group: backend-deploy
+  cancel-in-progress: false
 
 jobs:
   deploy:

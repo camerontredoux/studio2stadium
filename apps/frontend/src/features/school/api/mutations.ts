@@ -1,6 +1,11 @@
 import { $api } from "@/lib/api/client";
 import { schoolQueries } from "./queries";
 
+// Counts toward the Premium Roadmap's program views step.
+export function useRecordProgramView() {
+  return $api.useMutation("post", "/schools/{id}/view");
+}
+
 export function useShowInterest(id: string) {
   return $api.useMutation("post", "/schools/{id}/interest", {
     meta: {

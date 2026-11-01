@@ -76,12 +76,18 @@ function FollowingList() {
 
 export function SchoolFollowingDialog({
   children,
+  nativeButton = true,
 }: {
   children: React.ReactElement;
+  nativeButton?: boolean;
 }) {
   return (
     <Dialog>
-      <DialogTrigger render={children} className="cursor-pointer" />
+      <DialogTrigger
+        render={children}
+        className="cursor-pointer"
+        nativeButton={nativeButton}
+      />
       <DialogContent showCloseButton={false}>
         <DialogHeader>
           <DialogTitle>Favorites</DialogTitle>

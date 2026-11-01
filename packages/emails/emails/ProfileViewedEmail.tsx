@@ -7,6 +7,7 @@ export default function Preview() {
       dancerName="Emma"
       schoolName="University of Dance"
       schoolProfileUrl="https://studio2stadium.com/schools/university-of-dance"
+      schoolLogoUrl="https://studio2stadium.com/img/premium-welcome-2x.jpg"
       freemium
       upgradeUrl="https://studio2stadium.com/settings/membership"
     />

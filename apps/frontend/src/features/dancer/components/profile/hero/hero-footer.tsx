@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { dancerQueries } from "@/features/dancer/api/queries";
 import { queries } from "@/shared/engagement/api/queries";
 import { useQuery } from "@tanstack/react-query";
@@ -13,10 +14,14 @@ export function HeroFooter({ dancerId }: { dancerId: string }) {
   const { isOwner, isPreview, showOwnerControls } = useProfile();
   const navigate = useNavigate({ from: "/$username" });
 
-  const { data: activity } = useQuery(queries.activity({ enabled: isOwner }));
-  const { data: metadata } = useQuery(
+  const { data: activity, isPending: isActivityPending } = useQuery(
+    queries.activity({ enabled: isOwner }),
+  );
+  const { data: metadata, isPending: isMetadataPending } = useQuery(
     dancerQueries.metadata(dancerId, { enabled: !isOwner }),
   );
+
+  const isFollowersPending = isOwner ? isActivityPending : isMetadataPending;
 
   const handlePreview = () => {
     navigate({
@@ -65,12 +70,12 @@ export function HeroFooter({ dancerId }: { dancerId: string }) {
               </Button>
             </DancerFollowingDialog>
           </>
+        ) : isFollowersPending ? (
+          <Skeleton className="h-8 w-24 rounded-lg max-sm:flex-1 sm:h-7" />
         ) : (
-          <>
-            <Button disabled variant="link" size="sm" className="flex-1">
-              {metadata?.followers ?? activity?.followers ?? 0} Followers
-            </Button>
-          </>
+          <Button disabled variant="link" size="sm" className="flex-1">
+            {metadata?.followers ?? activity?.followers ?? 0} Followers
+          </Button>
         )}
       </div>
     </div>

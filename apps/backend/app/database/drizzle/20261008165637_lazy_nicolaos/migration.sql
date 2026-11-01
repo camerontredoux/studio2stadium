@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "tracker_items_dancer_commitment" ON "tracker_items" ("dancer_id") WHERE "type" = 'school' and "stage" = 5;

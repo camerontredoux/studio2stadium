@@ -1,4 +1,5 @@
 import { E_BAD_REQUEST } from "#exceptions/bad-request";
+import { isValidUploadLength } from "#utils/video-upload-length";
 import { inject } from "@adonisjs/core";
 import { HttpContext } from "@adonisjs/core/http";
 import { Service } from "./service.ts";
@@ -27,6 +28,12 @@ export default class UploadSchoolVideoController {
 
     if (!uploadLength) {
       return ctx.response.badRequest({ error: "Missing Upload-Length header" });
+    }
+
+    if (!isValidUploadLength(uploadLength)) {
+      return ctx.response.badRequest({
+        error: "The video must be smaller than 500MB.",
+      });
     }
 
     const result = await service.initiateUpload({

@@ -40,7 +40,11 @@ export function CheckoutDialog({
       <DialogTrigger
         disabled={!billingCycle}
         render={
-          <Button size="lg" disabled={isPending} onClick={handleCheckout} />
+          <Button
+            size="lg"
+            disabled={isPending || !billingCycle}
+            onClick={handleCheckout}
+          />
         }
       >
         {isPending ? <Spinner label="Checking out..." /> : "Checkout"}

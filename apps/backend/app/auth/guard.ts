@@ -170,7 +170,6 @@ export class RedisSessionGuard<
   }
 
   #clearSessionCookie() {
-    this.#ctx.logger.debug("[RedisGuard]: Clearing session cookie");
     this.#ctx.response.clearCookie(
       this.#options.sessionCookieName,
       this.#options.cookieOptions(0)
@@ -178,7 +177,6 @@ export class RedisSessionGuard<
   }
 
   #clearCacheCookie() {
-    this.#ctx.logger.debug("[RedisGuard]: Clearing cache cookie");
     this.#ctx.response.clearCookie(
       this.#options.cacheCookieName,
       this.#options.cookieOptions(0)
@@ -207,11 +205,6 @@ export class RedisSessionGuard<
   }
 
   async #authenticationSucceeded(user: User) {
-    const sessionType = this.authenticatedViaCookie
-      ? "CookieGuard"
-      : "RedisGuard";
-    this.#ctx.logger.debug(`[${sessionType}]: Authentication succeeded`);
-
     this.isAuthenticated = true;
     this.isLoggedOut = false;
     this.user = user;
@@ -306,11 +299,6 @@ export class RedisSessionGuard<
       throw this.#authenticationFailed();
     }
 
-    this.#ctx.logger.debug("[DatabaseGuard]: Updating session", {
-      userId,
-      sessionId: this.#sessionId,
-    });
-
     await this.#commitSession({ version, user: user.getOriginal() });
     await this.#authenticationSucceeded(user.getOriginal());
   }
@@ -385,8 +373,6 @@ export class RedisSessionGuard<
   }
 
   setSessionCookie() {
-    this.#ctx.logger.debug("[AuthGuard]: Setting new session cookie");
-
     this.#ctx.response.cookie(
       this.#options.sessionCookieName,
       this.#sessionId,
@@ -395,8 +381,6 @@ export class RedisSessionGuard<
   }
 
   setCacheCookie() {
-    this.#ctx.logger.debug("[AuthGuard]: Setting new cache cookie");
-
     /**
      * Need expiresAt to force the client to refresh the cache cookie
      * This is a workaround for clients that send the (expired) cache cookie on every request
@@ -419,7 +403,6 @@ export class RedisSessionGuard<
    */
   async login(user: User) {
     if (this.#sessionId) {
-      this.#ctx.logger.debug("[LoginGuard] Deleting existing session");
       await this.#connection.del(this.#sessionId);
     }
     const providerUser = await this.#userProvider.createUserForGuard(user);
@@ -441,8 +424,6 @@ export class RedisSessionGuard<
    * Logout the user by clearing the session.
    */
   async logout() {
-    this.#ctx.logger.debug("[RedisGuard]: Deleting session");
-
     if (this.#sessionId) {
       await this.#connection.del(this.#sessionId);
       this.#clearSessionCookie();
@@ -460,8 +441,6 @@ export class RedisSessionGuard<
    * this marks the user's session as stale by bumping the version.
    */
   async bump() {
-    this.#ctx.logger.debug("[RedisGuard]: Bumping session version");
-
     const user = await this.#userProvider.createUserForGuard(this.user!);
 
     await this.#bumpVersion(user.getId());

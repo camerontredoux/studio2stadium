@@ -12,11 +12,11 @@ export const Route = createFileRoute("/_app/(routes)/feed")({
   },
   loader: async ({ context: { queryClient, session } }) => {
     if (session.type === "dancer") {
-      queryClient.ensureQueryData(feedQueries.recommended());
+      queryClient.prefetchQuery(feedQueries.recommended());
 
-      queryClient.ensureQueryData(sharedFeedQueries.dancerChecklist());
+      queryClient.prefetchQuery(sharedFeedQueries.dancerChecklist());
     }
-    queryClient.ensureInfiniteQueryData(feedQueries.feed());
+    queryClient.prefetchInfiniteQuery(feedQueries.feed());
   },
   component: FeedPage,
 });

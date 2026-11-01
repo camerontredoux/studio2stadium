@@ -12,7 +12,7 @@ import { fileURLToPath } from "url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig([
-  globalIgnores(["dist"]),
+  globalIgnores(["dist", "functions"]),
   {
     files: ["**/*.{ts,tsx}"],
     extends: [

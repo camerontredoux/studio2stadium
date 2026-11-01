@@ -56,8 +56,11 @@ dist-ssr
 # oh-my-claudecode tooling state (sessions, hud, replays, project memory)
 .omc/
 
-# Agent tooling state
-.claude/
+# Agent tooling state. Repo subagents and their hooks under .claude/ are source.
+.claude/*
+!.claude/agents/
+!.claude/hooks/
+!.claude/settings.json
 .superpowers/
 .playwright-mcp/
 .impeccable.md

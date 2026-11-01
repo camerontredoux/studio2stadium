@@ -28,6 +28,8 @@ export function EventHero({ event }: EventHeroProps) {
   const router = useRouter();
   const session = useSession();
   const isOrganizer = session.username === event.organizer.username;
+  // attendees includes the viewer once they've saved the event.
+  const otherAttendees = Math.max(event.attendees - (event.saved ? 1 : 0), 0);
 
   return (
     <Frame compact>
@@ -91,7 +93,8 @@ export function EventHero({ event }: EventHeroProps) {
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>
-                  {event.attendees} other users saved this event
+                  {otherAttendees} other{" "}
+                  {otherAttendees === 1 ? "user" : "users"} saved this event
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>

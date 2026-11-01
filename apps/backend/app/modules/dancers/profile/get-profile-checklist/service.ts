@@ -1,6 +1,8 @@
 import { DatabaseService } from "#database/service";
 import { inject } from "@adonisjs/core";
 
+const SKILLS_REQUIRED = 10;
+
 @inject()
 export class Service {
   constructor(private db: DatabaseService) {}
@@ -36,11 +38,12 @@ export class Service {
     if (!checklist) return null;
 
     return {
-      gpa: !!checklist.gpa,
+      gpa: checklist.gpa != null,
       location: !!checklist.location,
-      skills: checklist?.skills.length >= 10,
-      styles: checklist?.styles.length >= 1,
-      sports: checklist?.sports.length >= 1,
+      skills: checklist.skills.length >= SKILLS_REQUIRED,
+      skillCount: checklist.skills.length,
+      styles: checklist.styles.length >= 1,
+      sports: checklist.sports.length >= 1,
     };
   }
 }

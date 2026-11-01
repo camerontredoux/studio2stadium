@@ -10,6 +10,7 @@ import { inject } from "@adonisjs/core";
 import hash from "@adonisjs/core/services/hash";
 import { and, desc, eq, inArray, isNull } from "drizzle-orm";
 import type { Validator } from "./validator.ts";
+import { tierExpiryFrom } from "#utils/event-time";
 
 export class InviteInvalidError extends Error {
   constructor(message = "Invite is invalid or has expired.") {
@@ -68,7 +69,8 @@ export class RegisterDancerService {
         (org.settings as Record<string, unknown> | undefined) ?? {};
       const freeTier = Boolean(orgFeatures.freeTierUsers);
       const tierExpiryMonths =
-        Number(orgSettings.tierExpiryMonths ?? orgFeatures.tierExpiryMonths) || 3;
+        Number(orgSettings.tierExpiryMonths ?? orgFeatures.tierExpiryMonths) ||
+        3;
       let orgAccountTier: "standard" | "limited" = "standard";
       if (freeTier) {
         const rosterPaid = await tx
@@ -108,8 +110,10 @@ export class RegisterDancerService {
 
       let orgAccountTierExpiresAt: Date | null = null;
       if (latestEvent) {
-        orgAccountTierExpiresAt = new Date(latestEvent.endDate);
-        orgAccountTierExpiresAt.setMonth(orgAccountTierExpiresAt.getMonth() + tierExpiryMonths);
+        orgAccountTierExpiresAt = tierExpiryFrom(
+          latestEvent.endDate,
+          tierExpiryMonths
+        );
       }
 
       const usernameSeed = invite.email.split("@")[0] ?? "dancer";

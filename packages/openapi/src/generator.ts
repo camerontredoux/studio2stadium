@@ -633,7 +633,21 @@ export class OpenApiGenerator {
             /(Get|Head|Post|Put|Patch|Delete)+$/,
             ""
           );
-          const responseSchemaName = `${baseName}Response`;
+          // GET and POST on one path (or PATCH and DELETE on another) share a
+          // base name. Like request bodies above, a response that differs
+          // from the one already registered under it gets a method-specific
+          // name instead of silently reusing the other method's schema.
+          let responseSchemaName = `${baseName}Response`;
+          const existingResponse = this.#aliasSchemas.get(responseSchemaName);
+          if (
+            existingResponse &&
+            JSON.stringify(existingResponse) !== JSON.stringify(schema)
+          ) {
+            const method = endpointAliasName.match(
+              /(Get|Head|Post|Put|Patch|Delete)+$/
+            )?.[0];
+            responseSchemaName = `${baseName}${method?.replace(/Head$/, "") ?? ""}Response`;
+          }
           // Register the schema if not already registered (and if it's not a reference)
           if (!this.#aliasSchemas.has(responseSchemaName) && !("$ref" in schema)) {
             this.#aliasSchemas.set(responseSchemaName, schema);

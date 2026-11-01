@@ -8,7 +8,7 @@ export const schema = vine.create(
       memberId: vine.string().uuid(),
     }),
     role: vine.enum(["admin", "member"]).optional(),
-    type: vine.enum(["coach", "dancer"]).optional(),
+    type: vine.enum(["coach", "dancer", "organizer"]).optional(),
   })
 );
 

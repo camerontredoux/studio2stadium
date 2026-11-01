@@ -9,7 +9,7 @@ export function VideoList() {
 
   return data.map((group) => (
     <section key={group.category} className="relative mt-1 flex flex-col gap-2">
-      <div className="sticky top-24 z-10 mt-2">
+      <div className="top-header-12 sticky z-10 mt-2">
         <div className="flex items-center justify-between gap-2">
           <div className="border-brand/20 bg-background/90 flex items-center gap-1.5 rounded-full border px-2.5 py-1 backdrop-blur-sm">
             <TagIcon className="text-brand size-3.5" />

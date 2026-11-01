@@ -17,12 +17,11 @@ export const createClient = () => {
       // survives reloads. Harmless for real participants — they have a single
       // roster of their own type, which this filter matches.
       if (typeof window !== "undefined") {
-        const path = window.location.pathname;
-        const actAs = path.includes("/coach")
-          ? "coach"
-          : path.includes("/dancer")
-            ? "dancer"
-            : null;
+        // Match the area segment (/o/:slug/coach or /dancer), not any path
+        // containing the word: /dancer/coaches is the dancer area.
+        const actAs = window.location.pathname.match(
+          /^\/o\/[^/]+\/(coach|dancer)(?:\/|$)/,
+        )?.[1];
         if (actAs) request.headers.set("x-act-as-type", actAs);
       }
       return request;

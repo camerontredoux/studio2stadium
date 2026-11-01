@@ -28,3 +28,15 @@ export function mostRecentAugustFirst(now: Date): Date {
 
   return cutoff.toJSDate();
 }
+
+/**
+ * The grad year of the current cycle's graduating seniors. The cycle that
+ * starts August 1 2026 graduates the class of 2027, so the class rolls over
+ * each August 1, Denver time.
+ */
+export function graduatingClass(now: Date): number {
+  return (
+    DateTime.fromJSDate(mostRecentAugustFirst(now), { zone: PROSPECT_TZ })
+      .year + 1
+  );
+}

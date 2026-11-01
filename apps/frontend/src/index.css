@@ -7,6 +7,8 @@
 @custom-variant desktop (@media (pointer: fine));
 
 :root {
+  /* Height of the fixed top bar that sticky elements pin under. */
+  --header-offset: 3rem;
   --brand: oklch(0.7332 0.0605 71.75);
   --brand-foreground: oklch(255 255 255);
   --brand-border: oklch(0.7332 0.0605 71.75 / 0.2);
@@ -214,6 +216,7 @@
   --shadow-2xl: var(--shadow-2xl);
   --animate-skeleton: skeleton 2s -1s infinite linear;
   --animate-loading-bar: loading-bar 1.4s ease-in-out infinite alternate;
+  --animate-stage-pulse: stage-pulse 1.2s ease-out infinite;
   --color-warning-foreground: var(--warning-foreground);
   --color-warning: var(--warning);
   --color-success-foreground: var(--success-foreground);
@@ -223,6 +226,14 @@
   @keyframes skeleton {
     to {
       background-position: -200% 0;
+    }
+  }
+  @keyframes stage-pulse {
+    from {
+      box-shadow: 0 0 0 0 var(--brand-hover);
+    }
+    to {
+      box-shadow: 0 0 0 8px transparent;
     }
   }
   @keyframes loading-bar {
@@ -275,6 +286,27 @@
   &::-webkit-scrollbar {
     display: none;
   }
+}
+
+/*
+  AppLayout sets data-header-hidden while the mobile top bar is slid away on
+  scroll, so sticky elements move up to the top of the screen with it.
+*/
+[data-header-hidden] {
+  --header-offset: env(safe-area-inset-top, 0px);
+}
+
+/*
+  Pins a sticky element under the top bar, plus an optional spacing step
+  (top-header-2). useHideOnScroll slides these with the top bar, so `top`
+  has no transition of its own.
+*/
+@utility top-header {
+  top: var(--header-offset);
+}
+
+@utility top-header-* {
+  top: calc(var(--header-offset) + var(--spacing) * --value(integer));
 }
 
 #nprogress .bar {

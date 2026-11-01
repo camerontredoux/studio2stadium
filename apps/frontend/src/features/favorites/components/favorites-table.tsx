@@ -213,9 +213,25 @@ const columns: ColumnDef<Favorite>[] = [
   },
 ];
 
+function FavoritesError({ onRetry }: { onRetry: () => void }) {
+  return (
+    <div
+      className="flex h-24 items-center justify-center gap-3"
+      data-testid="favorites-error"
+    >
+      <p className="text-muted-foreground text-sm">Error loading favorites.</p>
+      <Button size="sm" variant="outline" onClick={onRetry}>
+        Try again
+      </Button>
+    </div>
+  );
+}
+
 export function FavoritesTable() {
   const queryClient = useQueryClient();
-  const { data, isPending } = useQuery(favoritesQueries.favorites());
+  const { data, isPending, isError, refetch } = useQuery(
+    favoritesQueries.favorites(),
+  );
   const { mutate: updateFavorite, isPending: isUpdating } = useUpdateFavorite();
 
   const pageSize = 10;
@@ -311,6 +327,8 @@ export function FavoritesTable() {
               Loading favorites...
             </p>
           </div>
+        ) : isError && !data ? (
+          <FavoritesError onRetry={() => refetch()} />
         ) : paginatedData.length ? (
           <>
             {paginatedData.map((favorite) => (
@@ -490,6 +508,12 @@ export function FavoritesTable() {
                       Loading favorites...
                     </p>
                   </div>
+                </TableCell>
+              </TableRow>
+            ) : isError && !data ? (
+              <TableRow className="hover:bg-transparent">
+                <TableCell className="h-24" colSpan={columns.length}>
+                  <FavoritesError onRetry={() => refetch()} />
                 </TableCell>
               </TableRow>
             ) : table.getRowModel().rows.length ? (

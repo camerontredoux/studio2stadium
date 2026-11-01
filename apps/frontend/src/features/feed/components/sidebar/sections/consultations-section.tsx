@@ -21,8 +21,9 @@ export function ConsultationsSection() {
             className="w-full items-center gap-2"
             render={
               <a
-                href="https://calendly.com/studiotostadium/s2s-dancer-consulting-coaching-call?preview_source=et_card&month=2025-2"
+                href="https://calendly.com/studio2stadium"
                 target="_blank"
+                rel="noreferrer noopener"
               />
             }
           >

@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Check-in Desk</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap">
+<style>
+/* Check-in desk: the scanner beside the dancer list, in the S2S Live dashboard style. */
+:root {
+  --bg: #121212; --panel: #1A1A1A; --raised: #202020; --line: #2B2B2B; --line-soft: #262626;
+  --fg: #EDEDED; --fg-2: #A3A3A3; --fg-3: #8A8A8A; --live: #6EE7A0; --warn: #F87171;
+  --ui: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  color-scheme: dark;
+}
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--ui); font-size: 13px; line-height: 1.4;
+  -webkit-font-smoothing: antialiased; min-height: 100vh;
+  background-image: radial-gradient(circle, rgba(255,255,255,.035) 1px, transparent 1.3px);
+  background-size: 14px 14px;
+}
+.wrap {
+  max-width: 1120px; margin: 0 auto; box-sizing: border-box;
+  padding-block: 20px 32px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 12px;
+}
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.lbl { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--fg-3); }
+.spacer { flex: 1; }
+
+/* header */
+header { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; min-height: 44px; }
+.title { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.crumb { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; color: var(--fg-3); font-size: 13px; }
+h1 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.02em; }
+.badge { display: inline-flex; align-items: center; gap: 8px; height: 24px; padding: 0 8px; box-sizing: border-box; border: 1px solid #333333; border-radius: 5px; font-family: var(--mono); font-size: 11.5px; color: var(--fg); }
+.badge b { color: var(--live); font-weight: 400; letter-spacing: .06em; }
+.tally { display: flex; align-items: baseline; gap: 6px; }
+.tally .big { font-size: 28px; font-weight: 600; letter-spacing: -0.03em; line-height: 1; }
+.tally .of { font-family: var(--mono); font-size: 14px; color: var(--fg-3); }
+.tally .word { font-size: 13px; color: var(--fg-3); }
+
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,.35), 0 1px 2px rgba(0,0,0,.3); overflow: hidden; min-width: 0; }
+.ph { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 14px; border-bottom: 1px solid var(--line); }
+.grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; align-items: start; }
+@media (max-width: 800px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* scanner */
+.scan { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 24px 16px; }
+.view { position: relative; width: 100%; max-width: 400px; aspect-ratio: 1; box-sizing: border-box; border-radius: 14px; background: var(--bg); border: 1px solid var(--line); overflow: hidden; display: grid; place-items: center; }
+.view.live { background: #0C0C0C; }
+video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .3s ease; }
+.view.cam video { opacity: 1; }
+.c { position: absolute; z-index: 4; width: 28px; height: 28px; border: 0 solid #4A4A4A; transition: border-color .2s; }
+.view.live .c, .view.result .c { border-color: var(--fg); }
+.c.tl { top: 16px; left: 16px; border-top-width: 2px; border-left-width: 2px; border-top-left-radius: 8px; }
+.c.tr { top: 16px; right: 16px; border-top-width: 2px; border-right-width: 2px; border-top-right-radius: 8px; }
+.c.bl { bottom: 16px; left: 16px; border-bottom-width: 2px; border-left-width: 2px; border-bottom-left-radius: 8px; }
+.c.br { bottom: 16px; right: 16px; border-bottom-width: 2px; border-right-width: 2px; border-bottom-right-radius: 8px; }
+.line { position: absolute; z-index: 2; left: 26px; right: 26px; top: 26px; height: 2px; border-radius: 1px; background: var(--fg); opacity: .6; animation: sweep 1.4s ease-in-out infinite alternate; }
+@keyframes sweep { to { top: calc(100% - 28px); } }
+@media (prefers-reduced-motion: reduce) { .line { animation: none; top: 50%; } }
+.idle { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 12px; color: var(--fg-3); text-align: center; padding: 0 32px; }
+.idle .h { color: var(--fg); font-size: 15px; font-weight: 600; }
+.state { position: absolute; z-index: 2; left: 0; right: 0; bottom: 32px; text-align: center; font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--fg-2); }
+.view.cam .state { color: var(--fg); text-shadow: 0 1px 2px rgba(0,0,0,.6); }
+.hit { position: absolute; inset: 0; z-index: 3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 32px; text-align: center; background: rgba(12,12,12,.82); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); animation: pop .25s ease; }
+@keyframes pop { from { opacity: 0; transform: scale(.98); } to { opacity: 1; transform: none; } }
+.hit .ico svg { width: 40px; height: 40px; display: block; }
+.hit .bib { font-family: var(--mono); font-size: 44px; font-weight: 500; line-height: 1; }
+.hit .name { font-size: 18px; font-weight: 600; }
+.hit .meta { font-family: var(--mono); font-size: 12px; color: var(--fg-2); }
+.hit.miss .ico, .hit.miss .name { color: var(--warn); }
+.hit.again .ico { color: var(--fg-3); }
+.hit .undo { margin-top: 6px; }
+.actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.note { font-size: 12.5px; color: var(--fg-2); text-align: center; min-height: 18px; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 36px; padding: 0 14px; border-radius: 6px; border: 1px solid #333; background: var(--raised); color: var(--fg); font: inherit; font-size: 13px; font-weight: 500; cursor: pointer; white-space: nowrap; text-decoration: none; box-sizing: border-box; }
+.btn:hover { background: #282828; }
+.btn:focus-visible, .seg button:focus-visible, .search input:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+.btn.primary { background: var(--fg); border-color: var(--fg); color: #121212; }
+.btn.primary:hover { background: #fff; }
+.btn.ghost { background: transparent; border-color: transparent; color: var(--fg-2); }
+.btn.ghost:hover { background: #252525; color: var(--fg); }
+.btn.sm { height: 30px; padding: 0 10px; font-size: 12.5px; }
+.btn.icon { width: 30px; padding: 0; }
+.btn svg { width: 15px; height: 15px; flex: none; }
+input[type=file] { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
+/* roster */
+.bar { height: 4px; background: #262626; border-radius: 2px; overflow: hidden; flex: 1; max-width: 140px; }
+.bar span { display: block; height: 100%; background: var(--fg); border-radius: 2px; transition: width .3s ease; }
+.tools { display: flex; gap: 8px; flex-wrap: wrap; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+.search { position: relative; flex: 1 1 180px; min-width: 0; }
+.search svg { position: absolute; left: 10px; top: 50%; width: 14px; height: 14px; transform: translateY(-50%); color: var(--fg-3); pointer-events: none; }
+.search input { width: 100%; height: 34px; box-sizing: border-box; padding: 0 10px 0 32px; border-radius: 6px; border: 1px solid #333; background: #161616; color: var(--fg); font: inherit; font-size: 13px; }
+.search input::placeholder { color: var(--fg-3); }
+.seg { display: inline-flex; padding: 2px; gap: 2px; border: 1px solid #333; border-radius: 7px; background: #161616; }
+.seg button { height: 28px; padding: 0 10px; border: 0; border-radius: 5px; background: transparent; color: var(--fg-2); font: inherit; font-size: 12.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.seg button:hover { color: var(--fg); }
+.seg button[aria-pressed="true"] { background: #2A2A2A; color: var(--fg); }
+.seg .n { font-family: var(--mono); font-size: 11.5px; color: var(--fg-3); }
+.group { display: flex; align-items: center; gap: 10px; min-height: 34px; padding: 0 14px; background: #1D1D1D; border-bottom: 1px solid var(--line-soft); }
+.row { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 0 8px 0 14px; border-bottom: 1px solid var(--line-soft); }
+.list > :last-child { border-bottom: 0; }
+.row .b { width: 38px; flex: none; font-family: var(--mono); font-size: 13px; }
+.row .n { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+.row .t { display: inline-flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 12px; color: var(--fg-2); }
+.row .t svg { width: 14px; height: 14px; color: var(--fg); }
+.row.out .b { color: var(--fg-3); }
+.row.flash { animation: flash 1.4s ease; }
+@keyframes flash { from { background: #2C2C2C; } to { background: transparent; } }
+.empty { padding: 28px 14px; text-align: center; color: var(--fg-3); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="title">
+      <span class="crumb">Fall Showcase 2026 <span class="badge"><b>LIVE</b><span>Day 2/3</span></span></span>
+      <h1>Check-in</h1>
+    </div>
+    <span class="spacer"></span>
+    <div class="tally" aria-live="polite">
+      <span class="big" id="countIn">2</span><span class="of" id="countOf">/5</span><span class="word">checked in</span>
+    </div>
+  </header>
+
+  <div class="grid">
+    <section class="panel" aria-label="Scan a pass">
+      <div class="ph"><span class="lbl">Scan pass</span></div>
+      <div class="scan">
+        <div class="view" id="view" role="region" aria-label="Pass scanner" aria-live="polite">
+          <video id="video" muted playsinline autoplay aria-hidden="true"></video>
+          <span class="c tl"></span><span class="c tr"></span><span class="c bl"></span><span class="c br"></span>
+          <div class="idle" id="idle">
+            <svg width="40" height="40" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M104,40H56A16,16,0,0,0,40,56v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V56A16,16,0,0,0,104,40Zm0,64H56V56h48v48Zm0,32H56a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V152A16,16,0,0,0,104,136Zm0,64H56V152h48v48ZM200,40H152a16,16,0,0,0-16,16v48a16,16,0,0,0,16,16h48a16,16,0,0,0,16-16V56A16,16,0,0,0,200,40Zm0,64H152V56h48v48Zm-64,72V144a8,8,0,0,1,16,0v32a8,8,0,0,1-16,0Zm80-16a8,8,0,0,1-8,8H184v40a8,8,0,0,1-8,8H144a8,8,0,0,1,0-16h24V144a8,8,0,0,1,16,0v8h24A8,8,0,0,1,216,160Zm0,32v16a8,8,0,0,1-16,0V192a8,8,0,0,1,16,0Z"/></svg>
+            <span class="h">Ready to scan</span>
+            <span>Hold the dancer's pass inside the frame</span>
+          </div>
+          <span class="line" id="line" hidden></span>
+          <span class="state" id="state" hidden></span>
+          <div class="hit" id="hit" hidden>
+            <span class="ico" id="hitIco"></span>
+            <span class="bib" id="hitBib"></span>
+            <span class="name" id="hitName"></span>
+            <span class="meta" id="hitMeta"></span>
+            <button class="btn ghost sm undo" id="hitUndo" type="button" hidden>Undo</button>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn primary" id="openCam" type="button">
+            <svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M208,56H180.28L166.65,35.56A8,8,0,0,0,160,32H96a8,8,0,0,0-6.65,3.56L75.71,56H48A24,24,0,0,0,24,80V192a24,24,0,0,0,24,24H208a24,24,0,0,0,24-24V80A24,24,0,0,0,208,56Zm8,136a8,8,0,0,1-8,8H48a8,8,0,0,1-8-8V80a8,8,0,0,1,8-8H80a8,8,0,0,0,6.66-3.56L100.28,48h55.43l13.63,20.44A8,8,0,0,0,176,72h32a8,8,0,0,1,8,8ZM128,88a44,44,0,1,0,44,44A44.05,44.05,0,0,0,128,88Zm0,72a28,28,0,1,1,28-28A28,28,0,0,1,128,160Z"/></svg>
+            Start scanning
+          </button>
+          <button class="btn" id="next" type="button" hidden>Scan next</button>
+          <label class="btn" for="photo" id="photoBtn">
+            <svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,16V158.75l-26.07-26.06a16,16,0,0,0-22.63,0l-20,20-44-44a16,16,0,0,0-22.62,0L40,149.37V56ZM40,172l52-52,80,80H40Zm176,28H194.63l-36-36,20-20L216,181.38V200ZM144,100a12,12,0,1,1,12,12A12,12,0,0,1,144,100Z"/></svg>
+            Take photo
+          </label>
+          <input type="file" id="photo" accept="image/*" capture="environment">
+          <button class="btn ghost" id="closeCam" type="button" hidden>Stop</button>
+        </div>
+        <div class="note" id="note" role="status"></div>
+      </div>
+    </section>
+
+    <section class="panel" aria-label="Dancers">
+      <div class="ph">
+        <span class="lbl">Dancers</span>
+        <span class="spacer"></span>
+        <span class="bar" aria-hidden="true"><span id="bar"></span></span>
+        <span class="mono" id="pct" style="font-size:12px;color:var(--fg-2)"></span>
+      </div>
+      <div class="tools">
+        <label class="search">
+          <svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"/></svg>
+          <input type="search" id="q" placeholder="Search name or bib" aria-label="Search dancers by name or bib" autocomplete="off">
+        </label>
+        <div class="seg" role="group" aria-label="Show">
+          <button type="button" data-f="all" aria-pressed="true">All <span class="n" id="nAll"></span></button>
+          <button type="button" data-f="out" aria-pressed="false">Not yet <span class="n" id="nOut"></span></button>
+          <button type="button" data-f="in" aria-pressed="false">Checked in <span class="n" id="nIn"></span></button>
+        </div>
+      </div>
+      <div class="list" id="roster"></div>
+    </section>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<script>
+(() => {
+  const ICON = {
+    check: '<svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></svg>',
+    ok: '<svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M173.66,98.34a8,8,0,0,1,0,11.32l-56,56a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35A8,8,0,0,1,173.66,98.34ZM232,128A104,104,0,1,1,128,24,104.11,104.11,0,0,1,232,128Zm-16,0a88,88,0,1,0-88,88A88.1,88.1,0,0,0,216,128Z"/></svg>',
+    warn: '<svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm-8-80V80a8,8,0,0,1,16,0v56a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,172Z"/></svg>',
+    undo: '<svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M232,144a64.07,64.07,0,0,1-64,64H80a8,8,0,0,1,0-16h88a48,48,0,0,0,0-96H51.31l34.35,34.34a8,8,0,0,1-11.32,11.32l-48-48a8,8,0,0,1,0-11.32l48-48A8,8,0,0,1,85.66,45.66L51.31,80H168A64.07,64.07,0,0,1,232,144Z"/></svg>'
+  };
+
+  // Sample roster, matching the dashboard
+  const at = (h, m) => { const d = new Date(); d.setHours(h, m, 0, 0); return d; };
+  const roster = [
+    { bib: '122', name: 'Jane Doe', at: null },
+    { bib: '125', name: 'Jason Jones', at: null },
+    { bib: '126', name: 'Mary Miller', at: null },
+    { bib: '220', name: 'Abbey Nugent', at: at(9, 48) },
+    { bib: '230', name: 'Juna Park', at: at(10, 12) }
+  ];
+
+  const $ = (id) => document.getElementById(id);
+  const view = $('view'), video = $('video');
+  let stream = null, raf = 0, paused = false, busy = false, detector = null, camOk = null;
+  let filter = 'all', query = '', lastCode = '', lastAt = 0, resumeT = 0, lastHit = null;
+  const canvas = document.createElement('canvas');
+  const fmt = (d) => d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+
+  function setIn(d, on) { d.at = on ? new Date() : null; render(d.bib); }
+
+  function render(flashBib) {
+    const ins = roster.filter((d) => d.at), outs = roster.filter((d) => !d.at);
+    const pct = roster.length ? Math.round(ins.length / roster.length * 100) : 0;
+    $('countIn').textContent = ins.length; $('countOf').textContent = '/' + roster.length;
+    $('bar').style.width = pct + '%'; $('pct').textContent = pct + '%';
+    $('nAll').textContent = roster.length; $('nOut').textContent = outs.length; $('nIn').textContent = ins.length;
+
+    const q = query.trim().toLowerCase();
+    const match = (d) => !q || d.name.toLowerCase().includes(q) || d.bib.includes(q);
+    const groups = [];
+    if (filter !== 'in') groups.push(['Not yet', outs.filter(match).sort((a, b) => a.name.localeCompare(b.name))]);
+    if (filter !== 'out') groups.push(['Checked in', ins.filter(match).sort((a, b) => b.at - a.at)]);
+
+    const list = $('roster'); list.textContent = '';
+    let shown = 0;
+    groups.forEach(([label, rows]) => {
+      if (!rows.length) return;
+      shown += rows.length;
+      const g = el('div', 'group'); g.append(el('span', 'lbl', label), el('span', 'mono', String(rows.length)));
+      g.lastChild.style.cssText = 'font-size:12px;color:var(--fg-2)';
+      list.append(g);
+      rows.forEach((d) => {
+        const r = el('div', 'row' + (d.at ? '' : ' out') + (d.bib === flashBib ? ' flash' : ''));
+        r.append(el('span', 'b', d.bib), el('span', 'n', d.name));
+        if (d.at) {
+          const t = el('span', 't'); t.innerHTML = ICON.check; t.append(fmt(d.at));
+          const u = el('button', 'btn ghost sm icon'); u.type = 'button'; u.innerHTML = ICON.undo;
+          u.title = 'Undo check-in'; u.setAttribute('aria-label', 'Undo check-in for ' + d.name);
+          u.onclick = () => setIn(d, false);
+          r.append(t, u);
+        } else {
+          const b = el('button', 'btn sm', 'Check in'); b.type = 'button';
+          b.setAttribute('aria-label', 'Check in ' + d.name);
+          b.onclick = () => setIn(d, true);
+          r.append(b);
+        }
+        list.append(r);
+      });
+    });
+    if (!shown) list.append(el('div', 'empty', q ? 'No dancers match "' + query.trim() + '"' : (filter === 'out' ? 'Everyone is checked in' : 'No one checked in yet')));
+  }
+
+  function setMode(mode, label) {
+    view.classList.toggle('live', mode === 'live');
+    view.classList.toggle('result', mode === 'result');
+    $('idle').hidden = mode !== 'idle';
+    $('line').hidden = mode !== 'live';
+    $('state').hidden = mode !== 'live';
+    if (label) $('state').textContent = label;
+    $('hit').hidden = mode !== 'result';
+    $('openCam').hidden = !!stream || camOk === false;
+    $('closeCam').hidden = !stream;
+    $('next').hidden = !(stream && mode === 'result');
+  }
+
+  function resume() {
+    clearTimeout(resumeT);
+    if (!stream) { setMode('idle'); return; }
+    paused = false; setMode('live', 'Scanning');
+  }
+
+  function showResult(text) {
+    const m = String(text || '').match(/\d{2,4}/g) || [];
+    const d = roster.find((x) => m.indexOf(x.bib) >= 0);
+    const hit = $('hit');
+    lastHit = null; $('hitUndo').hidden = true;
+    if (d) {
+      const already = !!d.at;
+      if (!already) { d.at = new Date(); lastHit = d; $('hitUndo').hidden = false; }
+      hit.className = 'hit' + (already ? ' again' : '');
+      $('hitIco').innerHTML = ICON.ok;
+      $('hitBib').textContent = d.bib;
+      $('hitName').textContent = d.name;
+      $('hitMeta').textContent = (already ? 'Already checked in at ' : 'Checked in at ') + fmt(d.at);
+      render(d.bib);
+    } else {
+      hit.className = 'hit miss';
+      $('hitIco').innerHTML = ICON.warn;
+      $('hitBib').textContent = '';
+      $('hitName').textContent = 'Pass not recognized';
+      $('hitMeta').textContent = 'Find the dancer in the list instead';
+    }
+    setMode('result');
+    if (navigator.vibrate) { try { navigator.vibrate(40); } catch (e) {} }
+    if (stream) { clearTimeout(resumeT); resumeT = setTimeout(resume, 3000); }
+  }
+
+  async function decode(source, w, h) {
+    if ('BarcodeDetector' in window) {
+      try {
+        detector = detector || new window.BarcodeDetector({ formats: ['qr_code'] });
+        const codes = await detector.detect(source);
+        return codes && codes[0] ? codes[0].rawValue : null;
+      } catch (e) { /* fall back to jsQR */ }
+    }
+    if (!window.jsQR || !w || !h) return null;
+    const k = Math.min(1, 640 / Math.max(w, h));
+    canvas.width = Math.round(w * k); canvas.height = Math.round(h * k);
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
+    const r = window.jsQR(ctx.getImageData(0, 0, canvas.width, canvas.height).data, canvas.width, canvas.height, { inversionAttempts: 'attemptBoth' });
+    return r && r.data ? r.data : null;
+  }
+
+  function loop() {
+    const tick = async () => {
+      if (!stream) return;
+      if (!paused && !busy && video.readyState >= 2) {
+        busy = true;
+        try {
+          const t = await decode(video, video.videoWidth, video.videoHeight);
+          // Ignore the same pass if it is still in view right after a scan
+          if (t && !(t === lastCode && Date.now() - lastAt < 5000)) { lastCode = t; lastAt = Date.now(); paused = true; showResult(t); }
+          else if (t) lastAt = Date.now();
+        } catch (e) {}
+        busy = false;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+  }
+
+  async function openCamera() {
+    $('note').textContent = '';
+    setMode('live', 'Starting camera');
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw Object.assign(new Error('x'), { name: 'NotSupportedError' });
+      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
+      camOk = true;
+      video.srcObject = stream;
+      try { await video.play(); } catch (e) {}
+      view.classList.add('cam');
+      paused = false;
+      setMode('live', 'Scanning');
+      loop();
+    } catch (e) {
+      stream = null; camOk = false;
+      setMode('idle');
+      $('note').textContent = e && e.name === 'NotFoundError'
+        ? 'No camera found. Use Take photo to scan a pass.'
+        : 'The live camera isn’t available here. Use Take photo to scan a pass.';
+    }
+  }
+
+  function closeCamera() {
+    clearTimeout(resumeT);
+    if (raf) cancelAnimationFrame(raf); raf = 0;
+    if (stream) stream.getTracks().forEach((t) => t.stop());
+    stream = null; video.srcObject = null; view.classList.remove('cam');
+    setMode('idle');
+  }
+
+  $('openCam').addEventListener('click', openCamera);
+  $('closeCam').addEventListener('click', closeCamera);
+  $('next').addEventListener('click', resume);
+  $('hitUndo').addEventListener('click', () => {
+    if (lastHit) { lastHit.at = null; render(lastHit.bib); lastHit = null; }
+    resume();
+  });
+  $('photo').addEventListener('change', async (ev) => {
+    const file = ev.target.files && ev.target.files[0];
+    ev.target.value = '';
+    if (!file) return;
+    if (stream) closeCamera();
+    $('note').textContent = '';
+    setMode('live', 'Reading photo');
+    try {
+      const bmp = await createImageBitmap(file);
+      const t = await decode(bmp, bmp.width, bmp.height);
+      if (t) showResult(t);
+      else { setMode('idle'); $('note').textContent = 'Couldn’t find a pass in that photo. Try again with the code filling more of the frame.'; }
+    } catch (e) {
+      setMode('idle'); $('note').textContent = 'Couldn’t read that photo. Try again.';
+    }
+  });
+  $('q').addEventListener('input', (e) => { query = e.target.value; render(); });
+  document.querySelectorAll('.seg button').forEach((b) => b.addEventListener('click', () => {
+    filter = b.dataset.f;
+    document.querySelectorAll('.seg button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    render();
+  }));
+
+  render();
+  setMode('idle');
+})();
+</script>
+</body>
+</html>

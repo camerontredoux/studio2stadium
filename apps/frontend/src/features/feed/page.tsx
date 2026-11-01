@@ -2,15 +2,19 @@ import { SidebarLayout } from "@/components/layouts/sidebar-layout";
 import { OrgStoriesRail } from "@/components/shared/org-stories-rail";
 import { FeedSidebar } from "@/features/feed/components/sidebar/sidebar";
 
-import { useSession } from "@/lib/session";
+import { useProfileSession } from "@/lib/session";
 import { Suspense } from "react";
 import { Feed } from "./components/feed";
 import { FeedSkeleton } from "./components/feed-skeleton";
 import { FreeTierAlert } from "./components/free-tier-alert";
+import { PremiumRoadmap } from "./components/roadmap/premium-roadmap";
+import { DancerSpotlight } from "./components/spotlight/dancer-spotlight";
+import { DancerSpotlightSkeleton } from "./components/spotlight/dancer-spotlight-skeleton";
 import { ProgramSpotlight } from "./components/spotlight/program-spotlight";
+import { ProgramSpotlightSkeleton } from "./components/spotlight/program-spotlight-skeleton";
 
 export function FeedPage() {
-  const session = useSession();
+  const session = useProfileSession();
 
   return (
     <SidebarLayout
@@ -32,8 +36,17 @@ export function FeedPage() {
         {session.type === "dancer" && (
           <>
             <FreeTierAlert />
-            <ProgramSpotlight />
+            <PremiumRoadmap />
+            <Suspense fallback={<ProgramSpotlightSkeleton />}>
+              <ProgramSpotlight />
+            </Suspense>
           </>
+        )}
+
+        {session.type === "school" && (
+          <Suspense fallback={<DancerSpotlightSkeleton />}>
+            <DancerSpotlight />
+          </Suspense>
         )}
 
         <Suspense fallback={<FeedSkeleton />}>

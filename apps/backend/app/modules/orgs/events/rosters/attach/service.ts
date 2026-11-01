@@ -14,6 +14,7 @@ import {
 } from "#shared/org/grant-account-tier";
 import { inject } from "@adonisjs/core";
 import { and, eq, isNull, ne, sql } from "drizzle-orm";
+import { rosterTypeMembershipConflict } from "#shared/org/membership";
 
 export class RosterNotFoundError extends Error {
   code = "ROSTER_NOT_FOUND" as const;
@@ -123,7 +124,8 @@ export class AttachAccountService {
       const oldFirstName = roster.firstName;
       const oldLastName = roster.lastName;
       const previousUserId = roster.userId;
-      const isRelink = previousUserId !== null && previousUserId !== targetUserId;
+      const isRelink =
+        previousUserId !== null && previousUserId !== targetUserId;
 
       // Reassigning a claimed entry unregisters its current holder, so it takes
       // a deliberate confirmation. Re-running an attach for the account that
@@ -218,9 +220,7 @@ export class AttachAccountService {
             type: "dancer",
             role: "member",
           })
-          .onConflictDoNothing({
-            target: [orgMemberships.userId, orgMemberships.orgId],
-          });
+          .onConflictDoNothing(rosterTypeMembershipConflict());
 
         // Bring the account's advisory window up to what this roster entitles
         // it to: granted outright if it had no tier, extended if this event runs

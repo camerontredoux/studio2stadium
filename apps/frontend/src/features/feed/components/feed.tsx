@@ -1,11 +1,13 @@
+import { Button } from "@/components/ui/button";
 import {
   Empty,
+  EmptyContent,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
-import { useSession } from "@/lib/session";
+import { useProfileSession } from "@/lib/session";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { GraduationCapIcon, XIcon } from "lucide-react";
@@ -15,10 +17,16 @@ import { FeedItem } from "./content/feed-item";
 import { FeedItemSkeleton, FeedSkeleton } from "./feed-skeleton";
 
 export function Feed() {
-  const session = useSession();
+  const session = useProfileSession();
 
-  const { status, data, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useInfiniteQuery(feedQueries.feed());
+  const {
+    status,
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isFetchNextPageError,
+  } = useInfiniteQuery(feedQueries.feed());
 
   const rows = data ? data.pages.flatMap((page) => page.feed) : [];
 
@@ -44,7 +52,8 @@ export function Feed() {
     if (
       lastItem.index >= rows.length - 1 &&
       hasNextPage &&
-      !isFetchingNextPage
+      !isFetchingNextPage &&
+      !isFetchNextPageError
     ) {
       fetchNextPage();
     }
@@ -53,6 +62,7 @@ export function Feed() {
     fetchNextPage,
     rows.length,
     isFetchingNextPage,
+    isFetchNextPageError,
     virtualItems,
   ]);
 
@@ -60,7 +70,7 @@ export function Feed() {
     return <FeedSkeleton />;
   }
 
-  if (status === "error") {
+  if (!data) {
     return (
       <Empty className="border">
         <EmptyHeader>
@@ -120,7 +130,26 @@ export function Feed() {
                 ref={rowVirtualizer.measureElement}
               >
                 {isLoaderRow ? (
-                  <FeedItemSkeleton />
+                  isFetchNextPageError && !isFetchingNextPage ? (
+                    <Empty
+                      className="border"
+                      data-testid="feed-next-page-error"
+                    >
+                      <EmptyHeader>
+                        <EmptyTitle>Couldn't load more of your feed</EmptyTitle>
+                      </EmptyHeader>
+                      <EmptyContent>
+                        <Button
+                          variant="outline"
+                          onClick={() => fetchNextPage()}
+                        >
+                          Try again
+                        </Button>
+                      </EmptyContent>
+                    </Empty>
+                  ) : (
+                    <FeedItemSkeleton />
+                  )
                 ) : (
                   <FeedItem type={session.type} item={item} />
                 )}

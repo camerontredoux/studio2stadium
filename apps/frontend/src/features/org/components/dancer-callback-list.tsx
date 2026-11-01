@@ -9,20 +9,38 @@ import {
 } from "@/features/org/components/school-identity";
 
 /**
- * Which schools called this dancer back — admin-only. Includes callbacks the
- * current showcase has not published yet, so support can tell a dancer who to
- * connect with before results are released.
+ * Which schools called this dancer back.
+ *
+ * Admins see every program that called the dancer back (including callbacks the
+ * current showcase has not published yet), so support can tell a dancer who to
+ * connect with before results are released. A coach sees only their own
+ * program — never which other programs called the dancer back — enforced
+ * server-side by the coach-scoped endpoint.
  */
 export function DancerCallbackList({
   orgSlug,
   dancerRosterId,
+  admin = false,
+  eventId,
 }: {
   orgSlug: string;
   dancerRosterId: string;
+  admin?: boolean;
+  eventId?: string;
 }) {
-  const { data: callbacks, isLoading } = useQuery(
-    scoutingQueries.dancerCallbackDetail(orgSlug, dancerRosterId),
-  );
+  // Both responses share the same shape; only the active one fetches. Admins
+  // get every program, coaches get just their own (scoped server-side). The
+  // coach query passes eventId so a past event reads against the coach's
+  // roster for that event.
+  const adminQuery = useQuery({
+    ...scoutingQueries.dancerCallbackDetail(orgSlug, dancerRosterId),
+    enabled: admin,
+  });
+  const coachQuery = useQuery({
+    ...scoutingQueries.coachDancerCallbackDetail(orgSlug, dancerRosterId, eventId),
+    enabled: !admin,
+  });
+  const { data: callbacks, isLoading } = admin ? adminQuery : coachQuery;
 
   return (
     <div>
@@ -37,7 +55,9 @@ export function DancerCallbackList({
         </div>
       ) : !callbacks || callbacks.length === 0 ? (
         <p className="text-muted-foreground/50 text-sm italic">
-          No schools have called this dancer back
+          {admin
+            ? "No schools have called this dancer back"
+            : "You haven't called this dancer back"}
         </p>
       ) : (
         <ul className="divide-border border-border divide-y rounded-md border">

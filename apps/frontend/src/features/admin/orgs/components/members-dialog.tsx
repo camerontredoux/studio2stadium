@@ -35,16 +35,16 @@ import { adminQueries } from "@/features/admin/api/queries";
 import { useQuery } from "@tanstack/react-query";
 import { Search, Trash2, UserPlus } from "lucide-react";
 import { useMemo, useState } from "react";
+import { ORG_MEMBER_TYPE_LABELS, type OrgMemberType } from "@/lib/access";
 
 const ROLE_ITEMS = [
   { value: "admin", label: "Admin" },
   { value: "member", label: "Member" },
 ];
 
-const TYPE_ITEMS = [
-  { value: "coach", label: "Coach" },
-  { value: "dancer", label: "Dancer" },
-];
+const TYPE_ITEMS = (
+  Object.keys(ORG_MEMBER_TYPE_LABELS) as OrgMemberType[]
+).map((value) => ({ value, label: ORG_MEMBER_TYPE_LABELS[value] }));
 
 interface Org {
   id: string;
@@ -59,7 +59,7 @@ interface MembersDialogProps {
 export function MembersDialog({ org, onOpenChange }: MembersDialogProps) {
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<"admin" | "member" | null>("member");
-  const [type, setType] = useState<"coach" | "dancer" | null>("coach");
+  const [type, setType] = useState<OrgMemberType | null>("coach");
   const [search, setSearch] = useState("");
 
   const { data: members, isLoading } = useQuery({
@@ -187,7 +187,7 @@ export function MembersDialog({ org, onOpenChange }: MembersDialogProps) {
                   <FieldLabel>Type</FieldLabel>
                   <Select
                     value={type}
-                    onValueChange={(v) => setType(v as "coach" | "dancer")}
+                    onValueChange={(v) => setType(v as OrgMemberType)}
                     items={TYPE_ITEMS}
                   >
                     <SelectTrigger size="sm">
@@ -295,7 +295,7 @@ export function MembersDialog({ org, onOpenChange }: MembersDialogProps) {
                               if (!org) return;
                               updateMember({
                                 params: { path: { id: org.id, memberId: member.id } },
-                                body: { type: v as "coach" | "dancer" },
+                                body: { type: v as OrgMemberType },
                               });
                             }}
                             items={TYPE_ITEMS}

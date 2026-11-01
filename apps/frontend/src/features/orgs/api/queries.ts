@@ -1,25 +1,8 @@
-export type PublicOrg = {
-  id: string;
-  slug: string;
-  name: string;
-  logoUrl: string | null;
-  primaryColor: string | null;
-};
+import { $api, type ApiSchemas } from "@/lib/api/client";
 
-async function fetchJson<T>(path: string): Promise<T> {
-  const response = await fetch(`${import.meta.env.VITE_API_URL}${path}`, {
-    credentials: "include",
-  });
-  if (!response.ok) {
-    throw new Error("Failed to load organizations");
-  }
-  return response.json() as Promise<T>;
-}
+export type PublicOrg = ApiSchemas["OrgsResponse"][number];
 
 export const publicOrgsQueries = {
-  list: () => ({
-    queryKey: ["orgs", "list"] as const,
-    queryFn: () => fetchJson<PublicOrg[]>("/orgs"),
-    staleTime: 60_000,
-  }),
+  list: () =>
+    $api.queryOptions("get", "/orgs", undefined, { staleTime: 60_000 }),
 };

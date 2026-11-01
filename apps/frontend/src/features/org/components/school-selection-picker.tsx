@@ -122,7 +122,8 @@ export function SchoolSelectionPicker() {
               <Input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search programs..."
+                placeholder="Search"
+                aria-label="Search programs"
                 className="h-10 pl-9"
               />
             </div>

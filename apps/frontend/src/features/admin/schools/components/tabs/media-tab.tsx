@@ -10,16 +10,19 @@ import {
 } from "@/features/admin/api/mutations";
 import { adminQueries } from "@/features/admin/api/queries";
 import { handleApiError } from "@/lib/api/errors";
+import { uploadOutcome } from "@/lib/video-processing/pending-uploads";
 import type { ApiSchemas } from "@/lib/api/client";
 import { useRequestUpload } from "@/shared/images/api/mutations";
 import { ImageUploadField } from "@/shared/images/components/image-upload-field";
+import { uploadCheckGaveUp, videoQueries } from "@/shared/videos/api/queries";
+import { videoUploadSchema as videoSchema } from "@/shared/videos/schema";
 import { VideoUploadField } from "@/shared/videos/components/video-upload-field";
 import { uploadToCloudflare } from "@/utils/upload-to-cloudflare";
 import { uploadVideoTus } from "@/utils/upload-video-tus";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueries, useQueryClient } from "@tanstack/react-query";
 import { ImageIcon, TrashIcon, VideoIcon } from "lucide-react";
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
-import { Controller, FormProvider, useForm } from "react-hook-form";
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
+import { Controller, FormProvider, useForm, type FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import type { TabHandle } from "./types";
@@ -36,21 +39,6 @@ const imageSchema = z.object({
     .refine((files) => files.every((file) => file.size < 10 * 1024 * 1024), {
       message: "File size must be less than 10MB",
     }),
-});
-
-const videoSchema = z.object({
-  files: z
-    .array(z.custom<File>())
-    .min(1, "Please select a video")
-    .max(1, "Please select one video")
-    .refine(
-      (files) => files.every((file) => file.size < 500 * 1024 * 1024),
-      { message: "File size must be less than 500MB" },
-    )
-    .refine(
-      (files) => files.every((file) => file.type.startsWith("video/")),
-      { message: "Please select a video file" },
-    ),
 });
 
 type ImageFormData = z.infer<typeof imageSchema>;
@@ -74,12 +62,12 @@ function ExistingMedia({
   images,
   videos,
   username,
-  isVideoProcessing,
+  processingCount,
 }: {
   images: SchoolImage[];
   videos: SchoolVideo[];
   username: string;
-  isVideoProcessing: boolean;
+  processingCount: number;
 }) {
   const { mutate: deleteImage, isPending: isDeletingImage } =
     useAdminDeleteSchoolImage(username);
@@ -95,7 +83,7 @@ function ExistingMedia({
       new Date(a.data.createdAt).getTime(),
   );
 
-  if (items.length === 0 && !isVideoProcessing) {
+  if (items.length === 0 && processingCount === 0) {
     return (
       <div className="text-muted-foreground py-4 text-center text-sm">
         No media uploaded yet
@@ -105,14 +93,17 @@ function ExistingMedia({
 
   return (
     <div className="grid grid-cols-4 gap-2">
-      {isVideoProcessing && (
-        <div className="bg-muted flex aspect-square items-center justify-center rounded-md">
+      {Array.from({ length: processingCount }, (_, index) => (
+        <div
+          key={`processing-${index}`}
+          className="bg-muted flex aspect-square items-center justify-center rounded-md"
+        >
           <div className="flex flex-col items-center gap-2">
             <Spinner className="size-5" />
             <span className="text-muted-foreground text-xs">Processing</span>
           </div>
         </div>
-      )}
+      ))}
       {items.map((item) => (
         <div key={item.data.id} className="group relative aspect-square">
           {item.kind === "image" ? (
@@ -210,56 +201,55 @@ export const MediaTab = forwardRef<TabHandle, MediaTabProps>(
     const [videoProgress, setVideoProgress] = useState(0);
     const tusRef = useRef<tus.Upload | null>(null);
 
-    const [isVideoProcessing, setIsVideoProcessing] = useState(false);
-    const videoCountAtUpload = useRef<number | null>(null);
-
-    const cfVideoCount = videos.filter((v) => v.type === "cloudflare").length;
-    useEffect(() => {
-      if (
-        isVideoProcessing &&
-        videoCountAtUpload.current !== null &&
-        cfVideoCount > videoCountAtUpload.current
-      ) {
-        setIsVideoProcessing(false);
-        videoCountAtUpload.current = null;
-        toastManager.add({
-          title: "Video ready",
-          description: "The video has been processed.",
-          type: "success",
-        });
-      }
-    }, [cfVideoCount, isVideoProcessing]);
-
-    const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
-    const startPolling = useCallback(() => {
-      if (pollRef.current) return;
-      pollRef.current = setInterval(() => {
-        queryClient.invalidateQueries({
-          queryKey: adminQueries.schoolEvents(username).queryKey,
-        });
-      }, 5000);
-    }, [queryClient, username]);
-
-    const stopPolling = useCallback(() => {
-      if (pollRef.current) {
-        clearInterval(pollRef.current);
-        pollRef.current = null;
-      }
-    }, []);
+    // Follows each upload by id, so a failed encode ends its wait too and a
+    // second upload does not hide the first one's result.
+    const [processingMediaIds, setProcessingMediaIds] = useState<string[]>([]);
+    const processingUploads = useQueries({
+      queries: processingMediaIds.map((mediaId) =>
+        videoQueries.upload(mediaId),
+      ),
+    });
 
     useEffect(() => {
-      if (isVideoProcessing) {
-        startPolling();
-      } else {
-        stopPolling();
-      }
-      return stopPolling;
-    }, [isVideoProcessing, startPolling, stopPolling]);
+      processingUploads.forEach((result, index) => {
+        const mediaId = processingMediaIds[index];
+        if (!mediaId) return;
+        const untrack = () =>
+          setProcessingMediaIds((ids) => ids.filter((id) => id !== mediaId));
+        if (uploadCheckGaveUp(result)) {
+          untrack();
+          return;
+        }
+        if (!result.isSuccess) return;
+        const outcome = uploadOutcome(result.data);
+        if (outcome === "processing") return;
+
+        untrack();
+        if (outcome === "ready") {
+          queryClient.invalidateQueries({
+            queryKey: adminQueries.schoolEvents(username).queryKey,
+          });
+          toastManager.add({
+            title: "Video ready",
+            description: "The video has been processed.",
+            type: "success",
+          });
+        } else if (outcome === "failed") {
+          toastManager.add({
+            title: "Video processing failed",
+            description:
+              result.data?.errorMessage || "Please try uploading again.",
+            type: "error",
+          });
+        }
+      });
+    }, [processingMediaIds, processingUploads, queryClient, username]);
 
     const hasImageFile = imageForm.watch("files").length > 0;
     const hasVideoFile = videoForm.watch("files").length > 0;
 
-    const isLoading = isImageLoading || videoUploading;
+    const isLoading =
+      isImageLoading || videoUploading || videoForm.formState.isSubmitting;
     const isDirty =
       uploadType === "image" ? hasImageFile : hasVideoFile;
 
@@ -330,14 +320,17 @@ export const MediaTab = forwardRef<TabHandle, MediaTabProps>(
         file,
         endpoint: getTusEndpoint(username),
         onProgress: setVideoProgress,
-        onSuccess: () => {
+        onSuccess: (mediaId) => {
           toastManager.add({
             title: "Upload complete",
             description: "Video is being processed.",
             type: "success",
           });
-          videoCountAtUpload.current = cfVideoCount;
-          setIsVideoProcessing(true);
+          if (mediaId) {
+            setProcessingMediaIds((ids) =>
+              ids.includes(mediaId) ? ids : [...ids, mediaId],
+            );
+          }
           setVideoUploading(false);
           setVideoProgress(0);
           videoForm.reset();
@@ -358,12 +351,20 @@ export const MediaTab = forwardRef<TabHandle, MediaTabProps>(
       upload.start();
     };
 
+    const onVideoError = (errors: FieldErrors<VideoFormData>) => {
+      toastManager.add({
+        title: "Error",
+        description: errors.files?.message || "Failed to upload video",
+        type: "error",
+      });
+    };
+
     useImperativeHandle(ref, () => ({
       save: () => {
         if (uploadType === "image") {
           imageForm.handleSubmit(onImageSubmit)();
         } else {
-          videoForm.handleSubmit(onVideoSubmit)();
+          videoForm.handleSubmit(onVideoSubmit, onVideoError)();
         }
       },
       isDirty,
@@ -380,7 +381,7 @@ export const MediaTab = forwardRef<TabHandle, MediaTabProps>(
           images={images}
           videos={videos}
           username={username}
-          isVideoProcessing={isVideoProcessing}
+          processingCount={processingMediaIds.length}
         />
 
         <div className="border-t pt-4">
@@ -430,7 +431,7 @@ export const MediaTab = forwardRef<TabHandle, MediaTabProps>(
                 <form
                   id="admin-video-form"
                   onSubmit={(e) =>
-                    videoForm.handleSubmit(onVideoSubmit)(e)
+                    videoForm.handleSubmit(onVideoSubmit, onVideoError)(e)
                   }
                 >
                   <Controller
@@ -441,7 +442,7 @@ export const MediaTab = forwardRef<TabHandle, MediaTabProps>(
                         <VideoUploadField
                           value={field.value}
                           onValueChange={field.onChange}
-                          isLoading={videoUploading}
+                          isLoading={videoUploading || videoForm.formState.isSubmitting}
                           progress={videoProgress}
                         />
                       </Field>

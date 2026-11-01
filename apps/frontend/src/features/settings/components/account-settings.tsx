@@ -1,3 +1,4 @@
+import { useDebouncedCallback } from "@/components/hooks/use-debounced-callback";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -9,7 +10,6 @@ import { Switch } from "@/components/ui/switch";
 import { toastManager } from "@/components/ui/toast-manager";
 import { handleApiError } from "@/lib/api/errors";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { debounce } from "@tanstack/pacer";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { AtSignIcon, CheckIcon, MailIcon, PhoneIcon, XIcon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -26,6 +26,9 @@ export function AccountSettings() {
   const [usernameChecking, setUsernameChecking] = useState(false);
 
   const form = useForm({
+    // Validate as the user types: Update Profile is disabled while the form is
+    // invalid, so an error that waited for submit would never be seen.
+    mode: "onChange",
     resolver: zodResolver(accountSchemas.updateAccount),
     defaultValues: {
       username: data.username,
@@ -214,17 +217,16 @@ export function AccountSettings() {
 }
 
 function UsernameField({ currentUsername, onCheckingChange }: { currentUsername: string; onCheckingChange: (checking: boolean) => void }) {
-  const { setError, clearErrors } = useFormContext<AccountSettingsSchema>();
+  const { setError, clearErrors, getFieldState } =
+    useFormContext<AccountSettingsSchema>();
   const [debouncedValue, setDebouncedValue] = useState("");
   const [typing, setTyping] = useState(false);
 
-  const debouncedSet = debounce(
-    (value: string) => {
-      setDebouncedValue(value);
-      setTyping(false);
-    },
-    { wait: 500 },
-  );
+  // One timer across renders, so a burst of typing checks the name once.
+  const debouncedSet = useDebouncedCallback((value: string) => {
+    setDebouncedValue(value);
+    setTyping(false);
+  }, 500);
 
   const isOwnUsername = debouncedValue.toLowerCase() === currentUsername.toLowerCase();
 
@@ -246,11 +248,14 @@ function UsernameField({ currentUsername, onCheckingChange }: { currentUsername:
 
   useEffect(() => {
     if (isTaken) {
-      setError("username", { type: "validate", message: "Username is already taken" });
-    } else {
+      setError("username", { type: "taken", message: "Username is already taken" });
+    } else if (getFieldState("username").error?.type === "taken") {
+      // Clear only our own error: clearing every error also hid the schema's
+      // ("Username must be alphanumeric") and showed "Available" while the
+      // form stayed invalid.
       clearErrors("username");
     }
-  }, [isTaken, setError, clearErrors]);
+  }, [isTaken, setError, clearErrors, getFieldState]);
 
   return (
     <Controller
@@ -284,6 +289,8 @@ function UsernameField({ currentUsername, onCheckingChange }: { currentUsername:
                   } else {
                     setTyping(false);
                     setDebouncedValue(value);
+                    // Replace any pending check so an older name can't land after this one.
+                    debouncedSet(value);
                   }
                 }}
               />
@@ -291,7 +298,7 @@ function UsernameField({ currentUsername, onCheckingChange }: { currentUsername:
                 <InputGroupAddon align="inline-end">
                   {checking ? (
                     <Spinner className="size-3.5" />
-                  ) : isTaken ? (
+                  ) : isTaken || fieldState.invalid ? (
                     <XIcon className="size-3.5 text-destructive" />
                   ) : (
                     <CheckIcon className="size-3.5 text-green-600" />

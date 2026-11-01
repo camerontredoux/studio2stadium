@@ -1,16 +1,17 @@
-import { useId, useState } from "react";
+import { useState } from "react";
 
+import { Button } from "@/components/event/button";
+import { Checkbox } from "@/components/event/checkbox";
 import {
-  AlertDialog,
-  AlertDialogClose,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogPopup,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+  Dialog,
+  DialogBody,
+  DialogClose,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogPopup,
+  DialogTitle,
+} from "@/components/event/dialog";
 
 export interface ResetCheckInDialogProps {
   open: boolean;
@@ -27,15 +28,18 @@ export function ResetCheckInDialog({
   ...rest
 }: ResetCheckInDialogProps) {
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogPopup>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogPopup role="alertdialog">
         {/* Content unmounts while closed, so the confirmation checkbox starts
             unchecked on every open. */}
         <ResetCheckInDialogContent {...rest} />
-      </AlertDialogPopup>
-    </AlertDialog>
+      </DialogPopup>
+    </Dialog>
   );
 }
+
+const CONFIRM_LABEL =
+  "I understand this will clear all check-in records for this event.";
 
 type ResetCheckInDialogContentProps = Omit<
   ResetCheckInDialogProps,
@@ -49,44 +53,42 @@ function ResetCheckInDialogContent({
   onConfirm,
 }: ResetCheckInDialogContentProps) {
   const [confirmed, setConfirmed] = useState(false);
-  const confirmId = useId();
 
   return (
     <>
-      <AlertDialogHeader>
-        <AlertDialogTitle>Reset check-in</AlertDialogTitle>
-        <AlertDialogDescription>
+      <DialogHeader>
+        <DialogTitle>Reset check-in?</DialogTitle>
+        <DialogDescription>
           This will clear check-in for all {checkedInCount.toLocaleString()}{" "}
           checked-in dancers in {eventName}. They will need to check in again.
-        </AlertDialogDescription>
-      </AlertDialogHeader>
+        </DialogDescription>
+      </DialogHeader>
 
-      <div className="flex items-start gap-2 px-6">
+      <DialogBody>
         <Checkbox
-          id={confirmId}
+          label={CONFIRM_LABEL}
+          // Base UI's checkbox is a span, so the wrapping label doesn't name it.
+          aria-label={CONFIRM_LABEL}
           checked={confirmed}
           onCheckedChange={(checked) => setConfirmed(!!checked)}
+          className="text-fg-2 items-start [&>*:first-child]:mt-[3px]"
         />
-        <label
-          htmlFor={confirmId}
-          className="text-muted-foreground cursor-pointer text-sm leading-tight select-none"
-        >
-          I understand this will clear all check-in records for this event.
-        </label>
-      </div>
+      </DialogBody>
 
-      <AlertDialogFooter variant="bare">
-        <AlertDialogClose render={<Button variant="ghost" />}>
+      <DialogFooter>
+        <DialogClose render={<Button variant="ghost" size="lg" />}>
           Cancel
-        </AlertDialogClose>
+        </DialogClose>
         <Button
-          variant="destructive"
+          variant="danger"
+          size="lg"
           disabled={!confirmed || isPending}
           onClick={onConfirm}
+          className="border-danger/40 hover:border-danger"
         >
           {isPending ? "Resetting…" : "Reset check-in"}
         </Button>
-      </AlertDialogFooter>
+      </DialogFooter>
     </>
   );
 }

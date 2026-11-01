@@ -7,6 +7,7 @@ import { MaskInput } from "@/components/ui/mask-input";
 import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
 import { handleApiError } from "@/lib/api/errors";
+import { phoneDraftKeyFor, useSession } from "@/lib/session";
 import { useRequestUpload } from "@/shared/images/api/mutations";
 import { ImageUploadField } from "@/shared/images/components/image-upload-field";
 import { uploadToCloudflare } from "@/utils/upload-to-cloudflare";
@@ -27,6 +28,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export function ApplicationForm() {
+  const session = useSession();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { mutateAsync: requestUpload, isPending } = useRequestUpload();
@@ -41,10 +43,15 @@ export function ApplicationForm() {
   const submitRef = useRef<HTMLButtonElement>(null);
   const errorToast = useAnchoredErrorToast(submitRef);
 
+  // The phone is only saved with the whole application, so keep a draft for
+  // this tab: a reload or gate redirect before the ID upload succeeds would
+  // otherwise empty the field. Keyed by user so another login can't see it.
+  const phoneDraftKey = phoneDraftKeyFor(session.id);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      phone: "",
+      phone: sessionStorage.getItem(phoneDraftKey) ?? "",
       files: [],
     },
   });
@@ -70,6 +77,7 @@ export function ApplicationForm() {
         },
         {
           onSuccess: async () => {
+            sessionStorage.removeItem(phoneDraftKey);
             toastManager.add({
               title: "Success",
               description: "Application submitted successfully",
@@ -119,6 +127,7 @@ export function ApplicationForm() {
                       value={field.value}
                       onValueChange={(_, unmaskedValue) => {
                         field.onChange(unmaskedValue);
+                        sessionStorage.setItem(phoneDraftKey, unmaskedValue);
                       }}
                     />
                   </InputGroup>

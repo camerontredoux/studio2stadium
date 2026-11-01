@@ -5,12 +5,15 @@ import {
   FramePanel,
   FrameTitle,
 } from "@/components/ui/frame";
+import { Skeleton } from "@/components/ui/skeleton";
 import { recruitingQueries } from "@/features/recruiting/api/queries";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 
 export function VideoSection() {
-  const { data } = useQuery(recruitingQueries.submission());
+  const { data, isPending } = useQuery(recruitingQueries.submission());
+  // The API answers 200 with no youtubeId when the dancer has no video.
+  const youtubeId = data?.youtubeId;
 
   return (
     <Frame compact>
@@ -19,7 +22,7 @@ export function VideoSection() {
           Your Video
           <Button
             size="xs"
-            disabled={!data}
+            disabled={!youtubeId}
             render={<Link to="/recruiting/edit" />}
           >
             Edit
@@ -27,11 +30,13 @@ export function VideoSection() {
         </FrameTitle>
       </FrameHeader>
       <FramePanel>
-        {data ? (
+        {isPending ? (
+          <Skeleton className="aspect-video rounded-none" />
+        ) : youtubeId ? (
           <div className="flex flex-col">
             <div className="aspect-video">
               <iframe
-                src={`https://www.youtube.com/embed/${data.youtubeId}`}
+                src={`https://www.youtube.com/embed/${youtubeId}`}
                 title="Recruiting video"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen

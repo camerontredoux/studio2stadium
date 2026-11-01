@@ -66,7 +66,7 @@ export function Page() {
       >
         <TabsList
           variant="underline"
-          className="**:data-[slot=tab-indicator]:bg-brand bg-background sticky top-12 z-50 -mt-4 w-full"
+          className="**:data-[slot=tab-indicator]:bg-brand bg-background top-header sticky z-50 -mt-4 w-full"
         >
           <TabsTab
             value="school"

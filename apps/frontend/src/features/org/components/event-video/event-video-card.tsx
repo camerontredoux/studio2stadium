@@ -1,15 +1,24 @@
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import {
+  DownloadSimpleIcon,
+  PencilSimpleIcon,
+  PlayIcon,
+  TrashIcon,
+} from "@phosphor-icons/react";
+import { useState } from "react";
+
+import { Button } from "@/components/event/button";
 import {
   Dialog,
-  DialogContent,
-  DialogFooter,
   DialogClose,
-} from "@/components/ui/dialog";
-import { Frame, FramePanel } from "@/components/ui/frame";
-import { DownloadIcon, PencilIcon, Trash2Icon, VideoIcon, XIcon } from "lucide-react";
-import { useState } from "react";
-import type { EventVideo, VideoCategory } from "@/features/org/api/video-queries";
+  DialogFooter,
+  DialogPopup,
+  DialogTitle,
+} from "@/components/event/dialog";
+import { Icon } from "@/components/event/icon";
+import type {
+  EventVideo,
+  VideoCategory,
+} from "@/features/org/api/video-queries";
 
 interface EventVideoCardProps {
   video: EventVideo;
@@ -18,109 +27,135 @@ interface EventVideoCardProps {
   onDelete?: (video: EventVideo) => void;
 }
 
-export function EventVideoCard({ video, category, onEdit, onDelete }: EventVideoCardProps) {
+/** Downloads the video's music track. */
+function DownloadMusic({ video }: { video: EventVideo }) {
+  if (!video.audioUrl) return null;
+  return (
+    <Button
+      iconOnly
+      variant="ghost"
+      label="Download music"
+      render={
+        <a
+          href={video.audioUrl}
+          download={video.audioFilename ?? "audio.mp3"}
+        />
+      }
+    >
+      <Icon icon={DownloadSimpleIcon} />
+    </Button>
+  );
+}
+
+/**
+ * A video thumbnail with its title and category; the thumbnail plays it in a
+ * dialog. Edit and delete buttons show when their handlers are given.
+ */
+export function EventVideoCard({
+  video,
+  category,
+  onEdit,
+  onDelete,
+}: EventVideoCardProps) {
   const [open, setOpen] = useState(false);
   const thumbnailUrl = `https://img.youtube.com/vi/${video.youtubeId}/hqdefault.jpg`;
   const embedUrl = `https://www.youtube.com/embed/${video.youtubeId}`;
-  const isAdmin = !!(onEdit || onDelete);
 
   return (
     <>
-      <Frame compact className="group flex flex-col [content-visibility:auto]">
-        <FramePanel side="inset" className="flex flex-col">
-          <button
-            type="button"
-            className="relative aspect-video w-full cursor-pointer overflow-hidden"
-            onClick={() => setOpen(true)}
-          >
-            <img
-              src={thumbnailUrl}
-              alt={video.title}
-              className="absolute inset-0 size-full object-cover"
-              loading="lazy"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30" />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="flex size-10 items-center justify-center rounded-full bg-white/15 backdrop-blur-sm">
-                <VideoIcon className="size-5 text-white" />
-              </div>
-            </div>
-            {category && (
-              <Badge
-                variant="secondary"
-                className="absolute top-2 left-2 bg-black/50 text-[10px] text-white backdrop-blur-sm"
-              >
-                {category.name}
-              </Badge>
-            )}
-          </button>
+      <div className="flex min-w-0 flex-col gap-(--space-8) [content-visibility:auto]">
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-label={`Play ${video.title}`}
+          className="border-line hover:border-line-hover bg-surface-chip s2s-focus relative grid aspect-video w-full cursor-pointer place-items-center overflow-hidden rounded-(--radius-8) border p-0 transition-[border-color] duration-150"
+        >
+          <img
+            src={thumbnailUrl}
+            alt=""
+            loading="lazy"
+            className="absolute inset-0 size-full object-cover"
+          />
+          <Icon
+            icon={PlayIcon}
+            size={22}
+            className="text-fg-media relative drop-shadow"
+          />
+        </button>
 
-          <div className="relative flex items-start gap-2 px-3 py-2.5">
-            <span className="line-clamp-2 min-w-0 flex-1 text-sm font-medium">
+        <div className="flex min-w-0 items-start gap-(--space-4)">
+          <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <span className="text-fg line-clamp-2 text-[13px] leading-[1.4] font-medium">
               {video.title}
             </span>
-            {isAdmin && (
-              <div className="flex shrink-0 gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-                {onEdit && (
-                  <Button
-                    variant="ghost"
-                    size="icon-xs"
-                    onClick={(e) => { e.stopPropagation(); onEdit(video); }}
-                  >
-                    <PencilIcon className="size-3" />
-                  </Button>
-                )}
-                {onDelete && (
-                  <Button
-                    variant="ghost"
-                    size="icon-xs"
-                    onClick={(e) => { e.stopPropagation(); onDelete(video); }}
-                  >
-                    <Trash2Icon className="size-3" />
-                  </Button>
-                )}
-              </div>
+            {category && (
+              <span className="text-fg-3 truncate font-mono text-[11.5px] leading-[1.4]">
+                {category.name}
+              </span>
             )}
-          </div>
-          {video.audioUrl && (
-            <div className="flex items-center gap-2 border-t px-3 py-2">
-              <audio
-                controls
-                src={video.audioUrl}
-                preload="none"
-                className="h-8 min-w-0 flex-1"
-              />
-              <a
-                href={video.audioUrl}
-                download={video.audioFilename ?? "audio.mp3"}
-                className="inline-flex shrink-0 items-center justify-center rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              >
-                <DownloadIcon className="size-4" />
-              </a>
-            </div>
+          </span>
+          {onEdit && (
+            <Button
+              size="sm"
+              variant="ghost"
+              iconOnly
+              label={`Edit ${video.title}`}
+              onClick={() => onEdit(video)}
+            >
+              <Icon icon={PencilSimpleIcon} />
+            </Button>
           )}
-        </FramePanel>
-      </Frame>
+          {onDelete && (
+            <Button
+              size="sm"
+              variant="ghost"
+              iconOnly
+              label={`Delete ${video.title}`}
+              onClick={() => onDelete(video)}
+            >
+              <Icon icon={TrashIcon} />
+            </Button>
+          )}
+        </div>
+
+        {video.audioUrl && (
+          <div className="flex items-center gap-(--space-8)">
+            <audio
+              controls
+              src={video.audioUrl}
+              preload="none"
+              className="h-8 min-w-0 flex-1"
+            />
+            <DownloadMusic video={video} />
+          </div>
+        )}
+      </div>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-3xl overflow-hidden p-0">
-          <div className="aspect-video min-h-0 w-full flex-1">
+        <DialogPopup className="max-w-[880px]">
+          <div className="aspect-video w-full shrink-0 bg-black">
             <iframe
               src={embedUrl}
               title={video.title}
-              className="size-full"
+              className="size-full border-0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
             />
           </div>
-          <DialogFooter className="px-4 pb-4">
-            <span className="mr-auto text-sm font-medium">{video.title}</span>
-            <DialogClose render={<Button variant="outline" size="sm" />}>
-              <XIcon className="mr-1 size-3" />
+          <DialogFooter className="justify-between">
+            <span className="flex min-w-0 flex-col">
+              <DialogTitle className="truncate">{video.title}</DialogTitle>
+              {category && (
+                <span className="text-fg-3 truncate font-mono text-[11.5px] leading-[1.4]">
+                  {category.name}
+                </span>
+              )}
+            </span>
+            <DialogClose render={<Button variant="ghost" size="lg" />}>
               Close
             </DialogClose>
           </DialogFooter>
-        </DialogContent>
+        </DialogPopup>
       </Dialog>
     </>
   );

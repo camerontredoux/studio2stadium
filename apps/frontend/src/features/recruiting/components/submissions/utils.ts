@@ -4,10 +4,10 @@ import type { Submission } from "@/shared/types";
 export function groupByDate(submissions: Submission[]) {
   const groups: { date: string; submissions: Submission[] }[] = [];
   const sorted = [...submissions].sort(
-    (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
   for (const sub of sorted) {
-    const dateStr = formatDate(sub.updatedAt);
+    const dateStr = formatDate(sub.createdAt);
     const last = groups[groups.length - 1];
     if (last?.date === dateStr) {
       last.submissions.push(sub);

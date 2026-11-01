@@ -4,7 +4,7 @@ import type { Validator } from "./validator.ts";
 
 export class AudioUploadUrlService {
   async execute(eventId: string, input: Validator) {
-    const disk = drive.use("r2");
+    const disk = drive.use();
     const key = `event-audio/${eventId}/${randomUUID()}.mp3`;
 
     const url = await disk.getSignedUploadUrl(key, {

@@ -3,6 +3,7 @@ import { users } from "#database/schema/users";
 import { organizations } from "#database/schema/organizations";
 import { eventRosters, orgEvents } from "#database/schema/org-events";
 import { and, eq } from "drizzle-orm";
+import { tierExpiryFrom } from "#utils/event-time";
 
 export interface GrantedOrgTier {
   tier: "standard" | "limited";
@@ -96,8 +97,7 @@ export async function grantOrgAccountTier(
     .map((r) => r.endDate)
     .reduce((a, b) => (a > b ? a : b));
 
-  const earned = new Date(latestEnd);
-  earned.setMonth(earned.getMonth() + tierExpiryMonths);
+  const earned = tierExpiryFrom(latestEnd, tierExpiryMonths);
 
   // Only ever outward: a dancer who already reaches further — a longer window
   // from another event, or one granted when the org's setting was larger —

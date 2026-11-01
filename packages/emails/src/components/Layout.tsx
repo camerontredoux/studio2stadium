@@ -59,6 +59,14 @@ export function Layout({ preview, children }: LayoutProps) {
   return (
     <Html>
       <Head>
+        {/* Assets are served from a Cloudflare zone with hotlink protection, which
+            403s any request carrying a cross-origin Referer. Suppressing the
+            referrer lets CSS background images (the hero) load in `email dev`
+            previews. Note it does NOT rescue <Img> tags: React hoists their
+            <link rel="preload"> above this meta, so those fetch with a Referer
+            and 403 before the policy applies. Only turning off hotlink
+            protection for /img/* fixes those. */}
+        <meta name="referrer" content="no-referrer" />
         <style>{responsiveEmailCss}</style>
       </Head>
       <Preview>{preview}</Preview>

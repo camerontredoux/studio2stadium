@@ -14,7 +14,7 @@ export function SettingsLayout({ children }: { children: ReactNode }) {
       {isSubroute && (
         <TabsList
           variant="underline"
-          className="**:data-[slot=tab-indicator]:bg-brand bg-background sticky top-12 z-50 -mt-2 w-full"
+          className="**:data-[slot=tab-indicator]:bg-brand bg-background top-header sticky z-50 -mt-2 w-full"
         >
           <TabsTab
             nativeButton={false}
@@ -42,7 +42,7 @@ export function SettingsLayout({ children }: { children: ReactNode }) {
               Membership
             </TabsTab>
           )}
-          {session.type !== "dancer" && (
+          {session.type === "school" && (
             <TabsTab
               nativeButton={false}
               value="/settings/application"
@@ -52,14 +52,16 @@ export function SettingsLayout({ children }: { children: ReactNode }) {
               Application
             </TabsTab>
           )}
-          <TabsTab
-            nativeButton={false}
-            value="/settings/delete"
-            className="text-brand data-active:text-brand max-sm:text-sm"
-            render={<Link to="/settings/delete" />}
-          >
-            Danger
-          </TabsTab>
+          {session.type !== "organizer" && (
+            <TabsTab
+              nativeButton={false}
+              value="/settings/delete"
+              className="text-brand data-active:text-brand max-sm:text-sm"
+              render={<Link to="/settings/delete" />}
+            >
+              Danger
+            </TabsTab>
+          )}
         </TabsList>
       )}
       <div className={`mobile:pb-14 ${isSubroute ? "pt-4" : ""}`}>

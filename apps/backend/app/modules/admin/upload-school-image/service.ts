@@ -22,7 +22,7 @@ export class Service {
       return { error: resolved.error };
     }
 
-    const disk = drive.use("r2");
+    const disk = drive.use();
     const exists = await disk.exists(key);
     if (!exists) {
       return { error: "File not found" };

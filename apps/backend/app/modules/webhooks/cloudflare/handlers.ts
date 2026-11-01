@@ -1,10 +1,12 @@
 import { db } from "#database/connection";
 import { dancerProfiles } from "#database/schema/dancers";
+import { isProfileAccountType } from "#database/schema/enums";
 import { feed } from "#database/schema/feed";
 import { videoUploads, videos } from "#database/schema/media";
 import { schoolProfiles } from "#database/schema/schools";
 import { users } from "#database/schema/users";
 import { VideoUploadEvent } from "#modules/videos/upload-profile-video/event";
+import { deleteStreamVideo } from "#shared/cloudflare/stream";
 import { eq } from "drizzle-orm";
 import { VideoFailedEvent, VideoReadyEvent } from "./event.ts";
 
@@ -95,7 +97,7 @@ export async function handleStreamWebhook(payload: StreamWebhookPayload) {
           profileId = school?.id ?? null;
         }
 
-        if (profileId) {
+        if (profileId && isProfileAccountType(user.type)) {
           VideoUploadEvent.dispatch({
             profileId,
             userType: user.type,
@@ -123,6 +125,17 @@ export async function handleStreamWebhook(payload: StreamWebhookPayload) {
           updatedAt: new Date(),
         })
         .where(eq(videoUploads.id, upload.id));
+
+      // A failed entry is never playable, so remove it from Stream. A failed
+      // delete must not fail the webhook.
+      try {
+        await deleteStreamVideo(cloudflareMediaId);
+      } catch (error) {
+        console.error(
+          `Failed to delete errored Stream video ${cloudflareMediaId}:`,
+          error
+        );
+      }
 
       VideoFailedEvent.dispatch({
         userId: upload.userId,

@@ -79,7 +79,7 @@ export function SportsDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger nativeButton={false} render={render} />
+      <DialogTrigger render={render} />
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Sports</DialogTitle>

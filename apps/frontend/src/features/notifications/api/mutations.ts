@@ -1,8 +1,7 @@
-import type { ApiSchemas } from "@/lib/api/client";
-import { client } from "@/lib/api/client";
+import { $api, type ApiSchemas } from "@/lib/api/client";
 import {
   type InfiniteData,
-  useMutation,
+  type QueryClient,
   useQueryClient,
 } from "@tanstack/react-query";
 import { notificationQueries } from "./queries";
@@ -13,23 +12,28 @@ type InfiniteNotifications = InfiniteData<
   string | undefined
 >;
 
+// The optimistic writes aren't rolled back from a snapshot: a snapshot taken
+// by one mutation would undo another's change. Refetching once the request
+// settles puts the server's state back either way.
+function refetchNotifications(queryClient: QueryClient) {
+  return Promise.all([
+    queryClient.invalidateQueries({
+      queryKey: notificationQueries.notifications().queryKey,
+    }),
+    queryClient.invalidateQueries({
+      queryKey: notificationQueries.count().queryKey,
+    }),
+  ]);
+}
+
 export function useMarkNotificationRead() {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: (id: string) =>
-      client.POST("/notifications/{id}", { params: { path: { id } } }),
-    onMutate: async (id) => {
+  return $api.useMutation("post", "/notifications/{id}", {
+    onMutate: async ({ params }) => {
+      const id = params.path.id;
       await queryClient.cancelQueries(notificationQueries.notifications());
       await queryClient.cancelQueries(notificationQueries.count());
-
-      const previousNotifications =
-        queryClient.getQueryData<InfiniteNotifications>(
-          notificationQueries.notifications().queryKey,
-        );
-      const previousCount = queryClient.getQueryData<{ count: number }>(
-        notificationQueries.count().queryKey,
-      );
 
       queryClient.setQueryData<InfiniteNotifications>(
         notificationQueries.notifications().queryKey,
@@ -50,44 +54,20 @@ export function useMarkNotificationRead() {
       queryClient.setQueryData(
         notificationQueries.count().queryKey,
         (old: { count: number } | undefined) =>
-          old ? { count: Math.max(0, old.count - 1) } : { count: 0 },
+          old ? { count: Math.max(0, old.count - 1) } : undefined,
       );
-
-      return { previousNotifications, previousCount };
     },
-    onError: (_err, _id, context) => {
-      if (context?.previousNotifications) {
-        queryClient.setQueryData(
-          notificationQueries.notifications().queryKey,
-          context.previousNotifications,
-        );
-      }
-      if (context?.previousCount) {
-        queryClient.setQueryData(
-          notificationQueries.count().queryKey,
-          context.previousCount,
-        );
-      }
-    },
+    onSettled: () => refetchNotifications(queryClient),
   });
 }
 
 export function useMarkAllNotificationsRead() {
   const queryClient = useQueryClient();
 
-  return useMutation({
-    mutationFn: () => client.POST("/notifications/read-all"),
+  return $api.useMutation("post", "/notifications/read-all", {
     onMutate: async () => {
       await queryClient.cancelQueries(notificationQueries.notifications());
       await queryClient.cancelQueries(notificationQueries.count());
-
-      const previousNotifications =
-        queryClient.getQueryData<InfiniteNotifications>(
-          notificationQueries.notifications().queryKey,
-        );
-      const previousCount = queryClient.getQueryData<{ count: number }>(
-        notificationQueries.count().queryKey,
-      );
 
       queryClient.setQueryData<InfiniteNotifications>(
         notificationQueries.notifications().queryKey,
@@ -103,25 +83,12 @@ export function useMarkAllNotificationsRead() {
             : undefined,
       );
 
-      queryClient.setQueryData(notificationQueries.count().queryKey, {
-        count: 0,
-      });
-
-      return { previousNotifications, previousCount };
+      queryClient.setQueryData(
+        notificationQueries.count().queryKey,
+        (old: { count: number } | undefined) =>
+          old ? { count: 0 } : undefined,
+      );
     },
-    onError: (_err, _vars, context) => {
-      if (context?.previousNotifications) {
-        queryClient.setQueryData(
-          notificationQueries.notifications().queryKey,
-          context.previousNotifications,
-        );
-      }
-      if (context?.previousCount) {
-        queryClient.setQueryData(
-          notificationQueries.count().queryKey,
-          context.previousCount,
-        );
-      }
-    },
+    onSettled: () => refetchNotifications(queryClient),
   });
 }

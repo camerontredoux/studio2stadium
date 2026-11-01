@@ -1,4 +1,5 @@
 import { AuthLayout } from "@/components/layouts/auth-layout";
+import { organizerRedirect } from "@/features/org/lib/org-destination";
 import { Spinner } from "@/components/ui/spinner";
 import { queries, SessionNetworkError } from "@/lib/session";
 import {
@@ -23,9 +24,14 @@ export const Route = createFileRoute("/_onboarding")({
         });
       }
 
+      // Onboarding builds a dancer or school profile, which an Organizer
+      // account never has: it goes to its Org instead.
+      const organizer = organizerRedirect(session, location.pathname);
+      if (organizer) throw redirect({ ...organizer, replace: true });
+
       if (session.verified && session.profileId) {
         throw redirect({
-          to: "/feed",
+          to: session.type === "dancer" ? "/checkout" : "/feed",
           replace: true,
         });
       }

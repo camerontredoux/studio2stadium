@@ -7,25 +7,10 @@ import {
   useForm,
   type FieldErrors,
 } from "react-hook-form";
-import { z } from "zod";
+import { videoUploadSchema, type FormValues } from "../schema";
 import { VideoUploadField } from "./video-upload-field";
 
-const MAX_VIDEO_SIZE = 500 * 1024 * 1024; // 500MB
-
-const schema = z.object({
-  files: z
-    .array(z.custom<File>())
-    .min(1, "Please select a video")
-    .max(1, "Please select one video")
-    .refine((files) => files.every((file) => file.size < MAX_VIDEO_SIZE), {
-      message: "File size must be less than 500MB",
-    })
-    .refine((files) => files.every((file) => file.type.startsWith("video/")), {
-      message: "Please select a video file",
-    }),
-});
-
-export type FormValues = z.infer<typeof schema>;
+export type { FormValues } from "../schema";
 
 export function VideoUploadForm({
   onSubmit,
@@ -37,7 +22,7 @@ export function VideoUploadForm({
   isLoading: boolean;
 }) {
   const form = useForm<FormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(videoUploadSchema),
     defaultValues: {
       files: [],
     },
@@ -73,7 +58,7 @@ export function VideoUploadForm({
               <VideoUploadField
                 value={field.value}
                 onValueChange={field.onChange}
-                isLoading={isLoading}
+                isLoading={isLoading || form.formState.isSubmitting}
                 progress={progress}
               />
             </Field>

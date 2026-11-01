@@ -1,6 +1,7 @@
 import { inject } from "@adonisjs/core";
 import type { HttpContext } from "@adonisjs/core/http";
 import { ReconciliationService } from "./service.ts";
+import { searchSchema } from "../rosters/attach/search-validator.ts";
 
 export default class SearchSchoolUsersController {
   @inject()
@@ -8,8 +9,8 @@ export default class SearchSchoolUsersController {
     { request, response }: HttpContext,
     service: ReconciliationService
   ) {
-    const q = request.input("q", "") as string;
-    const results = await service.searchSchoolUsers(q);
+    const { q } = await request.validateUsing(searchSchema);
+    const results = await service.searchSchoolUsers(q ?? "");
     return response.ok(results);
   }
 }

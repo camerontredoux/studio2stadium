@@ -2,6 +2,7 @@ import { queries } from "@/shared/engagement/api/queries";
 import { useQuery } from "@tanstack/react-query";
 import { useSearch } from "@tanstack/react-router";
 import { exploreQueries } from "../../api/queries";
+import { ListError } from "../list-error";
 import { DancerCard } from "./dancer-card";
 import { DancerEmpty } from "./dancer-empty";
 import { DancerPagination } from "./dancer-pagination";
@@ -10,11 +11,13 @@ import { DancerListSkeleton } from "./dancer-skeleton";
 export function DancerList() {
   const search = useSearch({ from: "/_app/(routes)/dancers" });
 
-  const { data, isPending, isPlaceholderData } = useQuery(
+  const { data, isPending, isPlaceholderData, refetch } = useQuery(
     exploreQueries.dancers(search),
   );
 
-  const { data: following } = useQuery(queries.followingIds("school"));
+  const { data: following, isError: followingFailed } = useQuery(
+    queries.followingIds("school"),
+  );
 
   const rows = data?.dancers ?? [];
 
@@ -22,7 +25,13 @@ export function DancerList() {
     return <DancerListSkeleton />;
   }
 
-  if (!data || rows.length === 0) {
+  if (!data) {
+    return (
+      <ListError title="Error loading dancers" onRetry={() => refetch()} />
+    );
+  }
+
+  if (rows.length === 0) {
     return <DancerEmpty />;
   }
 
@@ -31,7 +40,10 @@ export function DancerList() {
       <DancerPagination pagination={data.pagination} />
       <div className="flex flex-col gap-2">
         {rows.map((row) => {
-          const isFollowing = following?.some((id) => id === row.id);
+          // Without the ids, show no badge rather than a skeleton forever.
+          const isFollowing = followingFailed
+            ? false
+            : following?.some((id) => id === row.id);
 
           return (
             <div

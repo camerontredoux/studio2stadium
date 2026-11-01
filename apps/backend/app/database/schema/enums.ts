@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import { pgEnum } from "drizzle-orm/pg-core";
 
 export const prospectStatus = pgEnum("prospect_status", [
@@ -18,7 +19,34 @@ export const platformName = pgEnum("platform_name", ["core", "prodigy"]);
 
 export const role = pgEnum("role", ["admin", "prodigy_admin", "user"]);
 
-export const accountType = pgEnum("account_type", ["dancer", "school"]);
+/**
+ * What an account is on the core platform. `dancer` and `school` accounts are
+ * built around a profile of that kind. `organizer` is an account an Event Tier
+ * purchase created for a buyer who had none: it exists to administer the Org
+ * it bought, has no profile, and never goes through dancer or school
+ * onboarding. Being an Organizer inside an Org is still an org membership
+ * type (ADR 0003); an existing dancer or school account that buys keeps its
+ * own type.
+ */
+export const accountType = pgEnum("account_type", [
+  "dancer",
+  "school",
+  "organizer",
+]);
+
+export type AccountType = (typeof accountType.enumValues)[number];
+
+/**
+ * The account types built around a profile, and the only ones a person can
+ * sign up as. A session with a `profileId` always has one of these.
+ */
+export const PROFILE_ACCOUNT_TYPES = ["dancer", "school"] as const;
+export type ProfileAccountType = (typeof PROFILE_ACCOUNT_TYPES)[number];
+
+export const isProfileAccountType = (
+  value: string
+): value is ProfileAccountType =>
+  (PROFILE_ACCOUNT_TYPES as readonly string[]).includes(value);
 
 export const feedItemType = pgEnum("feed_item_type", [
   "image",
@@ -79,7 +107,56 @@ export const videoUploadStatus = pgEnum("video_upload_status", [
 ]);
 
 export const orgRole = pgEnum("org_role", ["admin", "member"]);
-export const orgMemberType = pgEnum("org_member_type", ["coach", "dancer"]);
+/**
+ * What a person is inside an Org. Shared by `org_memberships` and, in the
+ * narrowed `RosterType` form below, by `event_rosters` and `csv_uploads`.
+ *
+ * `organizer` is the person who runs the Org's events and buys S2S Live. They
+ * administer the Org but never evaluate dancers and never appear on a Roster —
+ * see docs/adr/0003-organizer-is-a-distinct-member-type.md.
+ */
+export const orgMemberType = pgEnum("org_member_type", [
+  "coach",
+  "dancer",
+  "organizer",
+]);
+
+export type OrgMemberType = (typeof orgMemberType.enumValues)[number];
+
+/**
+ * The subset of `org_member_type` a Roster Entry may hold. An Organizer runs
+ * the event rather than taking part in it, so an organizer membership must
+ * never produce a Roster Entry — `event_rosters.type` and `csv_uploads.type`
+ * are typed to this and carry a matching CHECK constraint.
+ */
+export const ROSTER_TYPES = ["coach", "dancer"] as const;
+export type RosterType = (typeof ROSTER_TYPES)[number];
+
+export const isRosterType = (value: string): value is RosterType =>
+  (ROSTER_TYPES as readonly string[]).includes(value);
+
+/**
+ * SQL predicate for "this row's `type` is a Roster type". Shared by the roster
+ * CHECK constraints, the membership partial indexes, and the ON CONFLICT clause
+ * that has to infer one of those indexes — Postgres only infers a partial index
+ * when the statement's predicate implies the index's, so these must not drift.
+ *
+ * Written as a positive list rather than `<> 'organizer'` for two reasons: DDL
+ * may not name an enum label added in the same transaction, and a member type
+ * added later then stays out of rosters until someone decides otherwise.
+ */
+export const isRosterTypeSql = () =>
+  sql`type in (${sql.join(
+    ROSTER_TYPES.map((t) => sql`${t}`),
+    sql`, `
+  )})`;
+
+/** The complement of `isRosterTypeSql`, for indexes over the non-Roster types. */
+export const isNotRosterTypeSql = () =>
+  sql`type not in (${sql.join(
+    ROSTER_TYPES.map((t) => sql`${t}`),
+    sql`, `
+  )})`;
 export const premiumGrantSource = pgEnum("premium_grant_source", ["org_event"]);
 export const orgAccountTier = pgEnum("org_account_tier", [
   "standard",
@@ -100,6 +177,15 @@ export const eventTier = pgEnum("event_tier", [
   "national",
   "enterprise",
 ]);
+
+/**
+ * Why a paid Org Event was stood down by the payment provider: its purchase was
+ * refunded, or the buyer's bank opened a dispute (ADR 0005).
+ */
+export const purchaseDeactivationReason = pgEnum(
+  "purchase_deactivation_reason",
+  ["refunded", "disputed"]
+);
 
 export const auditAction = pgEnum("audit_action", [
   "upload",
@@ -131,4 +217,12 @@ export const auditResource = pgEnum("audit_resource", [
   "invite",
   "video_category",
   "video",
+]);
+
+export const trackerItemType = pgEnum("tracker_item_type", [
+  "school",
+  "clinic",
+  "audition",
+  "application",
+  "deadline",
 ]);

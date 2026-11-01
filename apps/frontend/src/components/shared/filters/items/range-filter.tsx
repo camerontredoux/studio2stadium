@@ -17,6 +17,12 @@ interface RangeFilterProps {
 
 const MIN = 0;
 const MAX = 4;
+const STEP = 0.1;
+const STEP_DECIMALS = 1;
+
+// Slider steps add in floating point (0.1 + 0.2 = 0.30000000000000004), so
+// round to the step's precision before the value reaches state or the URL.
+const roundToStep = (v: number) => Number(v.toFixed(STEP_DECIMALS));
 
 export function RangeFilter({ value, onFilterChange }: RangeFilterProps) {
   const param = Array.isArray(value) ? value : value?.split(",");
@@ -25,17 +31,26 @@ export function RangeFilter({ value, onFilterChange }: RangeFilterProps) {
   const clamp = (val: number | undefined, fallback: number) =>
     Math.min(Math.max(val || fallback, MIN), MAX);
 
-  const [values, setValues] = useState([
-    clamp(raw[0], MIN),
-    clamp(raw[1], MAX),
-  ]);
+  // Old links can carry unrounded values, so round those too.
+  const fromUrl = () => [
+    roundToStep(clamp(raw[0], MIN)),
+    roundToStep(clamp(raw[1], MAX)),
+  ];
+  const [values, setValues] = useState(fromUrl);
+  const [urlValue, setUrlValue] = useState(value);
+
+  // Follow the URL when it changes, such as Clear Filters or Back.
+  if (String(value) !== String(urlValue)) {
+    setUrlValue(value);
+    setValues(fromUrl());
+  }
 
   const handleFilter = () => {
     onFilterChange(`${values[0]},${values[1]}`);
   };
 
   const updateValue = (index: number, newValue: number | null) => {
-    const v = newValue ?? MIN;
+    const v = roundToStep(newValue ?? MIN);
     setValues((prev) => {
       const next = [...prev];
       if (index === 0) {
@@ -68,8 +83,10 @@ export function RangeFilter({ value, onFilterChange }: RangeFilterProps) {
           thumbCollisionBehavior="none"
           max={MAX}
           min={MIN}
-          step={0.1}
-          onValueChange={(v) => setValues(Array.isArray(v) ? [...v] : [v])}
+          step={STEP}
+          onValueChange={(v) =>
+            setValues((Array.isArray(v) ? [...v] : [v]).map(roundToStep))
+          }
           value={values}
         />
         <NumberField
