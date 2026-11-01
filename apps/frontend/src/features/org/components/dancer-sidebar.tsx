@@ -47,7 +47,10 @@ export function DancerSidebar() {
   const orgSlug = org.slug;
 
   // Gate on the event the Dancer is viewing, not the Org's active one (#110).
-  const callbacksOn = hasFeature("callbacks", roster?.eventId);
+  // A member with no dancer roster yet has no callbacks to fetch, and the
+  // endpoint requires a roster on the event.
+  const callbacksOn =
+    roster !== null && hasFeature("callbacks", roster.eventId);
 
   useQuery({
     ...scoutingQueries.dancerCallbacks(orgSlug),

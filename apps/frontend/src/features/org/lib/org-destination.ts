@@ -17,9 +17,12 @@ const hasRoster = (access: OrgAccess | null | undefined, type: RosterType) =>
   access?.myRosters?.some((roster) => roster.type === type) ?? false;
 
 /**
- * Where a member of this org belongs once they are signed in. Membership is the
- * source of truth when it exists, but users can be put on an event roster
- * without a membership row, so rosters act as the fallback signal.
+ * Where a member of this org belongs once they are signed in.
+ *
+ * Org membership alone is enough to reach an area: event rosters come and go
+ * per event, and a member between events still belongs in their own area (the
+ * page shows a pending state). Rosters only pick the area for users who are on
+ * an event roster without a membership row. No-access is for neither.
  *
  * A member type with no area of its own falls through to the roster signal
  * rather than guessing, so adding one can never route someone somewhere they
@@ -32,14 +35,8 @@ export function resolveOrgArea(access: OrgAccess | null | undefined): OrgArea {
   // no Roster Entry of their own (ADR 0003). Checked before the roster
   // fallbacks so an organizer who also coaches still lands in the admin area.
   if (grantsOrgAdmin(access?.membership)) return "admin";
-  if (type === "coach") {
-    return hasRoster(access, "coach") || access?.myRoster
-      ? "coach"
-      : "no-access";
-  }
-  if (type === "dancer") {
-    return hasRoster(access, "dancer") ? "dancer" : "no-access";
-  }
+  if (type === "coach") return "coach";
+  if (type === "dancer") return "dancer";
 
   if (hasRoster(access, "coach")) return "coach";
   if (hasRoster(access, "dancer")) return "dancer";

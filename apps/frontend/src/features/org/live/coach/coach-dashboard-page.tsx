@@ -33,10 +33,12 @@ import { CallbacksWidget, FavoritesWidget } from "./dancer-list-widget";
 import { TopRankedWidget } from "./top-ranked-widget";
 
 /**
- * The coach dashboard. Before the coach's event (or while her Roster Entry is
- * inactive) it says scouting unlocks then; an admin previewing the coach view
- * without a coach Roster Entry on the active event gets the "Attend" gate;
- * otherwise the board: Schedule, Top ranked, Callbacks.
+ * The coach dashboard. A member with no Roster Entry yet is told their event
+ * shows up once the organizer adds them. Before the coach's event (or while
+ * her Roster Entry is inactive) it says scouting unlocks then; an admin
+ * previewing the coach view without a coach Roster Entry on the active event
+ * gets the "Attend" gate; otherwise the board: Schedule, Top ranked,
+ * Callbacks.
  */
 export function CoachDashboardPage() {
   const { isAdmin } = useOrg();
@@ -44,6 +46,22 @@ export function CoachDashboardPage() {
 
   if (isLoading) {
     return <ShellPage header={<ShellHeader title="Dashboard" />} />;
+  }
+
+  // Members of the org who are not on any event roster yet: the scouting
+  // board has nothing to show them and its endpoints require a roster.
+  if (!isAdmin && !roster) {
+    return (
+      <ShellPage header={<ShellHeader title="Dashboard" />}>
+        <Panel className="flex flex-col gap-(--space-4) p-(--space-16)">
+          <h2 className="type-title text-fg m-0">No event yet</h2>
+          <p className="type-body text-fg-2 m-0">
+            You’re not on an event roster in this organization yet. Once the
+            organizer adds you, your event shows up here.
+          </p>
+        </Panel>
+      </ShellPage>
+    );
   }
 
   if (!event) {
