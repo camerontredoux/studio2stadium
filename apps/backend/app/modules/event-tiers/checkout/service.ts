@@ -68,6 +68,9 @@ export function checkoutSessionParams(
     mode: "payment",
     payment_method_types: ["card"],
     ui_mode: "embedded",
+    // Marketing hands out promotion codes made in the Stripe Dashboard.
+    // Provisioning records `amount_total`, the discounted amount charged.
+    allow_promotion_codes: true,
     line_items: [
       {
         price: EVENT_TIER_PRICE_IDS[payload.eventTier],
