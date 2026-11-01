@@ -57,4 +57,11 @@ test.group("checkoutSessionParams", () => {
     assert.deepEqual(params.metadata, validPayload());
     assert.notProperty(params, "client_reference_id");
   });
+  test("lets the buyer enter a marketing promotion code at Checkout", ({
+    assert,
+  }) => {
+    const params = checkoutSessionParams(validPayload());
+
+    assert.isTrue(params.allow_promotion_codes);
+  });
 });
