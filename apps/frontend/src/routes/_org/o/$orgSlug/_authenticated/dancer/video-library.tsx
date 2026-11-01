@@ -1,6 +1,11 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
 import { orgQueries } from "@/features/org/api/queries";
+import {
+  hasOrgFeature,
+  viewedDancerEventId,
+} from "@/features/org/lib/entitlement";
+import { queries as sessionQueries } from "@/lib/session";
 import { dancerEventSearchSchema } from "@/features/org/api/scouting-schemas";
 
 // Its content now lives on the dancer dashboard (the Videos widget).
@@ -12,8 +17,19 @@ export const Route = createFileRoute(
     const data = await context.queryClient.ensureQueryData(
       orgQueries.org(params.orgSlug),
     );
-    const features = (data.features ?? {}) as Record<string, boolean>;
-    if (!features.video_library) {
+    // Gate on the event this page will request, not the Org's active one:
+    // the backend gates a Dancer's reads on the event she asks for (#110).
+    const session = await context.queryClient.ensureQueryData(
+      sessionQueries.session(),
+    );
+    const eventId = viewedDancerEventId(data.myRosters, search.eventId);
+    if (
+      !hasOrgFeature(
+        { ...data, platformRole: session?.role },
+        "video_library",
+        eventId,
+      )
+    ) {
       throw redirect({ to: "/o/$orgSlug/dancer", params });
     }
     throw redirect({

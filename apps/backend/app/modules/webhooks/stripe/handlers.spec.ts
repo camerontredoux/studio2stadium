@@ -8,6 +8,8 @@ import { test } from "@japa/runner";
 import { eq, sql } from "drizzle-orm";
 import type { Stripe } from "stripe";
 import { createDancer, DAY_MS } from "#tests/helpers/premium";
+import { DeactivatePurchaseService } from "#modules/event-tiers/deactivation/service";
+import { ProvisionPurchaseService } from "#modules/event-tiers/provisioning/service";
 import WebhookHandlers from "./handlers.ts";
 
 const seconds = (date: Date) => Math.floor(date.getTime() / 1000);
@@ -53,7 +55,12 @@ test.group("Stripe checkout webhook", (group) => {
     assert,
   }) => {
     const dancer = await createDancer();
-    const handlers = new WebhookHandlers(new DatabaseService());
+    const dbService = new DatabaseService();
+    const handlers = new WebhookHandlers(
+      dbService,
+      new ProvisionPurchaseService(dbService),
+      new DeactivatePurchaseService(dbService)
+    );
     const startedAtOf = async () => {
       const [row] = await db
         .select({ startedAt: subscriptions.startedAt })

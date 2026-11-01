@@ -47,14 +47,14 @@ export class CheckInService {
           timezone: orgEvents.timezone,
           selfCheckIn: orgEvents.selfCheckIn,
           orgSettings: organizations.settings,
-          orgFeatures: organizations.features,
         })
         .from(orgEvents)
         .innerJoin(organizations, eq(organizations.id, orgEvents.orgId))
         .where(and(eq(orgEvents.id, eventId), eq(orgEvents.orgId, orgId)));
 
-      const features = (event?.orgFeatures ?? {}) as Record<string, boolean>;
-      if (!event || !features.check_in || !event.selfCheckIn) {
+      // Whether the event has check-in at all is its Event Tier's call, made
+      // by the route's `orgFeature("check_in")` gate before this runs.
+      if (!event || !event.selfCheckIn) {
         throw new SelfCheckInOffError();
       }
       if (!isCheckInOpen(event, orgDefaultTimezone(event.orgSettings))) {

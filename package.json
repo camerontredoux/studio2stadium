@@ -11,7 +11,8 @@
     "emails": "pnpm --filter @stos/emails"
   },
   "devDependencies": {
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "wrangler": "^4.137.0"
   },
   "packageManager": "pnpm@10.12.1",
   "engines": {

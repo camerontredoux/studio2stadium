@@ -175,20 +175,16 @@ test.group("POST /orgs/:slug/events/:id/check-in/scan", (group) => {
     assert.strictEqual(res.body().bibNumber, 101);
   });
 
-  test("no code when the org does not have check-in", async ({
-    client,
-    assert,
-  }) => {
+  test("no pass when the event does not have check-in", async ({ client }) => {
     const { dancer, org, event } = await fixture();
     await db
-      .update(organizations)
-      .set({ features: {} })
-      .where(eq(organizations.id, org.id));
+      .update(orgEvents)
+      .set({ capabilityOverrides: { check_in: false } })
+      .where(eq(orgEvents.id, event.id));
     const token = await login(client, dancer.email);
     const res = await client
       .get(`/orgs/${org.slug}/events/${event.id}/check-in/status`)
       .bearerToken(token);
-    res.assertStatus(200);
-    assert.isNull(res.body().checkInCode);
+    res.assertStatus(404);
   });
 });

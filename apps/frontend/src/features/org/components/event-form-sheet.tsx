@@ -6,6 +6,7 @@ import { Controller, useForm, type Control } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "@/components/event/button";
+import { Select } from "@/components/event/select";
 import {
   DateRangePicker,
   type DateRange,
@@ -39,6 +40,14 @@ import {
 } from "@/features/org/live/shared/event-time";
 import { localDateFromYmd } from "@/features/org/lib/event-clock";
 import {
+  canSetEventTier,
+  EVENT_TIER_OPTIONS,
+  EVENT_TIERS,
+  eventTierLabel,
+  type EventTier,
+} from "@/lib/event-tiers";
+import { useSession } from "@/lib/session";
+import {
   SheetField,
   SheetFieldFrame,
 } from "@/features/org/live/shared/sheet-field";
@@ -71,6 +80,7 @@ const schema = z
       .optional(),
     hours: z.object({ start: timeValue, end: timeValue }),
     timezone: z.string().optional(),
+    eventTier: z.enum(EVENT_TIERS).optional(),
   })
   .superRefine((data, ctx) => {
     const { start, end } = data.hours;
@@ -97,6 +107,19 @@ const schema = z
   });
 
 type Schema = z.infer<typeof schema>;
+
+/**
+ * Staff creating an event must say which Event Tier was agreed: left blank, the
+ * backend default would make it Enterprise, which is a grandfathering default
+ * rather than a choice (ADR 0006).
+ */
+const staffCreateSchema = schema.refine((data) => data.eventTier !== undefined, {
+  path: ["eventTier"],
+  message: "Choose the Event Tier that was agreed",
+});
+
+/** How the Event Tier appears in the form, depending on who is looking. */
+type EventTierMode = "editable" | "readonly" | "hidden";
 
 const today = new Date();
 today.setHours(0, 0, 0, 0);
@@ -153,6 +176,7 @@ function defaultsFromEvent(event: OrgEvent): Schema {
     contactEmail: event.contactEmail ?? "",
     hours: hoursFromEvent(event),
     timezone: event.timezone ?? "",
+    eventTier: event.eventTier,
   };
 }
 
@@ -165,6 +189,7 @@ function emptyDefaults(defaultTimezone?: string): Schema {
     contactEmail: "",
     hours: { start: null, end: null },
     timezone: defaultTimezone ?? "",
+    eventTier: undefined,
   };
 }
 
@@ -225,13 +250,53 @@ function TimezoneField({
   );
 }
 
+function EventTierField({
+  control,
+  mode,
+}: {
+  control: Control<Schema>;
+  mode: EventTierMode;
+}) {
+  if (mode === "hidden") return null;
+  return (
+    <Controller
+      control={control}
+      name="eventTier"
+      render={({ field, fieldState }) => (
+        <SheetFieldFrame label="Event Tier" error={fieldState.error?.message}>
+          {mode === "editable" ? (
+            <Select
+              size="lg"
+              label="Event Tier"
+              name={field.name}
+              options={EVENT_TIER_OPTIONS}
+              value={field.value ?? null}
+              onChange={(value) =>
+                field.onChange((value as EventTier | null) ?? undefined)
+              }
+              placeholder="Choose the Event Tier"
+            />
+          ) : (
+            <p className="type-body text-fg m-0">
+              {field.value ? eventTierLabel(field.value) : "None"}
+              <span className="text-fg-3"> · set by Studio 2 Stadium</span>
+            </p>
+          )}
+        </SheetFieldFrame>
+      )}
+    />
+  );
+}
+
 /** The form's sections: Event, When, Where and Contact. */
 function EventFormFields({
   control,
   calendarDisabledBeforeToday,
+  eventTierMode,
 }: {
   control: Control<Schema>;
   calendarDisabledBeforeToday: boolean;
+  eventTierMode: EventTierMode;
 }) {
   return (
     <>
@@ -254,6 +319,7 @@ function EventFormFields({
             />
           )}
         />
+        <EventTierField control={control} mode={eventTierMode} />
       </DetailSheetSection>
 
       <DetailSheetSection title="When">
@@ -411,6 +477,12 @@ export function EventFormSheet({
   const { settings } = useOrg();
   const defaultTimezone = (settings.defaultTimezone as string) ?? undefined;
   const isCreate = event === undefined;
+  const isStaff = canSetEventTier(useSession());
+  const eventTierMode: EventTierMode = isStaff
+    ? "editable"
+    : isCreate
+      ? "hidden"
+      : "readonly";
   const [discardConfirmOpen, setDiscardConfirmOpen] = useState(false);
   const bypassDirtyCheckRef = useRef(false);
 
@@ -427,11 +499,16 @@ export function EventFormSheet({
       startTime?: string;
       endTime?: string;
       timezone?: string;
+      eventTier?: EventTier;
     }) => {
       const createRes = await rawClient.POST(`/orgs/${orgSlug}/events`, {
         body: { ...body, isActive: false },
       });
-      if (createRes.error) throw new Error("Create failed");
+      if (createRes.error) {
+        // Surfaces the backend's reason, e.g. a self-serve Org's Organizer
+        // being told new events are bought or arranged with S2S (#112).
+        throw new Error(createRes.error.message ?? "Create failed");
+      }
       const activateRes = await client.PATCH("/orgs/{slug}/events/{id}", {
         params: { path: { slug: orgSlug, id: createRes.data.id } },
         body: { isActive: true },
@@ -448,8 +525,12 @@ export function EventFormSheet({
       bypassDirtyCheckRef.current = true;
       onOpenChange(false);
     },
-    onError: () => {
-      toastManager.add({ title: "Couldn't create event", type: "error" });
+    onError: (err) => {
+      toastManager.add({
+        title: "Couldn't create event",
+        description: err.message,
+        type: "error",
+      });
     },
   });
 
@@ -492,7 +573,7 @@ export function EventFormSheet({
     reset,
     formState: { isDirty },
   } = useForm<Schema>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(isCreate && isStaff ? staffCreateSchema : schema),
     defaultValues: isCreate
       ? emptyDefaults(defaultTimezone)
       : defaultsFromEvent(event),
@@ -545,6 +626,7 @@ export function EventFormSheet({
         venueAddress: data.venueAddress || undefined,
         contactEmail: data.contactEmail || undefined,
         ...createScheduleBody(data),
+        eventTier: isStaff ? data.eventTier : undefined,
       });
     } else {
       updateMutation.mutate({
@@ -555,6 +637,8 @@ export function EventFormSheet({
         venueAddress: data.venueAddress || null,
         contactEmail: data.contactEmail || null,
         ...scheduleBody(data),
+        // Only staff may send it; the backend refuses anyone else (#112).
+        ...(isStaff && { eventTier: data.eventTier }),
       });
     }
   };
@@ -576,6 +660,7 @@ export function EventFormSheet({
         <EventFormFields
           control={control}
           calendarDisabledBeforeToday={isCreate}
+          eventTierMode={eventTierMode}
         />
       </DetailSheetForm>
       <DetailSheetFooter>
@@ -626,6 +711,7 @@ export function CreateEventForm({
   const adminEvent = useContext(AdminEventContext);
   const { settings } = useOrg();
   const defaultTimezone = (settings.defaultTimezone as string) ?? undefined;
+  const isStaff = canSetEventTier(useSession());
 
   const rawClient = client as any;
 
@@ -640,11 +726,16 @@ export function CreateEventForm({
       startTime?: string;
       endTime?: string;
       timezone?: string;
+      eventTier?: EventTier;
     }) => {
       const createRes = await rawClient.POST(`/orgs/${orgSlug}/events`, {
         body: { ...body, isActive: false },
       });
-      if (createRes.error) throw new Error("Create failed");
+      if (createRes.error) {
+        // Surfaces the backend's reason, e.g. a self-serve Org's Organizer
+        // being told new events are bought or arranged with S2S (#112).
+        throw new Error(createRes.error.message ?? "Create failed");
+      }
       const activateRes = await client.PATCH("/orgs/{slug}/events/{id}", {
         params: { path: { slug: orgSlug, id: createRes.data.id } },
         body: { isActive: true },
@@ -657,13 +748,17 @@ export function CreateEventForm({
       void invalidateAfterLiveEventChange(qc);
       onCreated?.(ev);
     },
-    onError: () => {
-      toastManager.add({ title: "Couldn't create event", type: "error" });
+    onError: (err) => {
+      toastManager.add({
+        title: "Couldn't create event",
+        description: err.message,
+        type: "error",
+      });
     },
   });
 
   const { control, handleSubmit, reset } = useForm<Schema>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(isStaff ? staffCreateSchema : schema),
     defaultValues: emptyDefaults(defaultTimezone),
   });
 
@@ -679,6 +774,7 @@ export function CreateEventForm({
         venueAddress: data.venueAddress || undefined,
         contactEmail: data.contactEmail || undefined,
         ...createScheduleBody(data),
+        eventTier: isStaff ? data.eventTier : undefined,
       },
       { onSuccess: () => reset() },
     );
@@ -692,7 +788,11 @@ export function CreateEventForm({
       onSubmit={handleSubmit(onSubmit)}
     >
       <div className="border-line bg-surface overflow-hidden rounded-(--radius-12) border">
-        <EventFormFields control={control} calendarDisabledBeforeToday />
+        <EventFormFields
+          control={control}
+          calendarDisabledBeforeToday
+          eventTierMode={isStaff ? "editable" : "hidden"}
+        />
       </div>
       <Button
         type="submit"

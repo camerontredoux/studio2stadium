@@ -41,6 +41,21 @@ export function RedirectMessage() {
     );
   }
 
+  if (reason === "claim_sign_in") {
+    return (
+      <Alert variant="info">
+        <CircleAlertIcon />
+        <AlertTitle>Sign in to claim your Org</AlertTitle>
+        <AlertDescription>
+          Sign in with the account for the email address the claim link was sent
+          to. If you don&apos;t know its password, use &quot;Forgot
+          password&quot;: setting a new password from the email we send also
+          claims your Org.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
   if (reason === "network_error") {
     return (
       <Alert variant="error">

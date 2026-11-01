@@ -1,4 +1,4 @@
-import { accountType } from "#database/schema/enums";
+import { PROFILE_ACCOUNT_TYPES } from "#database/schema/enums";
 import vine, { SimpleMessagesProvider } from "@vinejs/vine";
 import { type Infer } from "@vinejs/vine/types";
 
@@ -88,7 +88,9 @@ export const validator = vine.create(
   vine.object({
     email: vine.string().trim().email(),
     password: vine.string().minLength(8),
-    type: vine.enum(accountType.enumValues),
+    // Nobody signs up as an Organizer: that account type exists only for a
+    // buyer an Event Tier purchase created an account for.
+    type: vine.enum(PROFILE_ACCOUNT_TYPES),
     username: vine
       .string()
       .alphaNumeric()

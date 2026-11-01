@@ -46,13 +46,16 @@ export function DancerSidebar() {
   const qc = useQueryClient();
   const orgSlug = org.slug;
 
+  // Gate on the event the Dancer is viewing, not the Org's active one (#110).
+  const callbacksOn = hasFeature("callbacks", roster?.eventId);
+
   useQuery({
     ...scoutingQueries.dancerCallbacks(orgSlug),
-    enabled: hasFeature("callbacks"),
+    enabled: callbacksOn,
   });
 
   useTransmitSubscription(
-    hasFeature("callbacks") ? `orgs/${orgSlug}/showcases` : null,
+    callbacksOn ? `orgs/${orgSlug}/showcases` : null,
     () => {
       // Every event's callbacks: a key carrying `eventId: undefined` would
       // not match the event-scoped queries the callbacks pages use.

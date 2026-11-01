@@ -117,6 +117,7 @@ router
     middleware.orgEvent("dancerSelfRead"),
     middleware.orgMember(),
     middleware.orgDancer(),
+    middleware.orgFeature("school_selections"),
   ])
   .openapi({ tags: ["Org School Selections"] });
 
@@ -145,6 +146,7 @@ router
     middleware.orgEvent(),
     middleware.orgMember(),
     middleware.orgDancer(),
+    middleware.orgFeature("school_selections"),
   ])
   .openapi({ tags: ["Org School Selections"] });
 

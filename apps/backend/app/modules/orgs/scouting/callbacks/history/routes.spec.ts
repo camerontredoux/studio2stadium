@@ -56,11 +56,14 @@ async function loginUser(userId: string) {
   return token;
 }
 
-/** An org with callbacks on, its active event, and a coach and a dancer on it. */
-async function setup(features: Record<string, boolean> = { callbacks: true }) {
+/**
+ * An org, its active event (Enterprise, so callbacks are on unless
+ * `capabilityOverrides` turns them off), and a coach and a dancer on it.
+ */
+async function setup(capabilityOverrides: Record<string, boolean> = {}) {
   const [org] = await db
     .insert(organizations)
-    .values({ name: "History Org", slug: "history-org", features })
+    .values({ name: "History Org", slug: "history-org" })
     .returning();
   const [event] = await db
     .insert(orgEvents)
@@ -70,6 +73,7 @@ async function setup(features: Record<string, boolean> = { callbacks: true }) {
       startDate: dateFromToday(-1),
       endDate: dateFromToday(1),
       isActive: true,
+      capabilityOverrides,
     })
     .returning();
   const coachUser = await createUser("history_coach");
@@ -178,10 +182,10 @@ test.group("GET /orgs/:slug/callbacks/history", (group) => {
     response.assertStatus(403);
   });
 
-  test("an org without callbacks hides the route from the coach", async ({
+  test("an event without callbacks hides the route from the coach", async ({
     client,
   }) => {
-    const { org, coachUser } = await setup({});
+    const { org, coachUser } = await setup({ callbacks: false });
 
     const response = await client
       .get(`/orgs/${org.slug}/callbacks/history`)

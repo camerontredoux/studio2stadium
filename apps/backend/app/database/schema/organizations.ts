@@ -20,6 +20,21 @@ export const organizations = pg.pgTable(
     accentColor: pg.varchar({ length: 16 }),
     features: pg.jsonb().notNull().default({}),
     settings: pg.jsonb().notNull().default({}),
+    // Set once an Event Tier purchase lands on this Org, and never cleared: its
+    // Organizers bought their events, so further events are bought again or
+    // arranged with S2S rather than created free (#112). A lasting fact about
+    // the Org rather than the presence of a purchase row, so nothing an
+    // Organizer deletes can turn a self-serve Org back into a grandfathered one
+    // (ADR 0006).
+    selfServe: pg.boolean().notNull().default(false),
+    // Set once S2S staff put any of this Org's events below Enterprise — at
+    // create or by changing its Event Tier — and never cleared. From then on
+    // staff manage the Org's Event Tiers, so its Organizers can no longer
+    // create events that would take the Enterprise default, exactly as in a
+    // self-serve Org (ADR 0006). Sticky for the same reason as `selfServe`:
+    // deleting the event, or moving it back to Enterprise, must not reopen
+    // free Enterprise events.
+    tierManaged: pg.boolean().notNull().default(false),
     ...timestamps,
   },
   (table) => [pg.index().on(table.slug)]

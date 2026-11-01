@@ -187,19 +187,28 @@ export function ViewSwitcher({
             <MenuSeparator />
           </>
         )}
-        <MenuItem
-          icon={UserIcon}
-          render={
-            <Link
-              to={
-                session.type === "school" ? "/explore/$username" : "/$username"
-              }
-              params={{ username: session.username }}
-            />
-          }
-        >
-          Profile
-        </MenuItem>
+        {session.type === "organizer" ? (
+          // An Organizer account has no public profile to open.
+          <MenuItem icon={UserIcon} render={<Link to="/settings/account" />}>
+            Account
+          </MenuItem>
+        ) : (
+          <MenuItem
+            icon={UserIcon}
+            render={
+              <Link
+                to={
+                  session.type === "school"
+                    ? "/explore/$username"
+                    : "/$username"
+                }
+                params={{ username: session.username }}
+              />
+            }
+          >
+            Profile
+          </MenuItem>
+        )}
         <div className="px-(--space-2) py-(--space-4)">
           <MenuSegmented
             label="Theme"
