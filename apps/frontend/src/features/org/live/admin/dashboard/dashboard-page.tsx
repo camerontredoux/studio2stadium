@@ -14,7 +14,6 @@ import { EventFormSheet } from "@/features/org/components/event-form-sheet";
 import { InactiveEventPrompt } from "@/features/org/components/inactive-event-prompt";
 import { useAdminEvent } from "@/features/org/context/use-admin-event";
 import { useOrg } from "@/features/org/context/use-org";
-import { useEventPhase } from "@/features/org/hooks/use-event-phase";
 import {
   useAdminCommandListener,
   useAdminCommands,
@@ -29,11 +28,13 @@ import {
 import { ScheduleWidget } from "@/features/org/live/shared/schedule-widget";
 import { ShellPage } from "@/features/org/live/shared/shell-slots";
 import { VideosWidget } from "@/features/org/live/shared/videos-widget";
-import { BUY_ANOTHER_EVENT_MESSAGE, canCreateOrgEvent } from "@/lib/event-tiers";
+import {
+  BUY_ANOTHER_EVENT_MESSAGE,
+  canCreateOrgEvent,
+} from "@/lib/event-tiers";
 import { useSession } from "@/lib/session";
 
 import { CallbacksWidget } from "./callbacks-widget";
-import { ChecklistPanel } from "./checklist-panel";
 import { DeleteEventDialog } from "./delete-event-dialog";
 import { RequestsWidget } from "./requests-widget";
 import { RostersPanel } from "./rosters-panel";
@@ -55,8 +56,6 @@ function Dashboard({ orgSlug, event }: { orgSlug: string; event: OrgEvent }) {
   const { hasFeature } = useOrg();
   const { activeEvent } = useAdminEvent();
   const { dispatch } = useAdminCommands();
-  const phase = useEventPhase(event);
-  const beforeStart = !phase.hasStarted;
   const claims = useQuery(rosterClaimQueries.pending(orgSlug));
   const requests = (claims.data?.data ?? []).filter(
     (claim) => claim.status === "pending",
@@ -108,10 +107,6 @@ function Dashboard({ orgSlug, event }: { orgSlug: string; event: OrgEvent }) {
         {showVideos && <VideosWidget event={event} canUpload />}
         {showCheckIn && <CheckInWidget slug={orgSlug} eventId={event.id} />}
       </WidgetBoard>
-      {/* Not in the mockup: the old dashboard's checklist, only until the event starts. */}
-      {beforeStart && (
-        <ChecklistPanel orgSlug={orgSlug} eventId={event.id} phase={phase} />
-      )}
     </ShellPage>
   );
 }

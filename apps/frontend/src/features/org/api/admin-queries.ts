@@ -38,17 +38,6 @@ export type OrgEventStats = {
   recentUploads: CsvUploadSummary[];
 };
 
-export type ChecklistItem = {
-  id: string;
-  eventId: string;
-  title: string;
-  description: string | null;
-  completed: boolean;
-  position: number;
-  createdAt: string;
-  updatedAt: string;
-};
-
 // The spec types /stats with a different shape than the backend returns, so
 // this reads the data as the hand-written type above.
 const asOrgEventStats = (data: unknown) => data as OrgEventStats;
@@ -65,19 +54,14 @@ export const adminQueries = {
       { params: { path: { slug, id: eventId } } },
       { select: asOrgEventStats },
     ),
-  checklist: (slug: string, eventId: string) =>
-    $api.queryOptions("get", "/orgs/{slug}/events/{id}/checklist", {
-      params: { path: { slug, id: eventId } },
-    }),
 };
 
 // The event-scoped queries used to share the key prefix
 // ["orgs", slug, "events"], so invalidating the event list also refreshed
-// every event's stats, checklist, check-in status and videos. This keeps that.
+// every event's stats, check-in status and videos. This keeps that.
 const ORG_EVENT_QUERY_PATHS = new Set<unknown>([
   "/orgs/{slug}/events",
   "/orgs/{slug}/events/{id}/stats",
-  "/orgs/{slug}/events/{id}/checklist",
   "/orgs/{slug}/events/{id}/check-in/status",
   "/orgs/{slug}/events/{id}/video-categories",
   "/orgs/{slug}/events/{id}/videos",

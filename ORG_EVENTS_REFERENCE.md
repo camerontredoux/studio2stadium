@@ -109,7 +109,6 @@ The heart of the org platform UI. **This is where most org-events frontend work 
 | `components/event-form-sheet.tsx` | Create/edit event sheet (used by active-event switcher). |
 | `components/org-event-switcher.tsx` | Switch active event. |
 | `components/event-video/*` | Video library: `add-edit-video-dialog`, `event-video-card`, `event-video-grid`, `manage-categories-dialog`, `video-library-toolbar`. |
-| `components/checklist-item-dialog.tsx` | Event checklist item create/edit. |
 | `hooks/use-event-phase.ts` | Derives event phase (upcoming/active/past) from dates. |
 
 ### Roster components
