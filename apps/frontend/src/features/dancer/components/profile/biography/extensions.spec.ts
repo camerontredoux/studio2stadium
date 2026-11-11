@@ -1,5 +1,5 @@
 import { Editor, type JSONContent } from "@tiptap/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { describe, expect, it, onTestFinished } from "vitest";
 import { extensions } from "./extensions";
 
 const paragraph = (text: string): JSONContent => ({
@@ -15,30 +15,27 @@ const bullets = (...items: string[]): JSONContent => ({
   })),
 });
 
-let editor: Editor | undefined;
-
-afterEach(() => editor?.destroy());
-
 function open(...content: JSONContent[]) {
-  editor = new Editor({
+  const editor = new Editor({
     element: null,
     extensions,
     content: { type: "doc", content },
   });
+  onTestFinished(() => editor.destroy());
   return editor;
 }
 
-function cursorAtStart(editor: Editor, text: string) {
+function cursorAt(editor: Editor, text: string, offset = 0) {
   let pos = -1;
   editor.state.doc.descendants((node, at) => {
     if (pos === -1 && node.isTextblock && node.textContent === text) {
-      pos = at + 1;
+      pos = at + 1 + offset;
     }
   });
   editor.commands.setTextSelection(pos);
 }
 
-// Runs the key through the editor's keymaps, as the browser would.
+// A headless editor has no view, so send the key through its keymaps.
 function press(editor: Editor, key: string, shiftKey = false) {
   const event = {
     key,
@@ -57,16 +54,15 @@ describe("biography editor keys", () => {
   it("leaves Tab to move focus on a bullet after the first", () => {
     const editor = open(bullets("Jazz", "Pom"));
     const before = editor.getJSON();
-    cursorAtStart(editor, "Pom");
+    cursorAt(editor, "Pom");
 
-    expect(() => press(editor, "Tab")).not.toThrow();
     expect(press(editor, "Tab")).toBe(false);
     expect(editor.getJSON()).toEqual(before);
   });
 
   it("splits a bullet with Enter and lifts it out with Shift-Tab", () => {
     const editor = open(bullets("Jazz"));
-    editor.commands.setTextSelection(5);
+    cursorAt(editor, "Jazz", 2);
 
     expect(press(editor, "Enter")).toBe(true);
     expect(editor.getJSON().content).toEqual([
@@ -85,10 +81,10 @@ describe("biography editor keys", () => {
 
   it("keeps the document valid on Backspace in a paragraph after a list", () => {
     const editor = open(bullets("Jazz", "Pom"), paragraph("Contemporary"));
-    cursorAtStart(editor, "Contemporary");
+    cursorAt(editor, "Contemporary");
 
-    expect(() => press(editor, "Backspace")).not.toThrow();
-    expect(() => editor.state.doc.check()).not.toThrow();
+    press(editor, "Backspace");
+    editor.state.doc.check();
     expect(editor.getText()).toContain("Contemporary");
   });
 });

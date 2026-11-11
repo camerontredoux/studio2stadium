@@ -22,10 +22,8 @@ export const extensions = [
   ListItem.extend({
     content: "paragraph",
     addKeyboardShortcuts() {
-      return {
-        Enter: () => this.editor.commands.splitListItem(this.name),
-        "Shift-Tab": () => this.editor.commands.liftListItem(this.name),
-      };
+      const { Tab: _sink, ...keys } = this.parent?.() ?? {};
+      return keys;
     },
   }),
 ];
