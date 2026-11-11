@@ -13,6 +13,9 @@ export const videos = pg.pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
     mediaId: pg.text().unique().notNull(),
     caption: pg.text(),
+    // Gallery order the owner chose. Null until they first reorder; unordered
+    // media shows newest first, ahead of ordered media.
+    position: pg.integer(),
     type: videoType().notNull().default("youtube"),
     ...timestamps,
   },
@@ -32,6 +35,9 @@ export const images = pg.pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
     mediaUrl: pg.text().unique().notNull(),
     caption: pg.text(),
+    // Gallery order the owner chose. Null until they first reorder; unordered
+    // media shows newest first, ahead of ordered media.
+    position: pg.integer(),
     ...timestamps,
   },
   (table) => [

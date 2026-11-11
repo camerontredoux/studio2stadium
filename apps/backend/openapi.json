@@ -2191,6 +2191,39 @@
         "description": "Returns a list of videos by category, paginated with 6 results at a time"
       }
     },
+    "/media/order": {
+      "put": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MediaOrderRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Media"
+        ],
+        "summary": "Reorder my media",
+        "description": "Sets the display order of every image and video on the authenticated user's profile"
+      }
+    },
     "/notifications": {
       "get": {
         "parameters": [
@@ -9397,6 +9430,39 @@
         "description": "Creates a reference for the authenticated dancer"
       }
     },
+    "/dancers/references/order": {
+      "put": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DancersReferencesOrderRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "References"
+        ],
+        "summary": "Reorder references",
+        "description": "Sets the display order of every reference on the authenticated dancer's profile"
+      }
+    },
     "/dancers/references/{id}": {
       "patch": {
         "requestBody": {
@@ -9470,6 +9536,39 @@
         ],
         "summary": "Delete a reference",
         "description": "Deletes a reference for the authenticated dancer"
+      }
+    },
+    "/dancers/achievements/order": {
+      "put": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DancersAchievementsOrderRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Achievements"
+        ],
+        "summary": "Reorder achievements",
+        "description": "Sets the display order of every achievement on the authenticated dancer's profile"
       }
     },
     "/dancers/achievements/achievements": {
@@ -15926,6 +16025,36 @@
           ]
         }
       },
+      "MediaOrderRequest": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "video",
+                    "image"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "type"
+              ]
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
       "NotificationsResponse": {
         "type": "object",
         "properties": {
@@ -18445,14 +18574,14 @@
                 }
               ]
             },
+            "position": {
+              "type": "number"
+            },
             "eventId": {
               "type": "string"
             },
             "completed": {
               "type": "boolean"
-            },
-            "position": {
-              "type": "number"
             }
           },
           "required": [
@@ -18461,9 +18590,9 @@
             "updatedAt",
             "title",
             "description",
+            "position",
             "eventId",
-            "completed",
-            "position"
+            "completed"
           ]
         }
       },
@@ -18513,14 +18642,14 @@
               }
             ]
           },
+          "position": {
+            "type": "number"
+          },
           "eventId": {
             "type": "string"
           },
           "completed": {
             "type": "boolean"
-          },
-          "position": {
-            "type": "number"
           }
         },
         "required": [
@@ -18529,9 +18658,9 @@
           "updatedAt",
           "title",
           "description",
+          "position",
           "eventId",
-          "completed",
-          "position"
+          "completed"
         ]
       },
       "OrgsIdEventsIdChecklistIdRequest": {
@@ -18557,13 +18686,12 @@
               }
             ]
           },
-          "completed": {
+          "position": {
             "oneOf": [
               {
                 "type": [
                   "string",
-                  "number",
-                  "boolean"
+                  "number"
                 ]
               },
               {
@@ -18571,12 +18699,13 @@
               }
             ]
           },
-          "position": {
+          "completed": {
             "oneOf": [
               {
                 "type": [
                   "string",
-                  "number"
+                  "number",
+                  "boolean"
                 ]
               },
               {
@@ -18613,14 +18742,14 @@
                 }
               ]
             },
+            "position": {
+              "type": "number"
+            },
             "eventId": {
               "type": "string"
             },
             "completed": {
               "type": "boolean"
-            },
-            "position": {
-              "type": "number"
             }
           },
           "required": [
@@ -18629,9 +18758,9 @@
             "updatedAt",
             "title",
             "description",
+            "position",
             "eventId",
-            "completed",
-            "position"
+            "completed"
           ]
         }
       },
@@ -23431,6 +23560,20 @@
               }
             ]
           },
+          "biographyFormat": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "plain",
+                  "rich"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "instagram": {
             "oneOf": [
               {
@@ -23946,6 +24089,13 @@
               }
             ]
           },
+          "biographyFormat": {
+            "type": "string",
+            "enum": [
+              "plain",
+              "rich"
+            ]
+          },
           "instagram": {
             "oneOf": [
               {
@@ -24058,6 +24208,16 @@
                 },
                 "description": {
                   "type": "string"
+                },
+                "position": {
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
                 }
               },
               "required": [
@@ -24066,7 +24226,8 @@
                 "updatedAt",
                 "profileId",
                 "title",
-                "description"
+                "description",
+                "position"
               ]
             }
           },
@@ -24102,6 +24263,16 @@
                       "type": "null"
                     }
                   ]
+                },
+                "position": {
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
                 }
               },
               "required": [
@@ -24111,7 +24282,8 @@
                 "name",
                 "profileId",
                 "title",
-                "description"
+                "description",
+                "position"
               ]
             }
           },
@@ -24138,6 +24310,16 @@
                 },
                 "userId": {
                   "type": "string"
+                },
+                "position": {
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
                 },
                 "thumbnail": {
                   "oneOf": [
@@ -24172,6 +24354,7 @@
                 "updatedAt",
                 "type",
                 "userId",
+                "position",
                 "thumbnail",
                 "mediaId",
                 "caption",
@@ -24195,6 +24378,16 @@
                 },
                 "userId": {
                   "type": "string"
+                },
+                "position": {
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
                 },
                 "thumbnail": {
                   "oneOf": [
@@ -24232,6 +24425,7 @@
                 "createdAt",
                 "updatedAt",
                 "userId",
+                "position",
                 "thumbnail",
                 "caption",
                 "mediaUrl"
@@ -24474,6 +24668,7 @@
           "birthday",
           "location",
           "biography",
+          "biographyFormat",
           "instagram",
           "tiktok",
           "youtube",
@@ -24542,6 +24737,20 @@
           "description"
         ]
       },
+      "DancersReferencesOrderRequest": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "ids"
+        ]
+      },
       "DancersReferencesIdRequest": {
         "type": "object",
         "properties": {
@@ -24576,6 +24785,20 @@
             ]
           }
         }
+      },
+      "DancersAchievementsOrderRequest": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "ids"
+        ]
       },
       "DancersAchievementsAchievementsRequest": {
         "type": "object",
@@ -26805,6 +27028,16 @@
                 "userId": {
                   "type": "string"
                 },
+                "position": {
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
                 "thumbnail": {
                   "oneOf": [
                     {
@@ -26838,6 +27071,7 @@
                 "updatedAt",
                 "type",
                 "userId",
+                "position",
                 "thumbnail",
                 "mediaId",
                 "caption",
@@ -26861,6 +27095,16 @@
                 },
                 "userId": {
                   "type": "string"
+                },
+                "position": {
+                  "oneOf": [
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
                 },
                 "thumbnail": {
                   "oneOf": [
@@ -26898,6 +27142,7 @@
                 "createdAt",
                 "updatedAt",
                 "userId",
+                "position",
                 "thumbnail",
                 "caption",
                 "mediaUrl"

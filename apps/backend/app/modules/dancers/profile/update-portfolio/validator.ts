@@ -15,6 +15,9 @@ export const validator = vine.create(
     tiktok: vine.string().nullable().optional(),
     youtube: vine.string().nullable().optional(),
     biography: vine.string().nullable().optional(),
+    // Sent with biography by the formatting editor. Omitted by older clients,
+    // which leaves the stored format as it was.
+    biographyFormat: vine.enum(["plain", "rich"] as const).optional(),
   })
 );
 

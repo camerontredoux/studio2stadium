@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import * as pg from "drizzle-orm/pg-core";
+import { biographyFormat } from "./enums.ts";
 import { timestamps } from "./helpers/columns.ts";
 import { schoolProfiles } from "./schools.ts";
 import { users } from "./users.ts";
@@ -16,6 +17,9 @@ export const dancerProfiles = pg.pgTable(
     birthday: pg.date({ mode: "string" }).notNull(),
     location: pg.text().notNull(),
     biography: pg.text(),
+    // `plain` biographies were written before formatting existed and render as
+    // they always have. Saving from the formatting editor switches to `rich`.
+    biographyFormat: biographyFormat().notNull().default("plain"),
     awards: pg.text(),
     instagram: pg.text(),
     tiktok: pg.text(),
@@ -45,6 +49,9 @@ export const achievements = pg.pgTable(
       .references(() => dancerProfiles.id, { onDelete: "cascade" }),
     title: pg.text().notNull(),
     description: pg.text().notNull(),
+    // Display order the dancer chose. Null until they first reorder, so
+    // existing rows keep their creation order.
+    position: pg.integer(),
     ...timestamps,
   },
   (table) => [pg.index().on(table.profileId)]
@@ -61,6 +68,9 @@ export const references = pg.pgTable(
     name: pg.text().notNull(),
     title: pg.text().notNull(),
     description: pg.text(),
+    // Display order the dancer chose. Null until they first reorder, so
+    // existing rows keep their creation order.
+    position: pg.integer(),
     ...timestamps,
   },
   (table) => [pg.index().on(table.profileId)]

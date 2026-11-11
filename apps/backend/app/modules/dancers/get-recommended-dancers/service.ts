@@ -2,6 +2,7 @@ import { premiumGrants } from "#database/schema/organizations";
 import { subscriptions } from "#database/schema/subscriptions";
 import { DatabaseService } from "#database/service";
 import { SCHOOL_CENTRIC_SCORING } from "#modules/schools/get-recommended-programs/school-centric-algorithm";
+import { biographyText } from "#utils/biography";
 import { imageUrl } from "#utils/image-url";
 import { inject } from "@adonisjs/core";
 import { and, eq, gt, isNull } from "drizzle-orm";
@@ -175,6 +176,7 @@ export class Service {
           gpa: true,
           gradYear: true,
           biography: true,
+          biographyFormat: true,
         },
         with: {
           user: {
@@ -282,7 +284,7 @@ export class Service {
         username: dancer.user.username,
         avatar: imageUrl(dancer.user.avatar, "avatar"),
         location: dancer.location,
-        about: dancer.biography,
+        about: biographyText(dancer.biography, dancer.biographyFormat),
         gpa: dancer.gpa,
         gradYear: dancer.gradYear,
         matchScore: Math.round(matchScore),

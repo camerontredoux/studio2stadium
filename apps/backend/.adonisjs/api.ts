@@ -231,6 +231,10 @@ type LibraryIdGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/library/list-videos-by-category/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/library/list-videos-by-category/controller.ts').default['handle'], true>
 }
+type MediaOrderPut = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/media/reorder-media/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/media/reorder-media/controller.ts').default['handle'], true>
+}
 type NotificationsGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/notifications/get-notifications/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/notifications/get-notifications/controller.ts').default['handle'], true>
@@ -767,6 +771,10 @@ type DancersIdMetadataGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/get-dancer-metadata/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/dancers/profile/get-dancer-metadata/controller.ts').default['handle'], true>
 }
+type DancersReferencesOrderPut = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/reorder-references/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/profile/reorder-references/controller.ts').default['handle'], true>
+}
 type DancersReferencesPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/create-reference/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/dancers/profile/create-reference/controller.ts').default['handle'], true>
@@ -778,6 +786,10 @@ type DancersReferencesIdDelete = {
 type DancersReferencesIdPatch = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/update-reference/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/dancers/profile/update-reference/controller.ts').default['handle'], true>
+}
+type DancersAchievementsOrderPut = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/reorder-achievements/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/profile/reorder-achievements/controller.ts').default['handle'], true>
 }
 type DancersAchievementsAchievementsPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/create-achievement/validator.ts')['schema']>>
@@ -1367,6 +1379,13 @@ export interface ApiDefinition {
       };
       '$get': LibraryIdGetHead;
       '$head': LibraryIdGetHead;
+    };
+  };
+  'media': {
+    'order': {
+      '$url': {
+      };
+      '$put': MediaOrderPut;
     };
   };
   'notifications': {
@@ -2071,6 +2090,11 @@ export interface ApiDefinition {
       };
     };
     'references': {
+      'order': {
+        '$url': {
+        };
+        '$put': DancersReferencesOrderPut;
+      };
       '$url': {
       };
       '$post': DancersReferencesPost;
@@ -2082,6 +2106,11 @@ export interface ApiDefinition {
       };
     };
     'achievements': {
+      'order': {
+        '$url': {
+        };
+        '$put': DancersAchievementsOrderPut;
+      };
       'achievements': {
         '$url': {
         };

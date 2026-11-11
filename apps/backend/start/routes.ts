@@ -10,6 +10,7 @@ import "#modules/feed/routes";
 import "#modules/health/routes";
 import "#modules/images/routes";
 import "#modules/library/routes";
+import "#modules/media/routes";
 import "#modules/notifications/routes";
 import "#modules/orgs/routes";
 import "#modules/premium-roadmap/routes";

@@ -8,6 +8,15 @@ export const prospectStatus = pgEnum("prospect_status", [
   "accepted",
 ]);
 
+/**
+ * How a dancer biography is stored. `plain` is literal text. `rich` is the
+ * small Markdown subset the profile editor writes: paragraphs, `- ` bullets,
+ * `**bold**`, `*italic*`, with a backslash escaping a literal `*`, `-` or backslash.
+ */
+export const biographyFormat = pgEnum("biography_format", ["plain", "rich"]);
+
+export type BiographyFormat = (typeof biographyFormat.enumValues)[number];
+
 export const mediaType = pgEnum("media_type", ["image", "video"]);
 
 export const subscriptionSource = pgEnum("subscription_source", [

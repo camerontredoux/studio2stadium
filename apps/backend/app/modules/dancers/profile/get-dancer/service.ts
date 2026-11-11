@@ -99,6 +99,7 @@ export class Service {
           orgAccountTierExpiresAt: true,
         },
         with: {
+          // The gallery merges and orders these client-side.
           images: true,
           videos: true,
           events: {
@@ -153,6 +154,7 @@ export class Service {
             columns: {
               id: true,
               biography: true,
+              biographyFormat: true,
               birthday: true,
               location: true,
               teamLevel: true,
@@ -169,8 +171,14 @@ export class Service {
               skills: true,
               styles: true,
               sports: true,
-              references: true,
-              achievements: true,
+              // Postgres sorts nulls last ascending, so items the dancer has
+              // never reordered follow ordered ones, oldest first.
+              references: {
+                orderBy: { position: "asc", createdAt: "asc", id: "asc" },
+              },
+              achievements: {
+                orderBy: { position: "asc", createdAt: "asc", id: "asc" },
+              },
               submission: true,
             },
           },

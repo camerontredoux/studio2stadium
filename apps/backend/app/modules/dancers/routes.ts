@@ -57,6 +57,10 @@ const DeleteAchievementController = () =>
   import("./profile/delete-achievement/controller.ts");
 const DeleteReferenceController = () =>
   import("./profile/delete-reference/controller.ts");
+const ReorderAchievementsController = () =>
+  import("./profile/reorder-achievements/controller.ts");
+const ReorderReferencesController = () =>
+  import("./profile/reorder-references/controller.ts");
 
 router
   .group(() => {
@@ -200,6 +204,11 @@ router
 
 router
   .group(() => {
+    router.put("order", [ReorderReferencesController]).openapi({
+      summary: "Reorder references",
+      description:
+        "Sets the display order of every reference on the authenticated dancer's profile",
+    });
     router.post("", [CreateReferenceController]).openapi({
       summary: "Create a reference",
       description: "Creates a reference for the authenticated dancer",
@@ -219,6 +228,11 @@ router
 
 router
   .group(() => {
+    router.put("order", [ReorderAchievementsController]).openapi({
+      summary: "Reorder achievements",
+      description:
+        "Sets the display order of every achievement on the authenticated dancer's profile",
+    });
     router.post("achievements", [CreateAchievementController]).openapi({
       summary: "Create an achievement",
       description: "Creates an achievement for the authenticated dancer",

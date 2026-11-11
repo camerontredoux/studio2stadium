@@ -12,6 +12,7 @@ import {
   grantOrgAccountTier,
   type GrantedOrgTier,
 } from "#shared/org/grant-account-tier";
+import { biographyText } from "#utils/biography";
 import { inject } from "@adonisjs/core";
 import { and, eq, isNull, ne, sql } from "drizzle-orm";
 import { rosterTypeMembershipConflict } from "#shared/org/membership";
@@ -170,12 +171,14 @@ export class AttachAccountService {
           gradYear: dancerProfiles.gradYear,
           studio: dancerProfiles.studio,
           biography: dancerProfiles.biography,
+          biographyFormat: dancerProfiles.biographyFormat,
         })
         .from(dancerProfiles)
         .where(eq(dancerProfiles.userId, targetUserId))
         .limit(1);
 
       if (profile) {
+        const bio = biographyText(profile.biography, profile.biographyFormat);
         await tx
           .insert(eventDancerProfiles)
           .values({
@@ -183,7 +186,7 @@ export class AttachAccountService {
             gpa: profile.gpa,
             gradYear: profile.gradYear,
             studio: profile.studio,
-            bio: profile.biography,
+            bio,
           })
           .onConflictDoUpdate({
             target: eventDancerProfiles.rosterId,
@@ -191,7 +194,7 @@ export class AttachAccountService {
               gpa: profile.gpa,
               gradYear: profile.gradYear,
               studio: profile.studio,
-              bio: profile.biography,
+              bio,
             },
           });
       }
