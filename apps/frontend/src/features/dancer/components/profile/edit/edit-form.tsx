@@ -8,13 +8,13 @@ import {
   NumberFieldIncrement,
   NumberFieldInput,
 } from "@/components/ui/number-field";
-import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
 import { dancerQueries } from "../../../api/queries";
 import { schemas } from "../../../api/schemas";
+import { BiographyEditor } from "../biography/biography-editor";
 
 export type EditFormData = z.infer<typeof schemas.updatePortfolio>;
 
@@ -48,15 +48,30 @@ export function EditForm({ username, onSubmit }: EditFormProps) {
       <form
         id="edit-profile-form"
         className="flex w-full flex-col gap-3"
-        onSubmit={(e) => form.handleSubmit(onSubmit)(e)}
+        onSubmit={(e) =>
+          form.handleSubmit(({ biography, ...rest }) =>
+            // Send the biography only when it was edited, so saving other
+            // fields leaves a plain biography exactly as it was.
+            onSubmit(
+              form.formState.dirtyFields.biography
+                ? { ...rest, biography, biographyFormat: "rich" }
+                : rest,
+            ),
+          )(e)
+        }
       >
         <Controller
           control={form.control}
           name="biography"
-          render={({ field: { value, ...field }, fieldState }) => (
+          render={({ field, fieldState }) => (
             <Field name={field.name} invalid={fieldState.invalid}>
               <FieldLabel>Biography</FieldLabel>
-              <Textarea value={value as string} {...field} />
+              <BiographyEditor
+                value={data.biography}
+                format={data.biographyFormat}
+                onChange={field.onChange}
+                invalid={fieldState.invalid}
+              />
               <FieldError error={fieldState.error} />
             </Field>
           )}

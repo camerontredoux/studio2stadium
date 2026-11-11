@@ -15,6 +15,7 @@ import { useDeleteAchievement } from "@/features/dancer/api/mutations";
 import type { Achievement } from "@/features/dancer/types";
 import { handleApiError } from "@/lib/api/errors";
 import { PencilIcon, TrashIcon, TrophyIcon } from "lucide-react";
+import { cn } from "@/components/utils/cn";
 import * as React from "react";
 import { AchievementsDialog } from "./achievements-dialog";
 
@@ -22,10 +23,13 @@ export function AchievementItem({
   achievement,
   username,
   showOwnerControls,
+  handle,
 }: {
   achievement: Achievement;
   username: string;
   showOwnerControls: boolean;
+  /** The drag grip, when the owner can reorder. */
+  handle?: React.ReactNode;
 }) {
   const [deleteOpen, setDeleteOpen] = React.useState(false);
   const [editOpen, setEditOpen] = React.useState(false);
@@ -51,63 +55,71 @@ export function AchievementItem({
   };
 
   return (
-    <div className="hover:bg-accent/50 group flex flex-col gap-1 px-4 py-2">
-      <div className="flex min-w-0 items-center gap-2">
-        <TrophyIcon className="text-brand size-4 shrink-0" />
-        <span className="flex-1 truncate text-sm">{achievement.title}</span>
-        {showOwnerControls ? (
-          <div className="flex gap-1">
-            <Button
-              size="icon-xs"
-              variant="ghost"
-              onClick={() => setEditOpen(true)}
-            >
-              <PencilIcon className="size-3.5" />
-            </Button>
-            <AchievementsDialog
-              username={username}
-              achievement={achievement}
-              open={editOpen}
-              onOpenChange={setEditOpen}
-            />
-            <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-              <AlertDialogTrigger
-                render={<Button size="icon-xs" variant="ghost" />}
+    <div
+      className={cn(
+        "hover:bg-accent/50 group flex items-start gap-1 px-4 py-2",
+        handle && "pl-1.5",
+      )}
+    >
+      {handle}
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        <div className="flex min-w-0 items-center gap-2">
+          <TrophyIcon className="text-brand size-4 shrink-0" />
+          <span className="flex-1 truncate text-sm">{achievement.title}</span>
+          {showOwnerControls ? (
+            <div className="flex gap-1">
+              <Button
+                size="icon-xs"
+                variant="ghost"
+                onClick={() => setEditOpen(true)}
               >
-                <TrashIcon className="text-destructive-foreground size-3.5" />
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Delete Achievement</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Are you sure you want to delete "{achievement.title}"? This
-                    action cannot be undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogClose
-                    render={<Button variant="outline" disabled={isPending} />}
-                  >
-                    Cancel
-                  </AlertDialogClose>
-                  <Button
-                    variant="destructive"
-                    disabled={isPending}
-                    onClick={handleDelete}
-                  >
-                    {isPending ? <Spinner label="Deleting..." /> : "Delete"}
-                  </Button>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
-        ) : (
-          <div className="h-7 w-fit sm:h-6" />
-        )}
+                <PencilIcon className="size-3.5" />
+              </Button>
+              <AchievementsDialog
+                username={username}
+                achievement={achievement}
+                open={editOpen}
+                onOpenChange={setEditOpen}
+              />
+              <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+                <AlertDialogTrigger
+                  render={<Button size="icon-xs" variant="ghost" />}
+                >
+                  <TrashIcon className="text-destructive-foreground size-3.5" />
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete Achievement</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Are you sure you want to delete "{achievement.title}"?
+                      This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogClose
+                      render={<Button variant="outline" disabled={isPending} />}
+                    >
+                      Cancel
+                    </AlertDialogClose>
+                    <Button
+                      variant="destructive"
+                      disabled={isPending}
+                      onClick={handleDelete}
+                    >
+                      {isPending ? <Spinner label="Deleting..." /> : "Delete"}
+                    </Button>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+          ) : (
+            <div className="h-7 w-fit sm:h-6" />
+          )}
+        </div>
+        <span className="text-muted-foreground ml-6 text-sm">
+          {achievement.description}
+        </span>
       </div>
-      <span className="text-muted-foreground ml-6 text-sm">
-        {achievement.description}
-      </span>
     </div>
   );
 }

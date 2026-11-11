@@ -2633,6 +2633,56 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/media/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Reorder my media
+         * @description Sets the display order of every image and video on the authenticated user's profile
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["MediaOrderRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/notifications": {
         parameters: {
             query?: never;
@@ -8912,6 +8962,56 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/dancers/references/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Reorder references
+         * @description Sets the display order of every reference on the authenticated dancer's profile
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["DancersReferencesOrderRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/dancers/references/{id}": {
         parameters: {
             query?: never;
@@ -8994,6 +9094,56 @@ export interface paths {
                 };
             };
         };
+        trace?: never;
+    };
+    "/dancers/achievements/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Reorder achievements
+         * @description Sets the display order of every achievement on the authenticated dancer's profile
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["DancersAchievementsOrderRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/dancers/achievements/achievements": {
@@ -13006,6 +13156,13 @@ export interface components {
             title: string;
             category: string;
         }[];
+        MediaOrderRequest: {
+            items: {
+                id: string;
+                /** @enum {string} */
+                type: "video" | "image";
+            }[];
+        };
         NotificationsResponse: {
             data: {
                 link: string | null;
@@ -13434,9 +13591,9 @@ export interface components {
             updatedAt: string;
             title: string;
             description: string | null;
+            position: number;
             eventId: string;
             completed: boolean;
-            position: number;
         }[];
         OrgsIdEventsIdChecklistRequest: {
             description?: string | null;
@@ -13448,15 +13605,15 @@ export interface components {
             updatedAt: string;
             title: string;
             description: string | null;
+            position: number;
             eventId: string;
             completed: boolean;
-            position: number;
         };
         OrgsIdEventsIdChecklistIdRequest: {
             title?: string | null;
             description?: string | null;
-            completed?: (string | number | boolean) | null;
             position?: (string | number) | null;
+            completed?: (string | number | boolean) | null;
         };
         OrgsIdEventsIdChecklistIdResponse: {
             id: string;
@@ -13464,9 +13621,9 @@ export interface components {
             updatedAt: string;
             title: string;
             description: string | null;
+            position: number;
             eventId: string;
             completed: boolean;
-            position: number;
         }[];
         OrgsIdEventsIdAuditlogResponse: {
             data: {
@@ -14354,6 +14511,7 @@ export interface components {
             birthday?: string | null;
             location?: string | null;
             biography?: string | null;
+            biographyFormat?: ("plain" | "rich") | null;
             instagram?: string | null;
             tiktok?: string | null;
             youtube?: string | null;
@@ -14448,6 +14606,8 @@ export interface components {
             birthday: string;
             location: string;
             biography: string | null;
+            /** @enum {string} */
+            biographyFormat: "plain" | "rich";
             instagram: string | null;
             tiktok: string | null;
             youtube: string | null;
@@ -14464,6 +14624,7 @@ export interface components {
                 profileId: string;
                 title: string;
                 description: string;
+                position: number | null;
             }[];
             references: {
                 id: string;
@@ -14473,6 +14634,7 @@ export interface components {
                 profileId: string;
                 title: string;
                 description: string | null;
+                position: number | null;
             }[];
             videos: {
                 id: string;
@@ -14481,6 +14643,7 @@ export interface components {
                 /** @enum {string} */
                 type: "youtube" | "cloudflare";
                 userId: string;
+                position: number | null;
                 thumbnail: string | null;
                 mediaId: string;
                 caption: string | null;
@@ -14491,6 +14654,7 @@ export interface components {
                 createdAt: string;
                 updatedAt: string;
                 userId: string;
+                position: number | null;
                 thumbnail: string | null;
                 caption: string | null;
                 mediaUrl: string | null;
@@ -14551,10 +14715,16 @@ export interface components {
             title: string;
             description: string;
         };
+        DancersReferencesOrderRequest: {
+            ids: string[];
+        };
         DancersReferencesIdRequest: {
             name?: string | null;
             title?: string | null;
             description?: string | null;
+        };
+        DancersAchievementsOrderRequest: {
+            ids: string[];
         };
         DancersAchievementsAchievementsRequest: {
             title: string;
@@ -14933,6 +15103,7 @@ export interface components {
                 /** @enum {string} */
                 type: "youtube" | "cloudflare";
                 userId: string;
+                position: number | null;
                 thumbnail: string | null;
                 mediaId: string;
                 caption: string | null;
@@ -14943,6 +15114,7 @@ export interface components {
                 createdAt: string;
                 updatedAt: string;
                 userId: string;
+                position: number | null;
                 thumbnail: string | null;
                 caption: string | null;
                 mediaUrl: string | null;

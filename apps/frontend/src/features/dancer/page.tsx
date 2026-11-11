@@ -15,7 +15,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { CalendarIcon, CrownIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { useViewDancer } from "./api/mutations";
+import { useReorderMedia, useViewDancer } from "./api/mutations";
 import { dancerQueries } from "./api/queries";
 import { Achievements } from "./components/profile/achievements";
 import { Biography } from "./components/profile/biography";
@@ -51,6 +51,7 @@ export function DancerPage({ username }: DancerPageProps) {
 
   const { data } = useSuspenseQuery(dancerQueries.profile(username));
   const { mutate: viewDancer } = useViewDancer();
+  const { mutate: reorderMedia } = useReorderMedia(username);
 
   const hasNotified = useRef(false);
 
@@ -87,9 +88,7 @@ export function DancerPage({ username }: DancerPageProps) {
 
   // Profile visibility tiers — driven by orgAccountTier + Stripe status.
   // Stripe always wins: a paying org user sees the full premium experience.
-  const tier = data.subscribed
-    ? "premium"
-    : data.orgAccountTier ?? "free";
+  const tier = data.subscribed ? "premium" : (data.orgAccountTier ?? "free");
   const showSidebar = tier !== "limited";
   const showContent = tier !== "limited";
   const showSubmission = tier === "premium";
@@ -132,17 +131,18 @@ export function DancerPage({ username }: DancerPageProps) {
                     </p>
                   </div>
                 </div>
-                <Button
-                  size="sm"
-                  render={<Link to="/checkout" />}
-                >
+                <Button size="sm" render={<Link to="/checkout" />}>
                   Get Started
                 </Button>
               </div>
             ) : null}
 
             {showContent ? (
-              <Biography description={data.biography} username={username} />
+              <Biography
+                description={data.biography}
+                format={data.biographyFormat}
+                username={username}
+              />
             ) : null}
 
             {showContent ? (
@@ -164,6 +164,11 @@ export function DancerPage({ username }: DancerPageProps) {
                 showOwnerControls={isOwner && !isPreview}
                 orgAccountTier={data.orgAccountTier}
                 openUpload={openUpload}
+                onReorder={
+                  isOwner && !isPreview
+                    ? (items) => reorderMedia({ body: { items } })
+                    : undefined
+                }
               />
             ) : null}
 

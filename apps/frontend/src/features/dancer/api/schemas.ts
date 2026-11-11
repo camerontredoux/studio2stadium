@@ -13,6 +13,7 @@ export const schemas = {
   }),
   updatePortfolio: z.object({
     biography: z.string().optional(),
+    biographyFormat: z.enum(["plain", "rich"]).optional(),
     gpa: z.coerce.number().optional(),
     gradYear: z.coerce.number().optional(),
     location: z
