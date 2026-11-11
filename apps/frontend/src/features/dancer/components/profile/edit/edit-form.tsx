@@ -15,6 +15,7 @@ import { z } from "zod";
 import { dancerQueries } from "../../../api/queries";
 import { schemas } from "../../../api/schemas";
 import { BiographyEditor } from "../biography/biography-editor";
+import { portfolioSubmission } from "./portfolio-submission";
 
 export type EditFormData = z.infer<typeof schemas.updatePortfolio>;
 
@@ -49,14 +50,8 @@ export function EditForm({ username, onSubmit }: EditFormProps) {
         id="edit-profile-form"
         className="flex w-full flex-col gap-3"
         onSubmit={(e) =>
-          form.handleSubmit(({ biography, ...rest }) =>
-            // Send the biography only when it was edited, so saving other
-            // fields leaves a plain biography exactly as it was.
-            onSubmit(
-              form.formState.dirtyFields.biography
-                ? { ...rest, biography, biographyFormat: "rich" }
-                : rest,
-            ),
+          form.handleSubmit((values) =>
+            onSubmit(portfolioSubmission(values, data.biography ?? "")),
           )(e)
         }
       >
