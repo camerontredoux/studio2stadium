@@ -6,33 +6,11 @@ import {
   ToolbarSeparator,
 } from "@/components/ui/toolbar";
 import { cn } from "@/components/utils/cn";
-import { BulletList, ListItem } from "@tiptap/extension-list";
 import { EditorContent, useEditor, useEditorState } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
 import { BoldIcon, ItalicIcon, ListIcon, PilcrowIcon } from "lucide-react";
 import { useState } from "react";
+import { extensions } from "./extensions";
 import { biographyToDoc, type BiographyFormat, docToBiography } from "./format";
-
-const extensions = [
-  // Only what the biography format can store.
-  StarterKit.configure({
-    blockquote: false,
-    bulletList: false,
-    code: false,
-    codeBlock: false,
-    heading: false,
-    horizontalRule: false,
-    link: false,
-    listItem: false,
-    orderedList: false,
-    strike: false,
-    underline: false,
-  }),
-  BulletList,
-  // A bullet holds one paragraph, so Tab can't nest a list the profile
-  // can't show; it moves focus on instead.
-  ListItem.extend({ content: "paragraph" }),
-];
 
 interface BiographyEditorProps {
   value: string | null;
