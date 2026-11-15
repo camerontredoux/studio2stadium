@@ -7733,7 +7733,7 @@ export interface paths {
         put?: never;
         /**
          * Manage a subscription
-         * @description Manages the authenticated dancer's subscription
+         * @description Opens the Stripe billing portal for the authenticated dancer's subscription, including one whose renewal payment failed, or redirects to checkout when there is none
          */
         post: {
             parameters: {
@@ -11347,7 +11347,7 @@ export interface paths {
         put?: never;
         /**
          * Show interest in a school
-         * @description A dancer can show interest in a school up to 3 times. This endpoint will increment the interest count for the school, and send a notification to the school.
+         * @description A dancer with full Premium (Monthly, Season Pass, or Annual) can show interest in a school up to 3 times. A 1-Week Pass cannot show interest. This endpoint will increment the interest count for the school, and send a notification to the school.
          */
         post: {
             parameters: {
@@ -14426,7 +14426,7 @@ export interface components {
         PremiumRoadmapResponse: {
             eligible: boolean;
             roadmap: {
-                interval: ("monthly" | "season_pass" | "annual") | null;
+                interval: ("week_pass" | "monthly" | "season_pass" | "annual") | null;
                 firstViewedAt: string;
                 premiumStartedAt: string;
                 completedAt: string | null;
@@ -14470,6 +14470,8 @@ export interface components {
             access: components["schemas"]["Access"];
             plan: components["schemas"]["Plan"];
             grantedBy: string | null;
+            paymentFailed: boolean;
+            upgradeFirstChargeAt: string | null;
         };
         SubscriptionsCheckoutRequest: {
             type?: ("monthly" | "yearly") | null;
@@ -14489,6 +14491,8 @@ export interface components {
             access: components["schemas"]["Access"];
             plan: components["schemas"]["Plan"];
             grantedBy: string | null;
+            paymentFailed: boolean;
+            upgradeFirstChargeAt: string | null;
         };
         SubscriptionsManageResponse: {
             url: string;

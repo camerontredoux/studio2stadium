@@ -12,6 +12,7 @@ import { faker } from "@faker-js/faker";
 import { test } from "@japa/runner";
 import { eq, sql } from "drizzle-orm";
 import {
+  buyWeekPass,
   createDancer,
   createSchool,
   DAY_MS,
@@ -46,6 +47,11 @@ function eligible(result: Roadmap) {
     throw new Error("expected an eligible roadmap");
   }
   return result.roadmap;
+}
+
+async function isEligible(dancer: Dancer) {
+  const result = await service().execute(dancer);
+  return result.eligible;
 }
 
 function step(result: Roadmap | RoadmapDetails, key: StepKey) {
@@ -124,6 +130,45 @@ test.group("GetRoadmapService", (group) => {
       eligible: false,
       roadmap: null,
     });
+  });
+
+  test("Week Pass holders get a roadmap from the start of their run of passes", async ({
+    assert,
+  }) => {
+    const dancer = await createDancer();
+    // A pass that began four days ago, and a second stacked after it.
+    await buyWeekPass(dancer.id, new Date(Date.now() + 3 * DAY_MS));
+    await buyWeekPass(dancer.id, new Date(Date.now() + 10 * DAY_MS));
+
+    const roadmap = eligible(await service().execute(dancer));
+    assert.equal(roadmap.interval, "week_pass");
+    assert.equal(roadmap.daysSinceStart, 4);
+
+    const expired = await createDancer();
+    await buyWeekPass(expired.id, new Date(Date.now() - DAY_MS));
+    assert.isFalse(await isEligible(expired));
+  });
+
+  test("a trial from credited Week Pass days and a renewal in its grace keep the roadmap", async ({
+    assert,
+  }) => {
+    const trialing = await createDancer();
+    await subscribe(trialing.id, { status: "trialing" });
+    assert.isTrue(await isEligible(trialing));
+
+    const failing = await createDancer();
+    await subscribe(failing.id, {
+      status: "past_due",
+      pastDueSince: new Date(Date.now() - 2 * DAY_MS),
+    });
+    assert.isTrue(await isEligible(failing));
+
+    const lapsed = await createDancer();
+    await subscribe(lapsed.id, {
+      status: "past_due",
+      pastDueSince: new Date(Date.now() - 6 * DAY_MS),
+    });
+    assert.isFalse(await isEligible(lapsed));
   });
 
   test("members past day 30 get no new roadmap, but keep one they already have", async ({

@@ -12,8 +12,8 @@ import type { ApiClient } from "@japa/api-client";
 import { test } from "@japa/runner";
 import { sql } from "drizzle-orm";
 
-// A Week Pass reaches at most five programs, by follows and by showing
-// interest; Premium has no cap.
+// A Week Pass follows at most five programs and cannot show interest at all;
+// Premium has no cap on either.
 test.group("Programs a Week Pass can reach", (group) => {
   group.each.setup(async () => {
     await db.execute(sql`truncate table ${users} cascade`);
@@ -83,28 +83,41 @@ test.group("Programs a Week Pass can reach", (group) => {
     }
   });
 
-  test("a Week Pass shows interest in five programs", async ({ client }) => {
-    const schools = await Promise.all(Array.from({ length: 6 }, createSchool));
+  test("a Week Pass cannot show interest; Premium can", async ({ client }) => {
+    const school = await createSchool();
 
     const pass = await createDancer();
     await buyWeekPass(pass.id);
-    const token = await login(client, pass.email);
+    const passToken = await login(client, pass.email);
 
-    for (const school of schools.slice(0, 5)) {
-      await expectStatus(client, token, `/schools/${school.id}/interest`, 201);
+    const blocked = await post(
+      client,
+      passToken,
+      `/schools/${school.id}/interest`
+    );
+    blocked.assertStatus(403);
+    blocked.assertBodyContains({
+      message: "This feature needs a Monthly, Season Pass, or Annual plan.",
+    });
+
+    const premium = await createDancer();
+    await subscribe(premium.id);
+    const premiumToken = await login(client, premium.email);
+
+    // Up to three pushes to the same program.
+    for (let push = 0; push < 3; push++) {
+      await expectStatus(
+        client,
+        premiumToken,
+        `/schools/${school.id}/interest`,
+        201
+      );
     }
     await expectStatus(
       client,
-      token,
-      `/schools/${schools[5]!.id}/interest`,
+      premiumToken,
+      `/schools/${school.id}/interest`,
       400
-    );
-    // A second push to a program already reached is still allowed.
-    await expectStatus(
-      client,
-      token,
-      `/schools/${schools[0]!.id}/interest`,
-      201
     );
   });
 });

@@ -13,3 +13,12 @@ export const getDateAndTime = (datetime: Date) => {
 
   return { time, date };
 };
+
+/** A billing date for Dancers, such as "November 22, 2026", in US Eastern time. */
+export const formatBillingDate = (date: Date) =>
+  date.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "America/New_York",
+  });

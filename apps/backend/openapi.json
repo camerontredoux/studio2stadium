@@ -8399,7 +8399,7 @@
           "Subscriptions"
         ],
         "summary": "Manage a subscription",
-        "description": "Manages the authenticated dancer's subscription"
+        "description": "Opens the Stripe billing portal for the authenticated dancer's subscription, including one whose renewal payment failed, or redirects to checkout when there is none"
       }
     },
     "/subscriptions/dev-grant": {
@@ -11547,7 +11547,7 @@
           "Schools"
         ],
         "summary": "Show interest in a school",
-        "description": "A dancer can show interest in a school up to 3 times. This endpoint will increment the interest count for the school, and send a notification to the school."
+        "description": "A dancer with full Premium (Monthly, Season Pass, or Annual) can show interest in a school up to 3 times. A 1-Week Pass cannot show interest. This endpoint will increment the interest count for the school, and send a notification to the school."
       }
     },
     "/tracker": {
@@ -22919,6 +22919,7 @@
                       {
                         "type": "string",
                         "enum": [
+                          "week_pass",
                           "monthly",
                           "season_pass",
                           "annual"
@@ -23137,6 +23138,19 @@
                 "type": "null"
               }
             ]
+          },
+          "paymentFailed": {
+            "type": "boolean"
+          },
+          "upgradeFirstChargeAt": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -23146,7 +23160,9 @@
           "subscribed",
           "access",
           "plan",
-          "grantedBy"
+          "grantedBy",
+          "paymentFailed",
+          "upgradeFirstChargeAt"
         ]
       },
       "SubscriptionsCheckoutRequest": {
@@ -23243,6 +23259,19 @@
                 "type": "null"
               }
             ]
+          },
+          "paymentFailed": {
+            "type": "boolean"
+          },
+          "upgradeFirstChargeAt": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -23252,7 +23281,9 @@
           "subscribed",
           "access",
           "plan",
-          "grantedBy"
+          "grantedBy",
+          "paymentFailed",
+          "upgradeFirstChargeAt"
         ]
       },
       "SubscriptionsManageResponse": {

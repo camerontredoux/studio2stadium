@@ -1,9 +1,16 @@
 import { DatabaseService } from "#database/service";
 import { premiumGrants } from "#database/schema/organizations";
 import { subscriptions, weekPasses } from "#database/schema/subscriptions";
-import { subscriptionPlanFor, type Access, type Plan } from "#shared/plans";
+import {
+  subscriptionAccessEndsAt,
+  subscriptionPlanFor,
+  weekPassCreditEndsAt,
+  weekPassRunEndsAt,
+  type Access,
+  type Plan,
+} from "#shared/plans";
 import { inject } from "@adonisjs/core";
-import { and, desc, eq, gt, isNull, max } from "drizzle-orm";
+import { and, desc, eq, gt, isNull } from "drizzle-orm";
 
 export type SubscriptionSource = "stripe" | "week_pass" | "org_event" | "none";
 
@@ -20,6 +27,19 @@ export interface SubscriptionStatus {
   currentPeriodEnd: Date | null;
   cancelAtPeriodEnd: boolean;
   grantedBy: string | null;
+  /**
+   * A renewal payment failed and Stripe is retrying the card. While the
+   * grace period runs, access continues and `currentPeriodEnd` is when it
+   * ends; after that the Dancer has lost access but still needs to update
+   * the card from the billing portal.
+   */
+  paymentFailed: boolean;
+  /**
+   * For a Week Pass holder, when a Monthly, Season Pass or Annual plan bought
+   * now would first charge: the pass's unused days are credited toward it.
+   * Null for everyone else.
+   */
+  upgradeFirstChargeAt: Date | null;
 }
 
 /**
@@ -33,18 +53,12 @@ export class GetSubscriptionService {
   async execute(userId: string): Promise<SubscriptionStatus> {
     const now = new Date();
 
-    const [subscription, grant, pass] = await Promise.all([
+    const [subscription, grant, passes] = await Promise.all([
       this.db.use((db) =>
         db
           .select()
           .from(subscriptions)
-          .where(
-            and(
-              eq(subscriptions.userId, userId),
-              eq(subscriptions.status, "active"),
-              gt(subscriptions.currentPeriodEnd, now)
-            )
-          )
+          .where(eq(subscriptions.userId, userId))
           .limit(1)
           .then((rows) => rows[0])
       ),
@@ -65,22 +79,28 @@ export class GetSubscriptionService {
       ),
       this.db.use((db) =>
         db
-          .select({ endsAt: max(weekPasses.endsAt) })
+          .select({ startsAt: weekPasses.startsAt, endsAt: weekPasses.endsAt })
           .from(weekPasses)
           .where(and(eq(weekPasses.userId, userId), gt(weekPasses.endsAt, now)))
-          .then((rows) => rows[0])
       ),
     ]);
+    const passEndsAt = weekPassRunEndsAt(passes, now);
 
-    if (subscription) {
+    const paymentFailed = subscription?.status === "past_due";
+    const subscriptionEndsAt =
+      subscription && subscriptionAccessEndsAt(subscription, now);
+
+    if (subscription && subscriptionEndsAt) {
       return {
         subscribed: true,
         access: "premium",
         plan: subscriptionPlanFor(subscription.priceId) ?? "premium",
         source: "stripe",
-        currentPeriodEnd: subscription.currentPeriodEnd,
+        currentPeriodEnd: subscriptionEndsAt,
         cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
         grantedBy: null,
+        paymentFailed,
+        upgradeFirstChargeAt: null,
       };
     }
 
@@ -95,19 +115,23 @@ export class GetSubscriptionService {
         // Plan 3 will resolve the org slug from grant.sourceId (org_events.id);
         // for now we expose a null placeholder so the API shape is stable.
         grantedBy: null,
+        paymentFailed,
+        upgradeFirstChargeAt: null,
       };
     }
 
-    if (pass?.endsAt) {
+    if (passEndsAt) {
       return {
         subscribed: true,
         access: "pass",
         plan: "week_pass",
         source: "week_pass",
-        currentPeriodEnd: pass.endsAt,
+        currentPeriodEnd: passEndsAt,
         // A pass never renews.
         cancelAtPeriodEnd: true,
         grantedBy: null,
+        paymentFailed,
+        upgradeFirstChargeAt: weekPassCreditEndsAt(passEndsAt, now),
       };
     }
 
@@ -119,6 +143,8 @@ export class GetSubscriptionService {
       currentPeriodEnd: null,
       cancelAtPeriodEnd: false,
       grantedBy: null,
+      paymentFailed,
+      upgradeFirstChargeAt: null,
     };
   }
 }

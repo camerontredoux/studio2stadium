@@ -1,6 +1,7 @@
 import { db } from "#database/connection";
 import { outboxService } from "#database/outbox-service";
 import { AppEvent } from "#shared/event";
+import { subscriptionAccessEndsAt } from "#shared/plans";
 import env from "#start/env";
 import emitter from "@adonisjs/core/services/emitter";
 import { guardListener } from "#shared/events/guard-listener";
@@ -51,11 +52,7 @@ class ProfileViewedHandler {
     const upgradeUrl = `${env.get("SITE_URL")}/settings/membership`;
 
     const sub = dancer.user.subscription;
-    const isPremium =
-      !!sub &&
-      sub.status === "active" &&
-      !!sub.currentPeriodEnd &&
-      sub.currentPeriodEnd > new Date();
+    const isPremium = !!sub && subscriptionAccessEndsAt(sub) !== null;
 
     await mail.send(
       new ProfileViewedEmail({

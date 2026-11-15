@@ -73,10 +73,13 @@ export async function subscribe(
     interval = "monthly",
     startedAt = new Date(),
     status = "active",
+    pastDueSince = null,
   }: {
     interval?: SubscriptionPlan;
     startedAt?: Date | null;
     status?: string;
+    /** When a renewal payment first failed, for a past_due subscription. */
+    pastDueSince?: Date | null;
   } = {}
 ) {
   await db.insert(subscriptions).values({
@@ -88,6 +91,7 @@ export async function subscribe(
     priceId: priceIdFor(interval),
     currentPeriodEnd: new Date(Date.now() + 30 * DAY_MS),
     startedAt,
+    pastDueSince,
   });
 }
 

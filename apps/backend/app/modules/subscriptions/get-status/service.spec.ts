@@ -4,6 +4,7 @@ import { db } from "#database/connection";
 import { users } from "#database/schema/users";
 import { subscriptions } from "#database/schema/subscriptions";
 import { premiumGrants } from "#database/schema/organizations";
+import { buyWeekPass, createDancer, DAY_MS } from "#tests/helpers/premium";
 import { GetSubscriptionService } from "./service.ts";
 
 async function createUser(suffix: string) {
@@ -133,5 +134,55 @@ test.group("GetSubscriptionService", (group) => {
     const svc = new GetSubscriptionService(new DatabaseService());
     const result = await svc.execute(user.id);
     assert.equal(result.source, "none");
+  });
+
+  test("a trialing subscription (credited Week Pass days) is Premium until the trial ends", async ({
+    assert,
+  }) => {
+    const user = await createUser("trialing");
+    const trialEnd = new Date(Date.now() + 5 * DAY_MS);
+    await db.insert(subscriptions).values({
+      userId: user.id,
+      source: "stripe",
+      status: "trialing",
+      subscriptionId: "sub_trialing",
+      customerId: "cus_trialing",
+      currentPeriodEnd: trialEnd,
+    });
+
+    const result = await new GetSubscriptionService(
+      new DatabaseService()
+    ).execute(user.id);
+    assert.deepInclude(result, {
+      subscribed: true,
+      access: "premium",
+      source: "stripe",
+      currentPeriodEnd: trialEnd,
+      paymentFailed: false,
+      upgradeFirstChargeAt: null,
+    });
+  });
+
+  test("a Week Pass holder's upgrade is first charged when the pass runs out", async ({
+    assert,
+  }) => {
+    const svc = new GetSubscriptionService(new DatabaseService());
+
+    const dancer = await createDancer();
+    const passEnd = new Date(Date.now() + 5 * DAY_MS);
+    await buyWeekPass(dancer.id, passEnd);
+    const status = await svc.execute(dancer.id);
+    assert.equal(status.access, "pass");
+    assert.deepEqual(status.upgradeFirstChargeAt, passEnd);
+
+    // Stripe Checkout needs a trial of at least 48 hours, so a pass about
+    // to end is credited up to that.
+    const ending = await createDancer();
+    await buyWeekPass(ending.id, new Date(Date.now() + DAY_MS));
+    const endingStatus = await svc.execute(ending.id);
+    const hours =
+      (endingStatus.upgradeFirstChargeAt!.getTime() - Date.now()) / 3_600_000;
+    assert.isAbove(hours, 48);
+    assert.isBelow(hours, 48.5);
   });
 });
