@@ -8,7 +8,11 @@ export default class FollowSchoolController {
   async handle(ctx: HttpContext, service: Service) {
     const payload = await ctx.request.validateUsing(schema);
 
-    const result = await service.execute(payload, ctx.session.profileId);
+    const result = await service.execute(
+      payload,
+      ctx.session.profileId,
+      ctx.auth.getUserOrFail().id
+    );
 
     if (result.created) {
       return ctx.response.created(result);

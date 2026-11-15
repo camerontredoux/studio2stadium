@@ -10,60 +10,95 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { toastManager } from "@/components/ui/toast-manager";
 import { formatDate } from "@/components/utils/format";
-import { handleApiError } from "@/lib/api/errors";
+import { handleApiError, toastApiError } from "@/lib/api/errors";
+import { PAID_OFFERS, PLAN_NAMES } from "@/lib/plans";
 import { useSubscribed } from "@/lib/session/hooks/use-subscribed";
-import { useNavigate } from "@tanstack/react-router";
+import { sessionQueries } from "@/lib/session/queries";
+import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate, useSearch } from "@tanstack/react-router";
 import { CheckIcon, CreditCardIcon, XIcon } from "lucide-react";
-import { useManage } from "../api/mutations";
+import { useEffect, useRef } from "react";
+import { useConfirmCheckout, useManage } from "../api/mutations";
+
+const HERO_FEATURES = {
+  premium: [
+    { label: "Full access", included: true },
+    { label: "Exclusive content", included: true },
+    { label: "Priority support", included: true },
+  ],
+  pass: [
+    { label: "Recruiting access", included: true },
+    { label: "Up to 5 programs", included: true },
+    { label: "Common Recruit", included: false },
+  ],
+  free: [
+    { label: "Full access", included: false },
+    { label: "Exclusive content", included: false },
+    { label: "Priority support", included: false },
+  ],
+};
+
+const HERO_TEXT = {
+  premium:
+    "You have full access to all premium features, exclusive content, and priority support.",
+  pass: "Your 1-Week Pass gives you seven days of recruiting access with a smaller portfolio and program list.",
+  free: "You don't have access to any premium features. Upgrade to get full access.",
+};
 
 export function MembershipSettings() {
   const {
-    data: { cancelAtPeriodEnd, currentPeriodEnd, subscribed },
+    data: {
+      access,
+      plan,
+      source,
+      cancelAtPeriodEnd,
+      currentPeriodEnd,
+      subscribed,
+    },
   } = useSubscribed();
 
   const navigate = useNavigate();
-
   const { mutate, isPending } = useManage();
+  useConfirmReturnFromCheckout();
+
+  const price = PAID_OFFERS.find((offer) => offer.id === plan);
+  const onSubscription = source === "stripe";
 
   const handleManage = () => {
-    if (subscribed) {
-      mutate(
-        {},
-        {
-          onSuccess: (data) => {
-            // Without a Stripe subscription the backend redirects this request
-            // to /checkout, which arrives here as a success with no url.
-            if (!data?.url) {
-              toastManager.add({
-                title: "Error",
-                description: "Couldn't open billing. Please try again later.",
-                type: "error",
-              });
-              return;
-            }
-            window.location.href = data.url;
-          },
-          onError: handleApiError({
-            onError: (error) => {
-              toastManager.add({
-                title: "Error",
-                description: error.message,
-                type: "error",
-              });
-            },
-          }),
+    mutate(
+      {},
+      {
+        onSuccess: (data) => {
+          // Without a Stripe subscription the backend redirects this request
+          // to /checkout, which arrives here as a success with no url.
+          if (!data?.url) {
+            toastManager.add({
+              title: "Error",
+              description: "Couldn't open billing. Please try again later.",
+              type: "error",
+            });
+            return;
+          }
+          window.location.href = data.url;
         },
-      );
-    } else {
-      navigate({ to: "/checkout" });
-    }
+        onError: handleApiError({
+          onError: (error) => {
+            toastManager.add({
+              title: "Error",
+              description: error.message,
+              type: "error",
+            });
+          },
+        }),
+      },
+    );
   };
 
   return (
     <Frame>
       <FrameHeader>
         <FrameTitle className="flex items-center gap-2">
-          Premium Membership
+          Membership
           <Badge
             variant={subscribed ? "success" : "error"}
             className="ml-auto rounded-full"
@@ -97,74 +132,165 @@ export function MembershipSettings() {
               Keep dancing, reach for the stars
             </h2>
             <p className="mt-1.5 max-w-lg text-sm text-white/70 sm:text-base">
-              {subscribed
-                ? "You have full access to all premium features, exclusive content, and priority support."
-                : "You don't have access to any premium features. Upgrade to get full access."}
+              {HERO_TEXT[access]}
             </p>
 
             <div className="mt-4 flex flex-wrap gap-x-5 gap-y-1.5">
-              {["Full access", "Exclusive content", "Priority support"].map(
-                (feature) => (
-                  <div
-                    key={feature}
-                    className="flex items-center gap-2 text-sm"
-                  >
-                    {subscribed ? (
-                      <CheckIcon className="text-brand size-4" />
-                    ) : (
-                      <XIcon className="text-muted-foreground size-4" />
-                    )}
-                    <span className="text-white/90">{feature}</span>
-                  </div>
-                ),
-              )}
+              {HERO_FEATURES[access].map(({ label, included }) => (
+                <div key={label} className="flex items-center gap-2 text-sm">
+                  {included ? (
+                    <CheckIcon className="text-brand size-4" />
+                  ) : (
+                    <XIcon className="text-muted-foreground size-4" />
+                  )}
+                  <span className="text-white/90">{label}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
         <Card
           className={
-            subscribed && cancelAtPeriodEnd
+            onSubscription && cancelAtPeriodEnd
               ? "border-destructive-foreground/30 bg-destructive/2"
-              : !subscribed
+              : access !== "premium"
                 ? "border-brand/30 bg-brand/5"
                 : ""
           }
         >
-          <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex flex-col gap-0.5">
-              {subscribed ? (
-                <>
-                  <span className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
-                    {cancelAtPeriodEnd ? "Cancels on" : "Next billing date"}
+          <CardContent className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-3 sm:flex-row sm:gap-8">
+              <PlanFact label="Current plan">
+                {PLAN_NAMES[plan]}
+                {price && (
+                  <span className="text-muted-foreground text-sm font-normal">
+                    {" "}
+                    · {price.price}
+                    {price.per}
                   </span>
-                  <span className="text-base font-semibold tabular-nums">
+                )}
+              </PlanFact>
+              {subscribed && currentPeriodEnd && (
+                <PlanFact
+                  label={
+                    onSubscription
+                      ? cancelAtPeriodEnd
+                        ? "Cancels on"
+                        : "Renews on"
+                      : source === "week_pass"
+                        ? "Expires on"
+                        : "Access until"
+                  }
+                >
+                  <span className="tabular-nums">
                     {formatDate(currentPeriodEnd)}
                   </span>
-                </>
-              ) : (
-                <>
-                  <span className="font-medium">Ready to upgrade?</span>
-                  <span className="text-muted-foreground text-sm">
-                    Get access to exclusive content, priority support, and more.
-                  </span>
-                </>
+                </PlanFact>
+              )}
+              {!subscribed && (
+                <span className="text-muted-foreground max-w-xs text-sm">
+                  Get access to exclusive content, priority support, and more.
+                </span>
               )}
             </div>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleManage}
-              disabled={isPending}
-              className="gap-2"
-            >
-              {isPending ? <Spinner /> : <CreditCardIcon className="size-4" />}
-              {subscribed ? "Manage billing" : "Subscribe"}
-            </Button>
+            {onSubscription ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleManage}
+                disabled={isPending}
+                className="gap-2"
+              >
+                {isPending ? (
+                  <Spinner />
+                ) : (
+                  <CreditCardIcon className="size-4" />
+                )}
+                Manage billing
+              </Button>
+            ) : (
+              access !== "premium" && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate({ to: "/checkout" })}
+                  className="gap-2"
+                >
+                  <CreditCardIcon className="size-4" />
+                  {access === "pass" ? "Add a week or upgrade" : "See plans"}
+                </Button>
+              )
+            )}
           </CardContent>
         </Card>
       </FramePanel>
     </Frame>
   );
+}
+
+function PlanFact({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      <span className="text-muted-foreground text-xs font-medium tracking-wider uppercase">
+        {label}
+      </span>
+      <span className="text-base font-semibold">{children}</span>
+    </div>
+  );
+}
+
+/**
+ * Stripe Checkout returns here with `?session_id=`. Confirm the session so the
+ * new plan shows at once instead of after the webhook, then drop the param.
+ */
+function useConfirmReturnFromCheckout() {
+  const { session_id } = useSearch({
+    from: "/_app/(routes)/settings/membership",
+  });
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { mutate } = useConfirmCheckout();
+  // StrictMode runs effects twice in development; confirm once.
+  const confirmed = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!session_id || confirmed.current === session_id) return;
+    confirmed.current = session_id;
+
+    mutate(
+      { body: { sessionId: session_id } },
+      {
+        onSuccess: async (status) => {
+          queryClient.setQueryData(
+            sessionQueries.subscribed().queryKey,
+            status,
+          );
+          // Limits and gated screens were cached under the old plan.
+          await queryClient.invalidateQueries();
+          if (status.subscribed) {
+            toastManager.add({
+              title: `You're on the ${PLAN_NAMES[status.plan]} plan`,
+              type: "success",
+            });
+          }
+        },
+        onError: toastApiError,
+        onSettled: () => {
+          navigate({
+            to: "/settings/membership",
+            search: {},
+            replace: true,
+          });
+        },
+      },
+    );
+  }, [session_id, mutate, navigate, queryClient]);
 }

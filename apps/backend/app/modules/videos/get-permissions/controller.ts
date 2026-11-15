@@ -17,7 +17,7 @@ export default class GetVideoPermissionsController {
       ...result,
       directVideosRemaining: await uploads.directVideosRemaining(
         user.id,
-        result.directVideoLimit
+        result
       ),
     });
   }

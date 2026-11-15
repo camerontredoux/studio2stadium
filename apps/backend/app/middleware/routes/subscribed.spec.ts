@@ -4,6 +4,7 @@ import { db } from "#database/connection";
 import { users } from "#database/schema/users";
 import { subscriptions } from "#database/schema/subscriptions";
 import { premiumGrants } from "#database/schema/organizations";
+import { buyWeekPass, subscribe } from "#tests/helpers/premium";
 
 /**
  * Minimal HttpContext mock — the middleware only reads
@@ -154,5 +155,45 @@ test.group("SubscribedMiddleware", (group) => {
     });
     assert.isFalse(nextCalled);
     assert.isTrue(mock.forbiddenCalled);
+  });
+  async function passes(
+    user: { id: string; role: string },
+    options?: { premium?: boolean }
+  ) {
+    let nextCalled = false;
+    await new SubscribedMiddleware().handle(
+      mockCtx(user).ctx,
+      async () => {
+        nextCalled = true;
+      },
+      options
+    );
+    return nextCalled;
+  }
+
+  test("a running Week Pass is let in, except where full Premium is required", async ({
+    assert,
+  }) => {
+    const user = await createUser();
+    await buyWeekPass(user.id);
+
+    assert.isTrue(await passes(user));
+    assert.isFalse(await passes(user, { premium: true }));
+  });
+
+  test("an expired Week Pass is rejected", async ({ assert }) => {
+    const user = await createUser();
+    await buyWeekPass(user.id, new Date(Date.now() - 60_000));
+
+    assert.isFalse(await passes(user));
+  });
+
+  test("a Monthly subscription is let in where full Premium is required", async ({
+    assert,
+  }) => {
+    const user = await createUser();
+    await subscribe(user.id, { interval: "monthly" });
+
+    assert.isTrue(await passes(user, { premium: true }));
   });
 });

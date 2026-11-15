@@ -8,7 +8,7 @@ import { inject } from "@adonisjs/core";
 export class Service {
   constructor(
     private db: DatabaseService,
-    private subscriptions: GetSubscriptionService,
+    private subscriptions: GetSubscriptionService
   ) {}
 
   async execute(username: string) {
@@ -18,11 +18,21 @@ export class Service {
 
     const { dancerProfile, ...user } = dancer;
 
-    const { subscription, images, avatar, videos, id, orgAccountTier, orgAccountTierExpiresAt, ...rest } = user;
+    const {
+      subscription,
+      images,
+      avatar,
+      videos,
+      id,
+      orgAccountTier,
+      orgAccountTierExpiresAt,
+      ...rest
+    } = user;
 
     if (!dancerProfile) return null;
 
-    const tierExpired = orgAccountTierExpiresAt && orgAccountTierExpiresAt < new Date();
+    const tierExpired =
+      orgAccountTierExpiresAt && orgAccountTierExpiresAt < new Date();
     const effectiveTier = tierExpired ? null : orgAccountTier;
 
     const profileImages = images.map((image) => ({
@@ -51,6 +61,9 @@ export class Service {
       images: profileImages,
       videos: profileVideos,
       subscribed: status.subscribed,
+      // Full Premium. A Week Pass is `subscribed` but includes no Common
+      // Recruit, so coaches don't see its CRV.
+      premium: status.access === "premium",
       orgAccountTier: effectiveTier,
       // The tier itself is nulled once the window closes, which leaves the
       // client unable to tell a lapsed org dancer from someone who was never in
@@ -74,7 +87,7 @@ export class Service {
       ...dancer,
       images: tier === "limited" ? [] : dancer.images,
       videos: tier === "limited" ? [] : dancer.videos,
-      submission: tier === "premium" ? dancer.submission : null,
+      submission: dancer.premium ? dancer.submission : null,
     };
   }
 

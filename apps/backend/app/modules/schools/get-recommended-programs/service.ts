@@ -1,10 +1,10 @@
-import { premiumGrants } from "#database/schema/organizations";
-import { subscriptions } from "#database/schema/subscriptions";
+import { dancerProfiles } from "#database/schema/dancers";
 import { DatabaseService } from "#database/service";
 import { StateCode } from "#shared/constants/states";
+import { hasPaidAccess } from "#shared/plans";
 import { imageUrl } from "#utils/image-url";
 import { inject } from "@adonisjs/core";
-import { and, eq, gt, isNull } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { stateAdjacencies, stateRegions } from "./constants.ts";
 
 // Premium dancers see the full top-N list; free dancers see a short teaser
@@ -105,46 +105,17 @@ export class Service {
   }
 
   /**
-   * Premium entitlement for the dancer behind this profile — an active
-   * subscription or an active, unrevoked premium grant. Mirrors the
-   * `subscribed` middleware.
+   * Paid access for the dancer behind this profile: Premium or a running
+   * 1-Week Pass, which includes the program finder.
    */
   private async isPremium(profileId: string): Promise<boolean> {
-    return this.db.use(async (db) => {
-      const dancer = await db.query.dancerProfiles.findFirst({
-        where: { id: profileId },
-        columns: { userId: true },
-      });
-      if (!dancer) return false;
-
-      const now = new Date();
-
-      const [subscription] = await db
-        .select({ id: subscriptions.id })
-        .from(subscriptions)
-        .where(
-          and(
-            eq(subscriptions.userId, dancer.userId),
-            eq(subscriptions.status, "active"),
-            gt(subscriptions.currentPeriodEnd, now)
-          )
-        )
-        .limit(1);
-      if (subscription) return true;
-
-      const [grant] = await db
-        .select({ id: premiumGrants.id })
-        .from(premiumGrants)
-        .where(
-          and(
-            eq(premiumGrants.userId, dancer.userId),
-            gt(premiumGrants.expiresAt, now),
-            isNull(premiumGrants.revokedAt)
-          )
-        )
-        .limit(1);
-      return Boolean(grant);
-    });
+    const [dancer] = await this.db.use((db) =>
+      db
+        .select({ paid: hasPaidAccess(dancerProfiles.userId) })
+        .from(dancerProfiles)
+        .where(eq(dancerProfiles.id, profileId))
+    );
+    return Boolean(dancer?.paid);
   }
 
   /**

@@ -12,7 +12,8 @@ export const Route = createFileRoute("/_app/(routes)/checkout")({
       queries.subscribed(session.type === "dancer"),
     );
 
-    if (subscription.subscribed) {
+    // A Week Pass holder stays: they can add a week or go Premium.
+    if (subscription.access === "premium") {
       throw redirect({ to: "/feed" });
     }
   },

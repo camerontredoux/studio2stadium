@@ -32,6 +32,29 @@ export const subscriptions = pg.pgTable(
 );
 
 /**
+ * One row per 1-Week Pass purchase: a one-time Stripe payment, not a
+ * subscription. A pass bought while another is running starts when that one
+ * ends, so each purchase adds seven days. The checkout session id makes a
+ * redelivered webhook record the purchase once.
+ */
+export const weekPasses = pg.pgTable(
+  "week_passes",
+  {
+    id: pg.uuid().primaryKey().defaultRandom(),
+    userId: pg
+      .uuid()
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    checkoutSessionId: pg.text().notNull().unique(),
+    paymentIntentId: pg.text(),
+    startsAt: pg.timestamp({ withTimezone: true }).notNull(),
+    endsAt: pg.timestamp({ withTimezone: true }).notNull(),
+    ...timestamps,
+  },
+  (table) => [pg.index().on(table.userId, table.endsAt)]
+);
+
+/**
  * A paying member's Premium Recruiting Roadmap. Every timestamp records the
  * first time it happened and is never cleared, so cohorts can be measured
  * even if a dancer later deletes the content that completed a step.

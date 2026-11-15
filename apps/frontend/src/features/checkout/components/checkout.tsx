@@ -1,9 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { toastManager } from "@/components/ui/toast-manager";
+import { formatDate } from "@/components/utils/format";
 import { handleApiError } from "@/lib/api/errors";
+import { PAID_OFFERS, type PaidPlan } from "@/lib/plans";
 import { queries, useSession } from "@/lib/session";
+import { useSubscribed } from "@/lib/session/hooks/use-subscribed";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
+import { TimerIcon } from "lucide-react";
 import { useState } from "react";
 import { useDevGrant } from "../api/mutations";
 import { CheckoutDialog } from "./checkout-dialog";
@@ -14,11 +18,12 @@ export function Checkout() {
   const session = useSession();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const {
+    data: { access, currentPeriodEnd },
+  } = useSubscribed();
 
-  const [plan, setPlan] = useState<"basic" | "premium">("premium");
-  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly" | null>(
-    "yearly",
-  );
+  const [plan, setPlan] = useState<PaidPlan>("annual");
+  const offer = PAID_OFFERS.find((o) => o.id === plan)!;
 
   const devGrant = useDevGrant();
 
@@ -51,34 +56,47 @@ export function Checkout() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-md flex-col gap-3 px-2">
-      <h1 className="text-center text-2xl font-bold tracking-tight">
-        Choose Your Plan
-      </h1>
-      <p className="text-muted-foreground text-center">
-        Be Seen. Be Remembered. Be Recruited.
-      </p>
-      <ChoosePlan plan={plan} onPlanChange={setPlan} />
-      <PlanDetails
-        plan={plan}
-        billingCycle={billingCycle}
-        setBillingCycle={setBillingCycle}
-      />
-      {plan === "basic" ? (
-        <Button
-          size="lg"
-          render={
-            <Link to="/$username" params={{ username: session.username }} />
-          }
-        >
-          Continue
-        </Button>
-      ) : (
-        <CheckoutDialog key={billingCycle} billingCycle={billingCycle} />
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-2">
+      <div className="flex flex-col gap-1 text-center">
+        <h1 className="text-2xl font-bold tracking-tight">Choose Your Plan</h1>
+        <p className="text-muted-foreground">
+          Be Seen. Be Remembered. Be Recruited.
+        </p>
+      </div>
+
+      {access === "pass" && (
+        <div className="border-brand/30 bg-brand/5 flex items-start gap-3 rounded-xl border p-4 text-sm">
+          <TimerIcon className="text-brand mt-0.5 size-4 shrink-0" />
+          <p>
+            Your 1-Week Pass runs until{" "}
+            <span className="font-semibold">
+              {formatDate(currentPeriodEnd)}
+            </span>
+            . Buy another to add seven more days, or go Premium for full access.
+          </p>
+        </div>
       )}
+
+      <ChoosePlan plan={plan} onPlanChange={setPlan} />
+      <PlanDetails plan={plan} />
+
+      <div className="flex flex-col gap-2">
+        <CheckoutDialog key={plan} plan={plan} label={offer.cta} />
+        {access === "free" && (
+          <Button
+            variant="ghost"
+            render={
+              <Link to="/$username" params={{ username: session.username }} />
+            }
+          >
+            Continue with a Free Profile
+          </Button>
+        )}
+      </div>
+
       {import.meta.env.DEV && (
         <div className="border-destructive/30 bg-destructive/5 mt-4 flex flex-col gap-2 rounded-lg border border-dashed p-4">
-          <p className="text-destructive text-xs font-semibold uppercase tracking-wider">
+          <p className="text-destructive text-xs font-semibold tracking-wider uppercase">
             Dev Only
           </p>
           <Button

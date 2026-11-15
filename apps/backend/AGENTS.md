@@ -107,7 +107,7 @@ Redis stores `version:{userId}` as an invalidation key. The Redis session stores
 - `admin` - Requires a platform admin
 - `dancer` - Requires dancer profile access
 - `school` - Requires school profile access
-- `subscribed` - Requires premium entitlement: an active subscription or a Premium Grant
+- `subscribed` - Requires paid access: an active subscription, a Premium Grant, or a running 1-Week Pass. `subscribed({ premium: true })` leaves out the Week Pass. Plans and their limits live in `app/shared/plans.ts`.
 - `profile` - Requires any profile type
 - `org*` (`orgMember`, `orgAdmin`, `orgCoach`, `orgEvent`, and others) - Org and Org Event access
 

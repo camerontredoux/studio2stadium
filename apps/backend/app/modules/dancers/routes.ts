@@ -146,16 +146,24 @@ router
           description:
             "Returns the common recruiting video submissions for the authenticated dancer",
         });
-        router.post("", [CreateSubmissionController]).openapi({
-          summary: "Create a CRV submission",
-          description:
-            "Creates a common recruiting video submission for the authenticated dancer",
-        });
-        router.patch("video", [EditSubmissionController]).openapi({
-          summary: "Edit the dancer's submission video",
-          description:
-            "Updates the YouTube URL for the dancer's common recruiting video",
-        });
+        // Common Recruit submissions need full Premium; a 1-Week Pass
+        // does not include them.
+        router
+          .post("", [CreateSubmissionController])
+          .openapi({
+            summary: "Create a CRV submission",
+            description:
+              "Creates a common recruiting video submission for the authenticated dancer. Requires a Monthly, Season Pass, or Annual plan.",
+          })
+          .use(middleware.subscribed({ premium: true }));
+        router
+          .patch("video", [EditSubmissionController])
+          .openapi({
+            summary: "Edit the dancer's submission video",
+            description:
+              "Updates the YouTube URL for the dancer's common recruiting video. Requires a Monthly, Season Pass, or Annual plan.",
+          })
+          .use(middleware.subscribed({ premium: true }));
         router.get("schools", [GetSubmissionSchoolsController]).openapi({
           summary: "Get schools that the dancer has not submitted to",
           description:

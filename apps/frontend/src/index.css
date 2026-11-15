@@ -3,8 +3,11 @@
 @import "./styles/fonts.css";
 
 @custom-variant dark (&:is(.dark *));
+/* Exactly one of these always applies. `desktop` was `(pointer: fine)`, which
+   left browsers reporting `pointer: none` (headless, some kiosks) with neither
+   layout: the nav fell back to a row and ran across the page heading. */
 @custom-variant mobile (@media (pointer: coarse));
-@custom-variant desktop (@media (pointer: fine));
+@custom-variant desktop (@media not all and (pointer: coarse));
 
 :root {
   /* Height of the fixed top bar that sticky elements pin under. */

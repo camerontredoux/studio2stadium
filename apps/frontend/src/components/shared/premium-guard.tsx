@@ -9,6 +9,8 @@ interface PremiumGuardProps {
   description?: string;
   /** Optional className for the wrapper div when showing access denied */
   className?: string;
+  /** Require a Premium plan; a 1-Week Pass is not enough. */
+  premium?: boolean;
 }
 
 /**
@@ -20,6 +22,7 @@ export function PremiumGuard({
   children,
   description = "This is a premium feature. Subscribe to unlock this page and get full access.",
   className,
+  premium = false,
 }: PremiumGuardProps) {
   const session = useSession();
   const { data: subscription } = useSubscribed();
@@ -29,7 +32,10 @@ export function PremiumGuard({
     return children;
   }
 
-  if (!subscription.subscribed) {
+  if (
+    !subscription.subscribed ||
+    (premium && subscription.access !== "premium")
+  ) {
     return (
       <div className={className}>
         <AccessDenied description={description} />
