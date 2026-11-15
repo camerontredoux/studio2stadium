@@ -18,6 +18,8 @@ router
         "Returns a list of videos by category, paginated with 6 results at a time",
     });
   })
-  .use(middleware.auth())
+  // Training videos are for paying members (a Week Pass or Premium). Free
+  // members get the blog only, served by the blog module.
+  .use([middleware.auth(), middleware.subscribed()])
   .prefix("library")
   .openapi({ tags: ["Video Library"] });

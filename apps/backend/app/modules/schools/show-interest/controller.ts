@@ -8,11 +8,7 @@ export default class ShowInterestController {
   @inject()
   async handle(ctx: HttpContext, service: Service) {
     const payload = await ctx.request.validateUsing(schema);
-    const result = await service.execute(
-      payload,
-      ctx.session.profileId,
-      ctx.auth.getUserOrFail().id
-    );
+    const result = await service.execute(payload, ctx.session.profileId);
 
     if (result.created) {
       return ctx.response.created(result);

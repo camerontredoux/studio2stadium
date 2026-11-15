@@ -17,6 +17,12 @@ export interface PlanOffer {
   note: string;
   /** Checkout button label. */
   cta: string;
+  /**
+   * What the Dancer is charged and how often, shown before they pay and on
+   * the membership page. The backend puts the same terms on Stripe Checkout
+   * (`create-checkout/disclosure.ts`).
+   */
+  billing: string;
   badge?: string;
 }
 
@@ -31,6 +37,7 @@ export const PREMIUM_OFFERS: PlanOffer[] = [
     per: "/month",
     note: "Full access, billed monthly.",
     cta: "Go Premium",
+    billing: "$25 every month. Automatically renews until you cancel.",
   },
   {
     id: "season_pass",
@@ -40,6 +47,7 @@ export const PREMIUM_OFFERS: PlanOffer[] = [
     per: "/3 months",
     note: "Equivalent to $23/month. Automatically renews.",
     cta: "Get Season Pass",
+    billing: "$69 every 3 months. Automatically renews until you cancel.",
   },
   {
     id: "annual",
@@ -49,6 +57,7 @@ export const PREMIUM_OFFERS: PlanOffer[] = [
     per: "/year",
     note: "Equivalent to $20.83/month. Billed annually.",
     cta: "Go Annual",
+    billing: "$250 every year. Automatically renews until you cancel.",
     badge: "Save $50",
   },
 ];
@@ -61,11 +70,13 @@ export const WEEK_PASS_OFFER: PlanOffer = {
   per: "/pass",
   note: "One-time purchase. No automatic renewal.",
   cta: "Get a Week Pass",
+  billing: "$12.99 once for 7 days. No automatic renewal.",
 };
 
 export const PREMIUM_FEATURES = [
   "Unlimited photos and videos",
-  "Unlimited program follows and profile pushes",
+  "Unlimited program follows",
+  "Show Interest in a program up to 3 times",
   "Program finder and matching",
   "Common Recruit submissions for eligible seniors",
   "Training videos, recruiting resources, and the event calendar",
@@ -79,7 +90,10 @@ export const WEEK_PASS_FEATURES = [
   "Program finder, resources, Road Map, and Recruitment Tracker",
 ];
 
-export const WEEK_PASS_EXCLUDED = ["Common Recruit submissions not included"];
+export const WEEK_PASS_EXCLUDED = [
+  "Show Interest not included",
+  "Common Recruit submissions not included",
+];
 
 export const PAID_OFFERS = [...PREMIUM_OFFERS, WEEK_PASS_OFFER];
 

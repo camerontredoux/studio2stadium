@@ -14,12 +14,14 @@ import {
   FulfillCheckoutService,
   isWeekPassSession,
 } from "#modules/subscriptions/fulfill-checkout/service";
+import { RevokeWeekPassService } from "#modules/subscriptions/revoke-week-pass/service";
 import stripe from "#payments/stripe/main";
+import { pastDueGraceEndsAt } from "#shared/plans";
 import { inject } from "@adonisjs/core";
 import logger from "@adonisjs/core/services/logger";
 import { eq } from "drizzle-orm";
 import { type Stripe } from "stripe";
-import { SubscriptionDeletedEvent } from "./event.ts";
+import { PaymentFailedEvent, SubscriptionDeletedEvent } from "./event.ts";
 
 @inject()
 export default class WebhookHandlers {
@@ -27,7 +29,8 @@ export default class WebhookHandlers {
     private db: DatabaseService,
     private provisionPurchase: ProvisionPurchaseService,
     private deactivatePurchase: DeactivatePurchaseService,
-    private fulfillCheckout: FulfillCheckoutService
+    private fulfillCheckout: FulfillCheckoutService,
+    private revokeWeekPass: RevokeWeekPassService
   ) {
     stripe.onEvent(
       "checkout.session.completed",
@@ -88,18 +91,41 @@ export default class WebhookHandlers {
   }
 
   // A refunded or disputed Event Tier purchase stands its Org Event down and
-  // tells staff (ADR 0005). Translators only: reading the charge or dispute and
-  // deactivating are both tested on their own. Deactivation is idempotent on
-  // the purchase, and payments that bought no Org Event — Dancer subscriptions
-  // — are left alone.
+  // tells staff (ADR 0005); a refunded or disputed 1-Week Pass ends that
+  // pass. Translators only: reading the charge or dispute, deactivating and
+  // revoking are each tested on their own. Both are idempotent, and the rule
+  // for what counts (a full refund, or any dispute) is the same for both.
+  // Payments that bought neither, such as Dancer subscriptions, are left alone.
   async chargeRefunded(event: Stripe.Event) {
     const charge = event.data.object as Stripe.Charge;
-    await this.eventTierPaymentReversed(refundToDeactivation(charge));
+    const reversal = refundToDeactivation(charge);
+    await this.eventTierPaymentReversed(reversal);
+    await this.weekPassPaymentReversed(reversal);
   }
 
   async chargeDisputeCreated(event: Stripe.Event) {
     const dispute = event.data.object as Stripe.Dispute;
-    await this.eventTierPaymentReversed(disputeToDeactivation(dispute));
+    const reversal = disputeToDeactivation(dispute);
+    await this.eventTierPaymentReversed(reversal);
+    await this.weekPassPaymentReversed(reversal);
+  }
+
+  async weekPassPaymentReversed(input: DeactivateInput | null) {
+    if (!input) return;
+
+    const revoked = await this.revokeWeekPass.execute(input.paymentIntentId);
+    if (!revoked) return;
+
+    logger.warn(
+      {
+        paymentIntentId: input.paymentIntentId,
+        reason: input.reason,
+        providerReference: input.providerReference,
+        weekPassId: revoked.id,
+        userId: revoked.userId,
+      },
+      "1-Week Pass payment reversed; pass access ended"
+    );
   }
 
   async eventTierPaymentReversed(input: DeactivateInput | null) {
@@ -123,16 +149,36 @@ export default class WebhookHandlers {
     );
   }
 
-  // Handles everything after initial creation — renewals, cancellations, plan changes, payment failures
+  // Handles everything after initial creation: renewals, cancellations, plan
+  // changes, a trial (credited Week Pass days) ending, and payment failures.
+  // A renewal whose payment fails moves the subscription to past_due; the
+  // member keeps access for a grace period from the first such event
+  // (`PAST_DUE_GRACE_DAYS`) and is emailed once to update their card. A
+  // later successful payment moves it back to active and clears the grace.
   async subscriptionUpdated(event: Stripe.Event) {
     const subscription = event.data.object as Stripe.Subscription;
     const item = subscription.items.data[0];
 
     const priceId = item.price.id;
     const currentPeriodEnd = item.current_period_end;
+    const pastDue = subscription.status === "past_due";
 
-    await this.db.use((db) =>
-      db
+    const failed = await this.db.tx(async (tx) => {
+      const [row] = await tx
+        .select({
+          userId: subscriptions.userId,
+          pastDueSince: subscriptions.pastDueSince,
+        })
+        .from(subscriptions)
+        .where(eq(subscriptions.subscriptionId, subscription.id))
+        .for("update");
+
+      const pastDueSince = pastDue
+        ? (row?.pastDueSince ??
+          (event.created ? new Date(event.created * 1000) : new Date()))
+        : null;
+
+      await tx
         .update(subscriptions)
         .set({
           status: subscription.status,
@@ -144,10 +190,24 @@ export default class WebhookHandlers {
           canceledAt: subscription.canceled_at
             ? new Date(subscription.canceled_at * 1000)
             : null,
+          pastDueSince,
           updatedAt: new Date(),
         })
-        .where(eq(subscriptions.subscriptionId, subscription.id))
-    );
+        .where(eq(subscriptions.subscriptionId, subscription.id));
+
+      // Only the event that first moves the subscription to past_due sends
+      // the notice; later retries and redeliveries find the grace started.
+      return row && pastDueSince && !row.pastDueSince
+        ? { userId: row.userId, pastDueSince }
+        : null;
+    });
+
+    if (failed) {
+      PaymentFailedEvent.dispatch({
+        userId: failed.userId,
+        accessEndsAt: pastDueGraceEndsAt(failed.pastDueSince),
+      });
+    }
   }
 
   // Fired when a subscription is fully deleted

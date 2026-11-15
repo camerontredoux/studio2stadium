@@ -1,12 +1,20 @@
 import { follows, programViews } from "#database/schema/profiles";
 import { videos, videoUploads } from "#database/schema/media";
-import { premiumRoadmaps, subscriptions } from "#database/schema/subscriptions";
+import {
+  premiumRoadmaps,
+  subscriptions,
+  weekPasses,
+} from "#database/schema/subscriptions";
 import { trackerItems } from "#database/schema/tracker";
 import { DatabaseService } from "#database/service";
 import { Service as ProfileChecklistService } from "#modules/dancers/profile/get-profile-checklist/service";
-import { subscriptionPlanFor, type SubscriptionPlan } from "#shared/plans";
+import {
+  subscriptionGivesAccess,
+  subscriptionPlanFor,
+  type PaidPlan,
+} from "#shared/plans";
 import { inject } from "@adonisjs/core";
-import { and, eq, gt, isNotNull, sql } from "drizzle-orm";
+import { and, desc, eq, isNotNull, lte, sql } from "drizzle-orm";
 
 export const ROADMAP_VERSION = 1;
 export const ROADMAP_DAYS = 30;
@@ -39,7 +47,7 @@ export interface RoadmapDetails {
   version: number;
   premiumStartedAt: Date;
   daysSinceStart: number;
-  interval: SubscriptionPlan | null;
+  interval: PaidPlan | null;
   completedCount: number;
   totalCount: number;
   // First time all five steps were complete.
@@ -63,13 +71,13 @@ const INELIGIBLE: Roadmap = { eligible: false, roadmap: null };
 
 /**
  * Paying Stripe Premium right now. Org-granted Premium (premium_grants) is
- * deliberately excluded: the roadmap is for members who pay.
+ * deliberately excluded: the roadmap is for members who pay. A running Week
+ * Pass also qualifies; see `GetRoadmapService.weekPassStart`.
  */
 export function paidPremium(now: Date) {
   return and(
     eq(subscriptions.source, "stripe"),
-    eq(subscriptions.status, "active"),
-    gt(subscriptions.currentPeriodEnd, now),
+    subscriptionGivesAccess(now),
     isNotNull(subscriptions.startedAt)
   );
 }
@@ -85,21 +93,79 @@ export class GetRoadmapService {
     private profileChecklist: ProfileChecklistService
   ) {}
 
-  async execute(user: { id: string; profileId: string }): Promise<Roadmap> {
-    const now = new Date();
+  /**
+   * When the member started paying and on which plan: a paying Stripe
+   * subscription first, else a running Week Pass. Null when neither.
+   */
+  private async membership(userId: string, now: Date) {
+    const [roadmap] = await this.db.use((db) =>
+      db
+        .select({ startedAt: premiumRoadmaps.premiumStartedAt })
+        .from(premiumRoadmaps)
+        .where(eq(premiumRoadmaps.userId, userId))
+    );
+    const roadmapStartedAt = roadmap?.startedAt ?? null;
 
-    const [membership] = await this.db.use((db) =>
+    const [subscription] = await this.db.use((db) =>
       db
         .select({
           startedAt: subscriptions.startedAt,
           priceId: subscriptions.priceId,
-          roadmapStartedAt: premiumRoadmaps.premiumStartedAt,
         })
         .from(subscriptions)
-        .leftJoin(premiumRoadmaps, eq(premiumRoadmaps.userId, user.id))
-        .where(and(eq(subscriptions.userId, user.id), paidPremium(now)))
+        .where(and(eq(subscriptions.userId, userId), paidPremium(now)))
         .limit(1)
     );
+
+    if (subscription?.startedAt) {
+      return {
+        startedAt: subscription.startedAt,
+        interval: subscriptionPlanFor(subscription.priceId) as PaidPlan | null,
+        roadmapStartedAt,
+      };
+    }
+
+    const passStartedAt = await this.weekPassStart(userId, now);
+    if (!passStartedAt) return null;
+
+    return {
+      startedAt: passStartedAt,
+      interval: "week_pass" as PaidPlan | null,
+      roadmapStartedAt,
+    };
+  }
+
+  /**
+   * When the Dancer's current run of Week Passes began, or null when no pass
+   * is running. A pass bought while another runs starts when that one ends,
+   * so back-to-back passes count as one run.
+   */
+  private async weekPassStart(userId: string, now: Date) {
+    const passes = await this.db.use((db) =>
+      db
+        .select({ startsAt: weekPasses.startsAt, endsAt: weekPasses.endsAt })
+        .from(weekPasses)
+        .where(
+          and(eq(weekPasses.userId, userId), lte(weekPasses.startsAt, now))
+        )
+        .orderBy(desc(weekPasses.endsAt))
+    );
+
+    const [latest] = passes;
+    if (!latest || latest.endsAt <= now) return null;
+
+    let startedAt = latest.startsAt;
+    for (const pass of passes.slice(1)) {
+      if (pass.endsAt.getTime() < startedAt.getTime()) break;
+      if (pass.startsAt < startedAt) startedAt = pass.startsAt;
+    }
+    return startedAt;
+  }
+
+  async execute(user: { id: string; profileId: string }): Promise<Roadmap> {
+    const now = new Date();
+
+    const membership = await this.membership(user.id, now);
 
     if (!membership?.startedAt) return INELIGIBLE;
 
@@ -223,7 +289,7 @@ export class GetRoadmapService {
         daysSinceStart: Math.floor(
           (now.getTime() - roadmap.premiumStartedAt.getTime()) / DAY_MS
         ),
-        interval: subscriptionPlanFor(membership.priceId),
+        interval: membership.interval,
         completedCount: steps.filter((step) => step.status === "complete")
           .length,
         totalCount: steps.length,

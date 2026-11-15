@@ -23,6 +23,10 @@ export const subscriptions = pg.pgTable(
     // When the current run of Premium began (Stripe's subscription
     // start_date). A new checkout after a lapse resets it.
     startedAt: pg.timestamp({ withTimezone: true }),
+    // When a renewal payment first failed and Stripe moved the subscription
+    // to past_due. Access continues for a grace period from here while
+    // Stripe retries the card. Cleared once the subscription leaves past_due.
+    pastDueSince: pg.timestamp({ withTimezone: true }),
     ...timestamps,
   },
   (table) => [
@@ -35,7 +39,8 @@ export const subscriptions = pg.pgTable(
  * One row per 1-Week Pass purchase: a one-time Stripe payment, not a
  * subscription. A pass bought while another is running starts when that one
  * ends, so each purchase adds seven days. The checkout session id makes a
- * redelivered webhook record the purchase once.
+ * redelivered webhook record the purchase once, and the payment intent id
+ * finds the pass when its payment is refunded or disputed.
  */
 export const weekPasses = pg.pgTable(
   "week_passes",
@@ -49,6 +54,10 @@ export const weekPasses = pg.pgTable(
     paymentIntentId: pg.text(),
     startsAt: pg.timestamp({ withTimezone: true }).notNull(),
     endsAt: pg.timestamp({ withTimezone: true }).notNull(),
+    // Set when the payment was fully refunded or disputed. `endsAt` is cut
+    // back to that moment (or to `startsAt` for a pass not yet started), so
+    // every reader of `endsAt` stops counting the pass.
+    revokedAt: pg.timestamp({ withTimezone: true }),
     ...timestamps,
   },
   (table) => [pg.index().on(table.userId, table.endsAt)]

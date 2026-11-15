@@ -5,14 +5,19 @@ import { schoolProfiles } from "#database/schema/schools";
 import { dancerSkills, schoolSkills, skills } from "#database/schema/skills";
 import { dancerSports, schoolSports, sports } from "#database/schema/sports";
 import { dancerStyles, schoolStyles, styles } from "#database/schema/styles";
-import { subscriptions } from "#database/schema/subscriptions";
+import {
+  orgMemberships,
+  organizations,
+  premiumGrants,
+} from "#database/schema/organizations";
+import { subscriptions, weekPasses } from "#database/schema/subscriptions";
 import { users } from "#database/schema/users";
 import { DatabaseService } from "#database/service";
 import { normalizeEmail } from "#utils/normalize-email";
 import hash from "@adonisjs/core/services/hash";
 import { faker } from "@faker-js/faker";
 import { test } from "@japa/runner";
-import { sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { Service } from "./service.ts";
 
 const PASSWORD = "recommended-dancers-test-password";
@@ -25,7 +30,7 @@ async function seedCatalog() {
   await db
     .insert(skills)
     .values(
-      allSkills.map((slug) => ({ slug, name: slug, category: "technique" })),
+      allSkills.map((slug) => ({ slug, name: slug, category: "technique" }))
     );
   await db.insert(styles).values([{ slug: "jazz", name: "Jazz" }]);
   await db.insert(sports).values([{ slug: "cheer", name: "Cheer" }]);
@@ -59,16 +64,16 @@ async function createSchool(gpa: number | null) {
     })
     .returning();
 
+  await db.insert(schoolSkills).values(
+    SCHOOL_SKILLS.map((slug) => ({
+      schoolId: profile.id,
+      skillId: slug,
+      weight: 3,
+    }))
+  );
   await db
-    .insert(schoolSkills)
-    .values(
-      SCHOOL_SKILLS.map((slug) => ({
-        schoolId: profile.id,
-        skillId: slug,
-        weight: 3,
-      })),
-    );
-  await db.insert(schoolStyles).values({ schoolId: profile.id, styleId: "jazz" });
+    .insert(schoolStyles)
+    .values({ schoolId: profile.id, styleId: "jazz" });
   await db
     .insert(schoolSports)
     .values({ schoolId: profile.id, sportId: "cheer" });
@@ -154,17 +159,19 @@ async function createDancer(options: {
     .returning();
 
   if (options.skillSlugs.length > 0) {
-    await db
-      .insert(dancerSkills)
-      .values(
-        options.skillSlugs.map((slug) => ({
-          dancerId: profile.id,
-          skillId: slug,
-        })),
-      );
+    await db.insert(dancerSkills).values(
+      options.skillSlugs.map((slug) => ({
+        dancerId: profile.id,
+        skillId: slug,
+      }))
+    );
   }
-  await db.insert(dancerStyles).values({ dancerId: profile.id, styleId: "jazz" });
-  await db.insert(dancerSports).values({ dancerId: profile.id, sportId: "cheer" });
+  await db
+    .insert(dancerStyles)
+    .values({ dancerId: profile.id, styleId: "jazz" });
+  await db
+    .insert(dancerSports)
+    .values({ dancerId: profile.id, sportId: "cheer" });
 
   return profile;
 }
@@ -235,6 +242,60 @@ test.group("Recommended dancers for schools", (group) => {
 
     assert.include(ids, premium.id);
     assert.notInclude(ids, nonPremium.id);
+  });
+
+  test("an Org's dancers are recommended only when they pay; a Week Pass still counts", async ({
+    assert,
+  }) => {
+    const school = await createSchool(3.0);
+    const [org] = await db
+      .insert(organizations)
+      .values({ name: "Test Org", slug: `org-${faker.string.alphanumeric(8)}` })
+      .returning();
+    const inOrg = async (profile: { userId: string }) => {
+      await db
+        .insert(orgMemberships)
+        .values({ userId: profile.userId, orgId: org!.id, type: "dancer" });
+    };
+    const matching = { skillSlugs: SCHOOL_SKILLS, gpa: 3.5 };
+
+    // Premium granted through the Org, and an Org Event's account tier.
+    const granted = await createDancer({ ...matching, premium: false });
+    await inOrg(granted);
+    await db.insert(premiumGrants).values({
+      userId: granted.userId,
+      sourceType: "org_event",
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    });
+    const tiered = await createDancer({ ...matching, premium: false });
+    await inOrg(tiered);
+    await db
+      .update(users)
+      .set({ orgAccountTier: "standard" })
+      .where(eq(users.id, tiered.userId));
+
+    // An Org dancer with their own subscription, and one with a Week Pass.
+    const paying = await createDancer({ ...matching, premium: true });
+    await inOrg(paying);
+    const passHolder = await createDancer({ ...matching, premium: false });
+    await inOrg(passHolder);
+    await db.insert(weekPasses).values({
+      userId: passHolder.userId,
+      checkoutSessionId: `cs_${faker.string.alphanumeric(14)}`,
+      startsAt: new Date(),
+      endsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    });
+
+    const results = await new Service(new DatabaseService()).execute(
+      school.id,
+      { limit: 10 }
+    );
+    const ids = results.map((r) => r.id);
+
+    assert.notInclude(ids, granted.id);
+    assert.notInclude(ids, tiered.id);
+    assert.include(ids, paying.id);
+    assert.include(ids, passHolder.id);
   });
 
   test("returns nothing when the school has no skill preferences set", async ({

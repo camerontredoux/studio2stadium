@@ -28,13 +28,15 @@ router
         "Fulfils the authenticated dancer's completed Stripe Checkout Session without waiting for the webhook, and returns their subscription status",
     });
 
-    router
-      .post("manage", [ManageController])
-      .openapi({
-        summary: "Manage a subscription",
-        description: "Manages the authenticated dancer's subscription",
-      })
-      .use(middleware.subscribed());
+    // Not behind `subscribed()`: a member whose renewal failed and whose
+    // grace ran out has no access, yet must reach the billing portal to
+    // update the card. The service only opens the portal for the user's own
+    // Stripe customer and sends anyone without one to checkout.
+    router.post("manage", [ManageController]).openapi({
+      summary: "Manage a subscription",
+      description:
+        "Opens the Stripe billing portal for the authenticated dancer's subscription, including one whose renewal payment failed, or redirects to checkout when there is none",
+    });
 
     if (!app.inProduction) {
       router.post("dev-grant", [DevGrantController]);

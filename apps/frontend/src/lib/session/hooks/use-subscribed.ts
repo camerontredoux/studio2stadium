@@ -20,6 +20,8 @@ export const useSubscribed = () => {
       cancelAtPeriodEnd: false,
       currentPeriodEnd: null,
       grantedBy: null,
+      paymentFailed: false,
+      upgradeFirstChargeAt: null,
     },
     isPending,
   };

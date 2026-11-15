@@ -206,6 +206,11 @@ export const dancerFaqSections: FaqSection[] = [
               them to reach out if the interest is mutual. Both features help you
               connect with coaches through S2S.
             </p>
+            <p>
+              Show Interest is part of the Monthly, Season Pass, and Annual
+              plans. The 1-Week Pass can follow up to 5 programs but cannot
+              Show Interest.
+            </p>
           </>
         ),
       },

@@ -1,11 +1,10 @@
-import { premiumGrants } from "#database/schema/organizations";
 import { subscriptions, weekPasses } from "#database/schema/subscriptions";
 import { DatabaseService } from "#database/service";
 import { SCHOOL_CENTRIC_SCORING } from "#modules/schools/get-recommended-programs/school-centric-algorithm";
+import { subscriptionGivesAccess, weekPassRunning } from "#shared/plans";
 import { biographyText } from "#utils/biography";
 import { imageUrl } from "#utils/image-url";
 import { inject } from "@adonisjs/core";
-import { and, eq, gt, isNull } from "drizzle-orm";
 
 // Cap the school-facing dancer recommendations to a focused top-N list,
 // mirroring the dancer-facing program recommender. Applied when the caller
@@ -120,45 +119,30 @@ export class Service {
   }
 
   /**
-   * User IDs with paid access — an active subscription, an active, unrevoked
-   * premium grant, or a running 1-Week Pass. Mirrors the `subscribed`
-   * middleware (minus the admin bypass, which doesn't apply to recommendable
-   * dancers).
+   * User IDs recommended to schools: Dancers who pay for themselves, with a
+   * subscription that gives access or a running 1-Week Pass. Free profiles
+   * stay out (they remain in explore search). So do Dancers whose only
+   * Premium is a premium grant or an Event Tier from their Org: an Org's
+   * Dancers are recommended only when they pay.
    */
   private async getPremiumUserIds(): Promise<Set<string>> {
     const now = new Date();
-    const [subs, grants, passes] = await Promise.all([
+    const [subs, passes] = await Promise.all([
       this.db.use((db) =>
         db
           .select({ userId: subscriptions.userId })
           .from(subscriptions)
-          .where(
-            and(
-              eq(subscriptions.status, "active"),
-              gt(subscriptions.currentPeriodEnd, now)
-            )
-          )
-      ),
-      this.db.use((db) =>
-        db
-          .select({ userId: premiumGrants.userId })
-          .from(premiumGrants)
-          .where(
-            and(
-              gt(premiumGrants.expiresAt, now),
-              isNull(premiumGrants.revokedAt)
-            )
-          )
+          .where(subscriptionGivesAccess(now))
       ),
       this.db.use((db) =>
         db
           .select({ userId: weekPasses.userId })
           .from(weekPasses)
-          .where(gt(weekPasses.endsAt, now))
+          .where(weekPassRunning(now))
       ),
     ]);
 
-    return new Set([...subs, ...grants, ...passes].map((r) => r.userId));
+    return new Set([...subs, ...passes].map((r) => r.userId));
   }
 
   private async getDancers(schoolProfileId: string) {
@@ -171,7 +155,7 @@ export class Service {
     );
     const favoritedIds = new Set(favorited.map((f) => f.dancerId));
 
-    // Only paying dancers (Premium or a Week Pass) are surfaced to schools.
+    // Only paying dancers (a subscription or a Week Pass) are surfaced to schools.
     const premiumUserIds = await this.getPremiumUserIds();
 
     const dancers = await this.db.use((db) =>

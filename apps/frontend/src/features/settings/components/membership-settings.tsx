@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
   Frame,
   FrameHeader,
@@ -16,7 +16,12 @@ import { useSubscribed } from "@/lib/session/hooks/use-subscribed";
 import { sessionQueries } from "@/lib/session/queries";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useSearch } from "@tanstack/react-router";
-import { CheckIcon, CreditCardIcon, XIcon } from "lucide-react";
+import {
+  AlertTriangleIcon,
+  CheckIcon,
+  CreditCardIcon,
+  XIcon,
+} from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useConfirmCheckout, useManage } from "../api/mutations";
 
@@ -24,23 +29,24 @@ const HERO_FEATURES = {
   premium: [
     { label: "Full access", included: true },
     { label: "Exclusive content", included: true },
-    { label: "Priority support", included: true },
+    { label: "Show Interest", included: true },
   ],
   pass: [
     { label: "Recruiting access", included: true },
     { label: "Up to 5 programs", included: true },
+    { label: "Show Interest", included: false },
     { label: "Common Recruit", included: false },
   ],
   free: [
     { label: "Full access", included: false },
     { label: "Exclusive content", included: false },
-    { label: "Priority support", included: false },
+    { label: "Training videos", included: false },
   ],
 };
 
 const HERO_TEXT = {
   premium:
-    "You have full access to all premium features, exclusive content, and priority support.",
+    "You have full access to all premium features and exclusive content.",
   pass: "Your 1-Week Pass gives you seven days of recruiting access with a smaller portfolio and program list.",
   free: "You don't have access to any premium features. Upgrade to get full access.",
 };
@@ -54,6 +60,7 @@ export function MembershipSettings() {
       cancelAtPeriodEnd,
       currentPeriodEnd,
       subscribed,
+      paymentFailed,
     },
   } = useSubscribed();
 
@@ -63,6 +70,9 @@ export function MembershipSettings() {
 
   const price = PAID_OFFERS.find((offer) => offer.id === plan);
   const onSubscription = source === "stripe";
+  // A failed renewal keeps access for a few days, and the billing portal is
+  // where the member fixes their card, before or after access ends.
+  const canManageBilling = onSubscription || paymentFailed;
 
   const handleManage = () => {
     mutate(
@@ -141,7 +151,7 @@ export function MembershipSettings() {
                   {included ? (
                     <CheckIcon className="text-brand size-4" />
                   ) : (
-                    <XIcon className="text-muted-foreground size-4" />
+                    <XIcon className="size-4 text-white/60" />
                   )}
                   <span className="text-white/90">{label}</span>
                 </div>
@@ -150,9 +160,32 @@ export function MembershipSettings() {
           </div>
         </div>
 
+        {paymentFailed && (
+          <div
+            role="alert"
+            className="border-destructive-foreground/30 bg-destructive/5 flex items-start gap-3 rounded-xl border p-4 text-sm"
+          >
+            <AlertTriangleIcon className="text-destructive-foreground mt-0.5 size-4 shrink-0" />
+            <p>
+              Your last payment didn&apos;t go through.{" "}
+              {subscribed && currentPeriodEnd ? (
+                <>
+                  Update your card to keep your plan. Access ends on{" "}
+                  <span className="font-semibold tabular-nums">
+                    {formatDate(currentPeriodEnd)}
+                  </span>{" "}
+                  if the payment still fails.
+                </>
+              ) : (
+                "Your access has ended. Update your card to restore it."
+              )}
+            </p>
+          </div>
+        )}
+
         <Card
           className={
-            onSubscription && cancelAtPeriodEnd
+            paymentFailed || (onSubscription && cancelAtPeriodEnd)
               ? "border-destructive-foreground/30 bg-destructive/2"
               : access !== "premium"
                 ? "border-brand/30 bg-brand/5"
@@ -175,9 +208,11 @@ export function MembershipSettings() {
                 <PlanFact
                   label={
                     onSubscription
-                      ? cancelAtPeriodEnd
-                        ? "Cancels on"
-                        : "Renews on"
+                      ? paymentFailed
+                        ? "Access ends on"
+                        : cancelAtPeriodEnd
+                          ? "Cancels on"
+                          : "Renews on"
                       : source === "week_pass"
                         ? "Expires on"
                         : "Access until"
@@ -190,12 +225,12 @@ export function MembershipSettings() {
               )}
               {!subscribed && (
                 <span className="text-muted-foreground max-w-xs text-sm">
-                  Get access to exclusive content, priority support, and more.
+                  Get access to exclusive content, training videos, and more.
                 </span>
               )}
             </div>
 
-            {onSubscription ? (
+            {canManageBilling ? (
               <Button
                 variant="outline"
                 size="sm"
@@ -208,7 +243,7 @@ export function MembershipSettings() {
                 ) : (
                   <CreditCardIcon className="size-4" />
                 )}
-                Manage billing
+                {paymentFailed ? "Update payment" : "Manage billing"}
               </Button>
             ) : (
               access !== "premium" && (
@@ -224,6 +259,11 @@ export function MembershipSettings() {
               )
             )}
           </CardContent>
+          {onSubscription && price && !cancelAtPeriodEnd && (
+            <CardFooter className="text-muted-foreground border-t text-sm">
+              {price.billing}
+            </CardFooter>
+          )}
         </Card>
       </FramePanel>
     </Frame>

@@ -70,6 +70,11 @@ export {
 } from "./templates/PremiumWelcomeEmail.js";
 
 export {
+  PaymentFailedEmail,
+  type PaymentFailedEmailProps,
+} from "./templates/PaymentFailedEmail.js";
+
+export {
   SubscriptionEndedEmail,
   type SubscriptionEndedEmailProps,
 } from "./templates/SubscriptionEndedEmail.js";
