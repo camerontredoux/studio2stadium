@@ -7,3 +7,4 @@ apps/events
 apps/frontend
 *.md
 **/.env
+**/.env.production
