@@ -4,7 +4,7 @@ import { premiumRoadmaps, subscriptions } from "#database/schema/subscriptions";
 import { trackerItems } from "#database/schema/tracker";
 import { DatabaseService } from "#database/service";
 import { Service as ProfileChecklistService } from "#modules/dancers/profile/get-profile-checklist/service";
-import env from "#start/env";
+import { subscriptionPlanFor, type SubscriptionPlan } from "#shared/plans";
 import { inject } from "@adonisjs/core";
 import { and, eq, gt, isNotNull, sql } from "drizzle-orm";
 
@@ -39,7 +39,7 @@ export interface RoadmapDetails {
   version: number;
   premiumStartedAt: Date;
   daysSinceStart: number;
-  interval: "monthly" | "annual" | null;
+  interval: SubscriptionPlan | null;
   completedCount: number;
   totalCount: number;
   // First time all five steps were complete.
@@ -72,12 +72,6 @@ export function paidPremium(now: Date) {
     gt(subscriptions.currentPeriodEnd, now),
     isNotNull(subscriptions.startedAt)
   );
-}
-
-export function subscriptionInterval(priceId: string | null) {
-  if (priceId === env.get("STRIPE_PRICE_ID_MONTHLY")) return "monthly";
-  if (priceId === env.get("STRIPE_PRICE_ID_YEARLY")) return "annual";
-  return null;
 }
 
 // Keep the stored timestamp if there is one; otherwise take the new value.
@@ -229,7 +223,7 @@ export class GetRoadmapService {
         daysSinceStart: Math.floor(
           (now.getTime() - roadmap.premiumStartedAt.getTime()) / DAY_MS
         ),
-        interval: subscriptionInterval(membership.priceId),
+        interval: subscriptionPlanFor(membership.priceId),
         completedCount: steps.filter((step) => step.status === "complete")
           .length,
         totalCount: steps.length,

@@ -1,6 +1,7 @@
 import { users } from "#database/schema/users";
 import { DatabaseService } from "#database/service";
 import { GetSubscriptionService } from "#modules/subscriptions/get-status/service";
+import { PASS_PHOTO_LIMIT, PASS_VIDEO_LIMIT } from "#shared/plans";
 import { inject } from "@adonisjs/core";
 import { eq } from "drizzle-orm";
 
@@ -15,6 +16,8 @@ export interface MediaPermissions {
   directVideoLimit: number | null;
   youtubeLimit: number | null;
   photoLimit: number | null;
+  /** Direct and YouTube videos together, when the plan caps their total. */
+  videoLimit: number | null;
 }
 
 @inject()
@@ -50,10 +53,12 @@ export class GetMediaPermissionsService {
         directVideoLimit: 0,
         youtubeLimit: 0,
         photoLimit: 0,
+        videoLimit: null,
       };
     }
 
-    const isPremium = user.role === "admin" || subscription.subscribed;
+    const isPremium =
+      user.role === "admin" || subscription.access === "premium";
 
     if (user.type === "school") {
       return {
@@ -64,6 +69,7 @@ export class GetMediaPermissionsService {
         directVideoLimit: null,
         youtubeLimit: null,
         photoLimit: null,
+        videoLimit: null,
       };
     }
 
@@ -75,6 +81,19 @@ export class GetMediaPermissionsService {
         directVideoLimit: DIRECT_VIDEO_LIMIT,
         youtubeLimit: null,
         photoLimit: null,
+        videoLimit: null,
+      };
+    }
+
+    if (subscription.access === "pass") {
+      return {
+        canUploadDirectVideo: true,
+        canAddYoutubeVideo: true,
+        canUploadPhoto: true,
+        directVideoLimit: PASS_VIDEO_LIMIT,
+        youtubeLimit: PASS_VIDEO_LIMIT,
+        photoLimit: PASS_PHOTO_LIMIT,
+        videoLimit: PASS_VIDEO_LIMIT,
       };
     }
 
@@ -91,6 +110,7 @@ export class GetMediaPermissionsService {
         directVideoLimit: 0,
         youtubeLimit: ORG_STANDARD_YOUTUBE_LIMIT,
         photoLimit: FREE_TIER_IMAGE_LIMIT,
+        videoLimit: null,
       };
     }
 
@@ -102,6 +122,7 @@ export class GetMediaPermissionsService {
         directVideoLimit: 0,
         youtubeLimit: 0,
         photoLimit: 0,
+        videoLimit: null,
       };
     }
 
@@ -112,6 +133,7 @@ export class GetMediaPermissionsService {
       directVideoLimit: 0,
       youtubeLimit: 0,
       photoLimit: FREE_TIER_IMAGE_LIMIT,
+      videoLimit: null,
     };
   }
 }

@@ -2,9 +2,9 @@ import { dancerProfiles } from "#database/schema/dancers";
 import { favorites } from "#database/schema/profiles";
 import { dancerSports } from "#database/schema/sports";
 import { dancerStyles } from "#database/schema/styles";
-import { subscriptions } from "#database/schema/subscriptions";
 import { users } from "#database/schema/users";
 import { DatabaseService } from "#database/service";
+import { hasPaidAccess } from "#shared/plans";
 import { imageUrl } from "#utils/image-url";
 import { inject } from "@adonisjs/core";
 import { and, asc, eq, exists, gte, lte, sql } from "drizzle-orm";
@@ -34,7 +34,8 @@ export class Service {
             avatar: users.avatar,
             firstName: users.firstName,
             lastName: users.lastName,
-            subscribed: sql<boolean>`${subscriptions.id} IS NOT NULL`,
+            // Premium or a running Week Pass: coaches see both as paying.
+            subscribed: hasPaidAccess(users.id),
             followers: sql<number>`(
               SELECT COUNT(*)::int FROM school_favorites
               WHERE school_favorites.dancer_id = ${dancerProfiles.id}
@@ -42,13 +43,6 @@ export class Service {
           })
           .from(dancerProfiles)
           .innerJoin(users, eq(dancerProfiles.userId, users.id))
-          .leftJoin(
-            subscriptions,
-            and(
-              eq(subscriptions.userId, users.id),
-              eq(subscriptions.status, "active")
-            )
-          )
           .where(and(...conditions))
           .orderBy(asc(users.firstName))
           .limit(limit)
@@ -59,13 +53,6 @@ export class Service {
           .select({ count: sql<number>`COUNT(*)::int` })
           .from(dancerProfiles)
           .innerJoin(users, eq(dancerProfiles.userId, users.id))
-          .leftJoin(
-            subscriptions,
-            and(
-              eq(subscriptions.userId, users.id),
-              eq(subscriptions.status, "active")
-            )
-          )
           .where(and(...conditions))
       ),
     ]);
@@ -116,7 +103,7 @@ export class Service {
     }
 
     if (filters.premium) {
-      conditions.push(sql`${subscriptions.id} IS NOT NULL`);
+      conditions.push(hasPaidAccess(users.id));
     }
 
     if (filters.name) {

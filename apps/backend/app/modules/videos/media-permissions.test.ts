@@ -11,6 +11,7 @@ import { normalizeEmail } from "#utils/normalize-email";
 import hash from "@adonisjs/core/services/hash";
 import { faker } from "@faker-js/faker";
 import type { ApiClient } from "@japa/api-client";
+import { buyWeekPass } from "#tests/helpers/premium";
 import { test } from "@japa/runner";
 import { sql } from "drizzle-orm";
 
@@ -236,6 +237,38 @@ test.group("Dancer media permission matrix", (group) => {
     mockSuccessfulCloudflareUpload();
     const tus = await initiateTus(client, token);
     tus.assertStatus(201);
+  });
+
+  test("Week Pass dancer gets four photos and three videos across YouTube and direct uploads", async ({
+    client,
+    assert,
+  }) => {
+    const dancer = await createDancer();
+    await buyWeekPass(dancer.id);
+    const token = await bearerToken(client, dancer.email);
+
+    const permissions = await client
+      .get("/videos/permissions")
+      .header("Authorization", `Bearer ${token}`);
+    permissions.assertStatus(200);
+    assert.deepInclude(permissions.body(), { photoLimit: 4, videoLimit: 3 });
+
+    const allowed = await addYoutubeVideos(client, token, 3);
+    for (const response of allowed) response.assertStatus(201);
+
+    const fourth = await addYoutubeVideos(client, token, 1);
+    fourth[0].assertStatus(403);
+    fourth[0].assertBodyContains({
+      message: "Your plan allows up to 3 videos. Delete one to add another.",
+    });
+
+    // The three YouTube videos use up direct uploads too.
+    const tus = await initiateTus(client, token);
+    tus.assertStatus(403);
+    const after = await client
+      .get("/videos/permissions")
+      .header("Authorization", `Bearer ${token}`);
+    assert.equal(after.body().directVideosRemaining, 0);
   });
 
   test("freemium dancer cannot add YouTube videos or direct uploads", async ({

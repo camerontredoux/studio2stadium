@@ -10,19 +10,24 @@ import {
 } from "#modules/event-tiers/deactivation/service";
 import { toProvisionInput } from "#modules/event-tiers/provisioning/checkout-session";
 import { ProvisionPurchaseService } from "#modules/event-tiers/provisioning/service";
+import {
+  FulfillCheckoutService,
+  isWeekPassSession,
+} from "#modules/subscriptions/fulfill-checkout/service";
 import stripe from "#payments/stripe/main";
 import { inject } from "@adonisjs/core";
 import logger from "@adonisjs/core/services/logger";
 import { eq } from "drizzle-orm";
 import { type Stripe } from "stripe";
-import { SubscriptionCreatedEvent, SubscriptionDeletedEvent } from "./event.ts";
+import { SubscriptionDeletedEvent } from "./event.ts";
 
 @inject()
 export default class WebhookHandlers {
   constructor(
     private db: DatabaseService,
     private provisionPurchase: ProvisionPurchaseService,
-    private deactivatePurchase: DeactivatePurchaseService
+    private deactivatePurchase: DeactivatePurchaseService,
+    private fulfillCheckout: FulfillCheckoutService
   ) {
     stripe.onEvent(
       "checkout.session.completed",
@@ -43,67 +48,17 @@ export default class WebhookHandlers {
     );
   }
 
-  // Initial checkout — create the subscription record and link the customer.
-  // One-time payment sessions are Event Tier purchases (ADR 0001), the only
-  // thing this app sells without a subscription, and go to provisioning.
+  // A completed checkout. One-time payment sessions are Event Tier purchases
+  // (ADR 0001) unless marked as a Dancer's 1-Week Pass; the Week Pass and
+  // the Dancer subscriptions go to fulfilment.
   async checkoutSessionCompleted(event: Stripe.Event) {
     const session = event.data.object as Stripe.Checkout.Session;
 
-    if (session.mode === "payment") {
+    if (session.mode === "payment" && !isWeekPassSession(session)) {
       return await this.eventTierPurchased(session);
     }
 
-    const userId = session.client_reference_id;
-
-    if (!userId || !session.subscription) return;
-
-    const subscription = await stripe.api.subscriptions.retrieve(
-      session.subscription as string
-    );
-
-    const item = subscription.items.data[0];
-
-    const priceId = item.price.id;
-    const currentPeriodEnd = item.current_period_end;
-    // Every checkout creates a new Stripe subscription, so this is a fresh
-    // start of Premium (first time, or a return after a lapse).
-    const startedAt = new Date(subscription.start_date * 1000);
-
-    const [user] = await this.db.use((db) =>
-      db
-        .insert(subscriptions)
-        .values({
-          userId,
-          source: "stripe",
-          status: subscription.status,
-          subscriptionId: subscription.id,
-          customerId: subscription.customer as string,
-          priceId,
-          cancelAtPeriodEnd: subscription.cancel_at_period_end,
-          currentPeriodEnd: new Date(currentPeriodEnd * 1000),
-          startedAt,
-        })
-        .returning({
-          id: subscriptions.userId,
-        })
-        .onConflictDoUpdate({
-          target: subscriptions.userId,
-          set: {
-            status: subscription.status,
-            subscriptionId: subscription.id,
-            customerId: subscription.customer as string,
-            priceId,
-            cancelAtPeriodEnd: subscription.cancel_at_period_end,
-            currentPeriodEnd: new Date(currentPeriodEnd * 1000),
-            canceledAt: null,
-            startedAt,
-          },
-        })
-    );
-
-    if (user) {
-      SubscriptionCreatedEvent.dispatch({ userId: user.id });
-    }
+    await this.fulfillCheckout.execute(session);
   }
 
   // A paid Event Tier purchase becomes the buyer's account (found by, or

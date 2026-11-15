@@ -1,7 +1,10 @@
 import { dancerProfiles } from "#database/schema/dancers";
 import { videos, videoUploads } from "#database/schema/media";
 import { DatabaseService, type Transaction } from "#database/service";
-import { GetMediaPermissionsService } from "#modules/media/permissions/service";
+import {
+  GetMediaPermissionsService,
+  type MediaPermissions,
+} from "#modules/media/permissions/service";
 import { streamUploadHeaders } from "#shared/cloudflare/stream";
 import env from "#start/env";
 import { inject } from "@adonisjs/core";
@@ -60,11 +63,11 @@ export class Service {
         );
 
         if (
-          (await this.countDirectVideos(tx, userId, videoLimit)) >= videoLimit
+          (await this.remainingDirectUploads(tx, userId, permissions)) === 0
         ) {
           return {
             error: "limit_exceeded" as const,
-            message: `You can only upload ${videoLimit} videos. Delete an existing video to upload a new one.`,
+            message: `You can only upload ${permissions.videoLimit ?? videoLimit} videos. Delete an existing video to upload a new one.`,
           };
         }
       }
@@ -109,12 +112,40 @@ export class Service {
     });
   }
 
-  async directVideosRemaining(userId: string, limit: number | null) {
-    if (limit === null) return null;
-    const used = await this.db.use((db) =>
-      this.countDirectVideos(db, userId, limit)
+  async directVideosRemaining(
+    userId: string,
+    permissions: Pick<MediaPermissions, "directVideoLimit" | "videoLimit">
+  ) {
+    if (permissions.directVideoLimit === null) return null;
+    return await this.db.use((db) =>
+      this.remainingDirectUploads(db, userId, permissions)
     );
-    return Math.max(0, limit - used);
+  }
+
+  // Direct uploads left under the plan. A plan that caps all videos together
+  // (the Week Pass) spends YouTube videos from the same budget, so they come
+  // off first; the direct count is then exact at the budget that is left.
+  async remainingDirectUploads(
+    db: Pick<Transaction, "select">,
+    userId: string,
+    {
+      directVideoLimit,
+      videoLimit,
+    }: Pick<MediaPermissions, "directVideoLimit" | "videoLimit">
+  ) {
+    let budget = directVideoLimit ?? 0;
+    if (videoLimit !== null) {
+      const [youtube] = await db
+        .select({ count: count() })
+        .from(videos)
+        .where(and(eq(videos.userId, userId), eq(videos.type, "youtube")));
+      budget = Math.min(budget, videoLimit - youtube.count);
+    }
+    if (budget <= 0) return 0;
+    return Math.max(
+      0,
+      budget - (await this.countDirectVideos(db, userId, budget))
+    );
   }
 
   // Exact only at the limit: below it, the count may include uploads that

@@ -46,7 +46,7 @@ export class UploadProfileImageService {
     ) {
       return {
         error: "limit_exceeded",
-        message: `Free tier users can only upload ${permissions.photoLimit} images. Upgrade to premium for unlimited uploads.`,
+        message: `Your plan allows up to ${permissions.photoLimit} photos. Upgrade to Premium for unlimited uploads.`,
       };
     }
 

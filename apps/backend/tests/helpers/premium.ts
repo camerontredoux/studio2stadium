@@ -1,8 +1,9 @@
 import { db } from "#database/connection";
 import { dancerProfiles } from "#database/schema/dancers";
 import { schoolProfiles } from "#database/schema/schools";
-import { subscriptions } from "#database/schema/subscriptions";
+import { subscriptions, weekPasses } from "#database/schema/subscriptions";
 import { users } from "#database/schema/users";
+import { priceIdFor, type SubscriptionPlan } from "#shared/plans";
 import env from "#start/env";
 import { normalizeEmail } from "#utils/normalize-email";
 import hash from "@adonisjs/core/services/hash";
@@ -56,6 +57,15 @@ export async function createSchool() {
   return school!;
 }
 
+/**
+ * Stripe Prices for the plans whose settings are optional, which a local
+ * .env may leave unset.
+ */
+export function configurePlanPrices() {
+  env.set("STRIPE_PRICE_ID_SEASON_PASS", "price_test_season_pass");
+  env.set("STRIPE_PRICE_ID_WEEK_PASS", "price_test_week_pass");
+}
+
 /** A paying Stripe subscription that began `startedAt`. */
 export async function subscribe(
   userId: string,
@@ -64,7 +74,7 @@ export async function subscribe(
     startedAt = new Date(),
     status = "active",
   }: {
-    interval?: "monthly" | "annual";
+    interval?: SubscriptionPlan;
     startedAt?: Date | null;
     status?: string;
   } = {}
@@ -75,13 +85,22 @@ export async function subscribe(
     status,
     subscriptionId: `sub_${faker.string.alphanumeric(14)}`,
     customerId: `cus_${faker.string.alphanumeric(14)}`,
-    priceId: env.get(
-      interval === "monthly"
-        ? "STRIPE_PRICE_ID_MONTHLY"
-        : "STRIPE_PRICE_ID_YEARLY"
-    ),
+    priceId: priceIdFor(interval),
     currentPeriodEnd: new Date(Date.now() + 30 * DAY_MS),
     startedAt,
+  });
+}
+
+/** A 1-Week Pass bought now, or one that ends at `endsAt`. */
+export async function buyWeekPass(
+  userId: string,
+  endsAt = new Date(Date.now() + 7 * DAY_MS)
+) {
+  await db.insert(weekPasses).values({
+    userId,
+    checkoutSessionId: `cs_${faker.string.alphanumeric(14)}`,
+    startsAt: new Date(endsAt.getTime() - 7 * DAY_MS),
+    endsAt,
   });
 }
 

@@ -1,5 +1,5 @@
 import { premiumGrants } from "#database/schema/organizations";
-import { subscriptions } from "#database/schema/subscriptions";
+import { subscriptions, weekPasses } from "#database/schema/subscriptions";
 import { DatabaseService } from "#database/service";
 import { SCHOOL_CENTRIC_SCORING } from "#modules/schools/get-recommended-programs/school-centric-algorithm";
 import { biographyText } from "#utils/biography";
@@ -120,13 +120,14 @@ export class Service {
   }
 
   /**
-   * User IDs with premium entitlement — an active subscription or an active,
-   * unrevoked premium grant. Mirrors the `subscribed` middleware (minus the
-   * admin bypass, which doesn't apply to recommendable dancers).
+   * User IDs with paid access — an active subscription, an active, unrevoked
+   * premium grant, or a running 1-Week Pass. Mirrors the `subscribed`
+   * middleware (minus the admin bypass, which doesn't apply to recommendable
+   * dancers).
    */
   private async getPremiumUserIds(): Promise<Set<string>> {
     const now = new Date();
-    const [subs, grants] = await Promise.all([
+    const [subs, grants, passes] = await Promise.all([
       this.db.use((db) =>
         db
           .select({ userId: subscriptions.userId })
@@ -143,12 +144,21 @@ export class Service {
           .select({ userId: premiumGrants.userId })
           .from(premiumGrants)
           .where(
-            and(gt(premiumGrants.expiresAt, now), isNull(premiumGrants.revokedAt))
+            and(
+              gt(premiumGrants.expiresAt, now),
+              isNull(premiumGrants.revokedAt)
+            )
           )
+      ),
+      this.db.use((db) =>
+        db
+          .select({ userId: weekPasses.userId })
+          .from(weekPasses)
+          .where(gt(weekPasses.endsAt, now))
       ),
     ]);
 
-    return new Set([...subs, ...grants].map((r) => r.userId));
+    return new Set([...subs, ...grants, ...passes].map((r) => r.userId));
   }
 
   private async getDancers(schoolProfileId: string) {
@@ -161,7 +171,7 @@ export class Service {
     );
     const favoritedIds = new Set(favorited.map((f) => f.dancerId));
 
-    // Only premium dancers are surfaced to schools.
+    // Only paying dancers (Premium or a Week Pass) are surfaced to schools.
     const premiumUserIds = await this.getPremiumUserIds();
 
     const dancers = await this.db.use((db) =>
@@ -222,7 +232,10 @@ export class Service {
     // How much the school is asking for — the denominator for percentage fit.
     // Skills contribute their own weight, so a school that leans heavily on a
     // few high-importance skills is scored against that emphasis.
-    const totalSkillWeight = school.skills.reduce((sum, s) => sum + s.weight, 0);
+    const totalSkillWeight = school.skills.reduce(
+      (sum, s) => sum + s.weight,
+      0
+    );
     const maxPoints =
       totalSkillWeight +
       school.styles.length * styleWeight +

@@ -1,6 +1,6 @@
 import { db } from "#database/connection";
 import { premiumRoadmaps, subscriptions } from "#database/schema/subscriptions";
-import { subscriptionInterval } from "#modules/premium-roadmap/get-roadmap/service";
+import { subscriptionPlanFor } from "#shared/plans";
 import { BaseCommand } from "@adonisjs/core/ace";
 import type { CommandOptions } from "@adonisjs/core/types/ace";
 import { asc, eq } from "drizzle-orm";
@@ -45,13 +45,15 @@ export async function premiumRoadmapReport(now = new Date()) {
 
   return rows.map(
     ({ roadmap, priceId, status, currentPeriodEnd }): ReportRow => {
-      const interval = subscriptionInterval(priceId ?? null);
+      const interval = subscriptionPlanFor(priceId ?? null);
       const start = roadmap.premiumStartedAt;
       let renewal: Date | null = null;
       if (interval) {
         renewal = new Date(start);
         if (interval === "monthly")
           renewal.setUTCMonth(renewal.getUTCMonth() + 1);
+        else if (interval === "season_pass")
+          renewal.setUTCMonth(renewal.getUTCMonth() + 3);
         else renewal.setUTCFullYear(renewal.getUTCFullYear() + 1);
       }
       const reached = !!renewal && renewal <= now;

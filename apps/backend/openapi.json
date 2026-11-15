@@ -8338,7 +8338,47 @@
           "Subscriptions"
         ],
         "summary": "Create a checkout session",
-        "description": "Creates a checkout session for the authenticated dancer"
+        "description": "Creates a checkout session for the authenticated dancer: a one-time payment for the 1-Week Pass, or a subscription for Monthly, Season Pass, or Annual"
+      }
+    },
+    "/subscriptions/checkout/confirm": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubscriptionsCheckoutConfirmRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionsCheckoutConfirmResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Subscriptions"
+        ],
+        "summary": "Confirm a completed checkout",
+        "description": "Fulfils the authenticated dancer's completed Stripe Checkout Session without waiting for the webhook, and returns their subscription status"
       }
     },
     "/subscriptions/manage": {
@@ -9161,7 +9201,7 @@
           "Dancers"
         ],
         "summary": "Create a CRV submission",
-        "description": "Creates a common recruiting video submission for the authenticated dancer"
+        "description": "Creates a common recruiting video submission for the authenticated dancer. Requires a Monthly, Season Pass, or Annual plan."
       }
     },
     "/dancers/submissions/video": {
@@ -9214,7 +9254,7 @@
           "Dancers"
         ],
         "summary": "Edit the dancer's submission video",
-        "description": "Updates the YouTube URL for the dancer's common recruiting video"
+        "description": "Updates the YouTube URL for the dancer's common recruiting video. Requires a Monthly, Season Pass, or Annual plan."
       }
     },
     "/dancers/submissions/schools": {
@@ -12475,18 +12515,38 @@
         "enum": [
           "stripe",
           "org_event",
-          "none"
+          "none",
+          "week_pass"
+        ]
+      },
+      "Access": {
+        "type": "string",
+        "enum": [
+          "pass",
+          "free",
+          "premium"
+        ]
+      },
+      "Plan": {
+        "type": "string",
+        "enum": [
+          "week_pass",
+          "free",
+          "premium",
+          "monthly",
+          "season_pass",
+          "annual"
         ]
       },
       "DancerFilterParam": {
         "type": "string",
         "enum": [
+          "premium",
           "name",
           "location",
           "sports",
           "styles",
           "following",
-          "premium",
           "gpaRange"
         ]
       },
@@ -22860,6 +22920,7 @@
                         "type": "string",
                         "enum": [
                           "monthly",
+                          "season_pass",
                           "annual"
                         ]
                       },
@@ -23061,6 +23122,12 @@
           "subscribed": {
             "type": "boolean"
           },
+          "access": {
+            "$ref": "#/components/schemas/Access"
+          },
+          "plan": {
+            "$ref": "#/components/schemas/Plan"
+          },
           "grantedBy": {
             "oneOf": [
               {
@@ -23077,6 +23144,8 @@
           "cancelAtPeriodEnd",
           "currentPeriodEnd",
           "subscribed",
+          "access",
+          "plan",
           "grantedBy"
         ]
       },
@@ -23084,16 +23153,36 @@
         "type": "object",
         "properties": {
           "type": {
-            "type": "string",
-            "enum": [
-              "monthly",
-              "yearly"
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "monthly",
+                  "yearly"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "plan": {
+            "oneOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "week_pass",
+                  "monthly",
+                  "season_pass",
+                  "annual"
+                ]
+              },
+              {
+                "type": "null"
+              }
             ]
           }
-        },
-        "required": [
-          "type"
-        ]
+        }
       },
       "SubscriptionsCheckoutResponse": {
         "type": "object",
@@ -23104,6 +23193,66 @@
         },
         "required": [
           "clientSecret"
+        ]
+      },
+      "SubscriptionsCheckoutConfirmRequest": {
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "sessionId"
+        ]
+      },
+      "SubscriptionsCheckoutConfirmResponse": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "$ref": "#/components/schemas/SubscriptionSource"
+          },
+          "cancelAtPeriodEnd": {
+            "type": "boolean"
+          },
+          "currentPeriodEnd": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "subscribed": {
+            "type": "boolean"
+          },
+          "access": {
+            "$ref": "#/components/schemas/Access"
+          },
+          "plan": {
+            "$ref": "#/components/schemas/Plan"
+          },
+          "grantedBy": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "source",
+          "cancelAtPeriodEnd",
+          "currentPeriodEnd",
+          "subscribed",
+          "access",
+          "plan",
+          "grantedBy"
         ]
       },
       "SubscriptionsManageResponse": {
@@ -24652,6 +24801,9 @@
           "subscribed": {
             "type": "boolean"
           },
+          "premium": {
+            "type": "boolean"
+          },
           "orgAccessExpired": {
             "type": "boolean"
           }
@@ -24689,6 +24841,7 @@
           "globalEvents",
           "submission",
           "subscribed",
+          "premium",
           "orgAccessExpired"
         ]
       },
@@ -28624,6 +28777,16 @@
                 "type": "null"
               }
             ]
+          },
+          "videoLimit": {
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "required": [
@@ -28633,7 +28796,8 @@
           "canUploadPhoto",
           "directVideoLimit",
           "youtubeLimit",
-          "photoLimit"
+          "photoLimit",
+          "videoLimit"
         ]
       },
       "VideosUploadsIdResponse": {

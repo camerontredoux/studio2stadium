@@ -178,6 +178,10 @@ export default await Env.create(new URL("../", import.meta.url), {
   STRIPE_WEBHOOK_SECRET: Env.schema.string.optional(),
   STRIPE_PRICE_ID_MONTHLY: Env.schema.string(),
   STRIPE_PRICE_ID_YEARLY: Env.schema.string(),
+  // Optional so the app boots before these Stripe Prices exist; checkout
+  // refuses a plan whose Price is unset (see #shared/plans).
+  STRIPE_PRICE_ID_SEASON_PASS: Env.schema.string.optional(),
+  STRIPE_PRICE_ID_WEEK_PASS: Env.schema.string.optional(),
 
   /*
   |----------------------------------------------------------

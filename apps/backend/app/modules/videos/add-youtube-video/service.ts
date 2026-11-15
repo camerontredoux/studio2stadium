@@ -9,6 +9,7 @@ import {
   GetMediaPermissionsService,
   ORG_STANDARD_YOUTUBE_LIMIT,
 } from "#modules/media/permissions/service";
+import { Service as TusUploadService } from "#modules/videos/tus-upload/service";
 import { VideoUploadEvent } from "#modules/videos/upload-profile-video/event";
 import { inject } from "@adonisjs/core";
 import { and, count, eq, sql } from "drizzle-orm";
@@ -22,7 +23,8 @@ type AddYoutubeVideoResult =
 export class AddYoutubeVideoService {
   constructor(
     private db: DatabaseService,
-    private permissions: GetMediaPermissionsService
+    private permissions: GetMediaPermissionsService,
+    private uploads: TusUploadService
   ) {}
 
   async execute(
@@ -87,6 +89,19 @@ export class AddYoutubeVideoService {
         if (youtubeCount.count >= permissions.youtubeLimit) {
           return null;
         }
+
+        // A plan that caps all videos together (the Week Pass) counts
+        // direct uploads too, including ones still uploading.
+        if (
+          permissions.videoLimit !== null &&
+          (await this.uploads.remainingDirectUploads(
+            tx,
+            userId,
+            permissions
+          )) === 0
+        ) {
+          return null;
+        }
       }
 
       const [newVideo] = await tx
@@ -111,7 +126,10 @@ export class AddYoutubeVideoService {
     if (!video) {
       return {
         error: "limit_exceeded",
-        message: `Your organization tier allows up to ${ORG_STANDARD_YOUTUBE_LIMIT} YouTube videos. Delete one to add another.`,
+        message:
+          permissions.videoLimit !== null
+            ? `Your plan allows up to ${permissions.videoLimit} videos. Delete one to add another.`
+            : `Your organization tier allows up to ${ORG_STANDARD_YOUTUBE_LIMIT} YouTube videos. Delete one to add another.`,
       };
     }
 

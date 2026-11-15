@@ -651,6 +651,10 @@ type SubscriptionsCheckoutPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/subscriptions/create-checkout/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/subscriptions/create-checkout/controller.ts').default['handle'], true>
 }
+type SubscriptionsCheckoutConfirmPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/subscriptions/confirm-checkout/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/subscriptions/confirm-checkout/controller.ts').default['handle'], true>
+}
 type SubscriptionsManagePost = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/subscriptions/manage-subscription/controller.ts').default['handle'], false>
@@ -1943,6 +1947,11 @@ export interface ApiDefinition {
       '$url': {
       };
       '$post': SubscriptionsCheckoutPost;
+      'confirm': {
+        '$url': {
+        };
+        '$post': SubscriptionsCheckoutConfirmPost;
+      };
     };
     'manage': {
       '$url': {
