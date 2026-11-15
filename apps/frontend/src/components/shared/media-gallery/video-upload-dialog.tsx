@@ -66,6 +66,10 @@ export function VideoUploadDialog({
   const { data: permissions } = useQuery(videoQueries.permissions());
   const cloudflareLimit = permissions?.directVideoLimit ?? null;
   const hasReachedCloudflareLimit = permissions?.directVideosRemaining === 0;
+  // The Week Pass caps YouTube and direct videos together, and the server
+  // counts both in `directVideosRemaining`. At the cap neither tab can add one.
+  const videoLimit = permissions?.videoLimit ?? null;
+  const hasReachedVideoLimit = videoLimit !== null && hasReachedCloudflareLimit;
   const { trackUpload } = useVideoProcessing();
   const queryClient = useQueryClient();
 
@@ -100,6 +104,10 @@ export function VideoUploadDialog({
           ? dancerQueries.profile(username)
           : schoolQueries.profile(username);
       queryClient.invalidateQueries({ queryKey: profileQuery.queryKey });
+      // On the Week Pass a YouTube video uses up a direct upload too.
+      queryClient.invalidateQueries({
+        queryKey: videoQueries.permissions().queryKey,
+      });
       toastManager.add({
         title: "Video added",
         description: "Your YouTube video has been added to your profile.",
@@ -204,25 +212,28 @@ export function VideoUploadDialog({
 
   const isVideoBlocked = !subscribed && !isOrgStandard && type === "dancer";
 
-  if (isVideoBlocked || hasReachedYoutubeLimit) {
+  if (isVideoBlocked || hasReachedYoutubeLimit || hasReachedVideoLimit) {
     return (
       <div className="border-border group flex aspect-square flex-1 flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed opacity-60">
         <div className="bg-muted rounded-full p-3">
           <VideoIcon className="text-muted-foreground size-6" />
         </div>
         <span className="text-muted-foreground text-center text-sm font-medium">
-          {hasReachedYoutubeLimit
-            ? `${youtubeLimit} of ${youtubeLimit} YouTube videos used`
-            : "Video"}
+          {hasReachedVideoLimit
+            ? `${videoLimit} of ${videoLimit} videos used`
+            : hasReachedYoutubeLimit
+              ? `${youtubeLimit} of ${youtubeLimit} YouTube videos used`
+              : "Video"}
         </span>
-        {isVideoBlocked && (
+        {(isVideoBlocked || hasReachedVideoLimit) && (
           <Button
             className="hover:text-brand gap-2"
             variant="link"
             size="xs"
             render={<Link to="/checkout" />}
           >
-            <CrownIcon className="text-brand size-3" /> Premium Only
+            <CrownIcon className="text-brand size-3" />{" "}
+            {hasReachedVideoLimit ? "Go Premium for more" : "Premium Only"}
           </Button>
         )}
       </div>

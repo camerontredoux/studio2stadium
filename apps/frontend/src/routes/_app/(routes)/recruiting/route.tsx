@@ -12,7 +12,10 @@ export const Route = createFileRoute("/_app/(routes)/recruiting")({
 
 function RouteComponent() {
   return (
-    <PremiumGuard description="Common Recruiting is a premium feature. Subscribe to unlock this page and get full access.">
+    <PremiumGuard
+      premium
+      description="Common Recruit submissions need a Monthly, Season Pass, or Annual plan. Upgrade to unlock this page."
+    >
       <Outlet />
     </PremiumGuard>
   );

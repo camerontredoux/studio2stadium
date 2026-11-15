@@ -7629,7 +7629,7 @@ export interface paths {
         put?: never;
         /**
          * Create a checkout session
-         * @description Creates a checkout session for the authenticated dancer
+         * @description Creates a checkout session for the authenticated dancer: a one-time payment for the 1-Week Pass, or a subscription for Monthly, Season Pass, or Annual
          */
         post: {
             parameters: {
@@ -7651,6 +7651,58 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["SubscriptionsCheckoutResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/subscriptions/checkout/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm a completed checkout
+         * @description Fulfils the authenticated dancer's completed Stripe Checkout Session without waiting for the webhook, and returns their subscription status
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SubscriptionsCheckoutConfirmRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SubscriptionsCheckoutConfirmResponse"];
                     };
                 };
                 /** @description Unprocessable Entity */
@@ -8572,7 +8624,7 @@ export interface paths {
         put?: never;
         /**
          * Create a CRV submission
-         * @description Creates a common recruiting video submission for the authenticated dancer
+         * @description Creates a common recruiting video submission for the authenticated dancer. Requires a Monthly, Season Pass, or Annual plan.
          */
         post: {
             parameters: {
@@ -8649,7 +8701,7 @@ export interface paths {
         head?: never;
         /**
          * Edit the dancer's submission video
-         * @description Updates the YouTube URL for the dancer's common recruiting video
+         * @description Updates the YouTube URL for the dancer's common recruiting video. Requires a Monthly, Season Pass, or Annual plan.
          */
         patch: {
             parameters: {
@@ -12521,9 +12573,13 @@ export interface components {
         /** @enum {string} */
         StepKey: "video" | "profile" | "favorite" | "program_views" | "tracker";
         /** @enum {string} */
-        SubscriptionSource: "stripe" | "org_event" | "none";
+        SubscriptionSource: "stripe" | "org_event" | "none" | "week_pass";
         /** @enum {string} */
-        DancerFilterParam: "name" | "location" | "sports" | "styles" | "following" | "premium" | "gpaRange";
+        Access: "pass" | "free" | "premium";
+        /** @enum {string} */
+        Plan: "week_pass" | "free" | "premium" | "monthly" | "season_pass" | "annual";
+        /** @enum {string} */
+        DancerFilterParam: "premium" | "name" | "location" | "sports" | "styles" | "following" | "gpaRange";
         MatchTier: ("partial" | "excellent" | "good" | "unqualified") | null;
         /** @enum {string} */
         EventFilterParam: "location" | "date" | "schoolName";
@@ -14370,7 +14426,7 @@ export interface components {
         PremiumRoadmapResponse: {
             eligible: boolean;
             roadmap: {
-                interval: ("monthly" | "annual") | null;
+                interval: ("monthly" | "season_pass" | "annual") | null;
                 firstViewedAt: string;
                 premiumStartedAt: string;
                 completedAt: string | null;
@@ -14411,14 +14467,28 @@ export interface components {
             cancelAtPeriodEnd: boolean;
             currentPeriodEnd: string | null;
             subscribed: boolean;
+            access: components["schemas"]["Access"];
+            plan: components["schemas"]["Plan"];
             grantedBy: string | null;
         };
         SubscriptionsCheckoutRequest: {
-            /** @enum {string} */
-            type: "monthly" | "yearly";
+            type?: ("monthly" | "yearly") | null;
+            plan?: ("week_pass" | "monthly" | "season_pass" | "annual") | null;
         };
         SubscriptionsCheckoutResponse: {
             clientSecret: string;
+        };
+        SubscriptionsCheckoutConfirmRequest: {
+            sessionId: string;
+        };
+        SubscriptionsCheckoutConfirmResponse: {
+            source: components["schemas"]["SubscriptionSource"];
+            cancelAtPeriodEnd: boolean;
+            currentPeriodEnd: string | null;
+            subscribed: boolean;
+            access: components["schemas"]["Access"];
+            plan: components["schemas"]["Plan"];
+            grantedBy: string | null;
         };
         SubscriptionsManageResponse: {
             url: string;
@@ -14701,6 +14771,7 @@ export interface components {
                 youtubeId: string;
             } | null;
             subscribed: boolean;
+            premium: boolean;
             orgAccessExpired: boolean;
         };
         DancersIdFavoriteResponse: {
@@ -15373,6 +15444,7 @@ export interface components {
             directVideoLimit: number | null;
             youtubeLimit: number | null;
             photoLimit: number | null;
+            videoLimit: number | null;
         };
         VideosUploadsIdResponse: {
             mediaId: string;

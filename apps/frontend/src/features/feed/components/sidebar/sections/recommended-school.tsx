@@ -2,6 +2,7 @@ import { useCountdown } from "@/components/hooks/use-countdown";
 import { FollowConfirmDialog } from "@/components/shared/follow-confirm-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { toastManager } from "@/components/ui/toast-manager";
 import type { RecommendedSchool } from "@/features/feed/types";
 import { handleApiError } from "@/lib/api/errors";
 import { useSubscribed } from "@/lib/session/hooks/use-subscribed";
@@ -27,6 +28,14 @@ export function RecommendedSchool({ school }: { school: RecommendedSchool }) {
       { params: { path: { id: school.id } } },
       {
         onError: handleApiError({
+          // e.g. the 1-Week Pass's five-program cap.
+          onError: (error) => {
+            toastManager.add({
+              title: "Error",
+              description: error.message,
+              type: "error",
+            });
+          },
           onRateLimit: (retryAfter) => {
             startCountdown(retryAfter);
           },

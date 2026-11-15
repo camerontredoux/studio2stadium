@@ -25,6 +25,10 @@ export function useManage() {
   return $api.useMutation("post", "/subscriptions/manage");
 }
 
+export function useConfirmCheckout() {
+  return $api.useMutation("post", "/subscriptions/checkout/confirm");
+}
+
 export function useUpdateApplication() {
   return $api.useMutation("patch", "/application", {
     meta: {

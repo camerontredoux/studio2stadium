@@ -14,6 +14,8 @@ export const useSubscribed = () => {
   return {
     data: data ?? {
       subscribed: !isDancer,
+      access: isDancer ? ("free" as const) : ("premium" as const),
+      plan: isDancer ? ("free" as const) : ("premium" as const),
       source: "none" as const,
       cancelAtPeriodEnd: false,
       currentPeriodEnd: null,

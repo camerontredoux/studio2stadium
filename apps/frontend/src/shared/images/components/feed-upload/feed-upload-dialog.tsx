@@ -22,6 +22,7 @@ import { useState } from "react";
 import { useRequestUpload, useUploadImage } from "../../api/mutations";
 import { FeedUploadForm, type FormValues } from "./feed-upload-form";
 
+// Free Profiles and the 1-Week Pass both allow four photos.
 const FREE_TIER_IMAGE_LIMIT = 4;
 
 interface FeedUploadDialogProps {
@@ -35,7 +36,7 @@ export function FeedUploadDialog({
 }: FeedUploadDialogProps) {
   const session = useProfileSession();
   const {
-    data: { subscribed },
+    data: { subscribed, access },
   } = useSubscribed();
   const { mutate, isPending } = useRequestUpload();
   const { mutate: uploadImage, isPending: isUpdatingAvatar } = useUploadImage(
@@ -111,7 +112,7 @@ export function FeedUploadDialog({
   const isOrgLimited =
     !subscribed && session.type === "dancer" && orgAccountTier === "limited";
   const usesFreeTierLimit =
-    !subscribed && session.type === "dancer" && !isOrgLimited;
+    access !== "premium" && session.type === "dancer" && !isOrgLimited;
   const hasReachedLimit = imageCount >= FREE_TIER_IMAGE_LIMIT;
 
   if (isOrgLimited || (usesFreeTierLimit && hasReachedLimit)) {
