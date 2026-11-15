@@ -140,12 +140,10 @@ function PlanChoice({
         "has-focus-visible:ring-ring has-focus-visible:ring-offset-background has-focus-visible:ring-2 has-focus-visible:ring-offset-2",
       )}
     >
-      <span className="flex h-7 shrink-0 items-center">
-        <Radio value={offer.id} disabled={current} />
-      </span>
+      <Radio value={offer.id} disabled={current} />
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-          <span className="flex min-h-7 items-center gap-2 font-semibold">
+          <span className="flex items-center gap-2 font-semibold">
             {offer.name}
             {current && (
               <Badge variant="outline" className="rounded-full">
@@ -154,7 +152,7 @@ function PlanChoice({
             )}
           </span>
           <span className="text-muted-foreground text-sm whitespace-nowrap">
-            <span className="text-primary text-xl font-bold tabular-nums">
+            <span className="text-primary font-bold tabular-nums">
               {offer.price}
             </span>{" "}
             {offer.per}
