@@ -1,5 +1,6 @@
 import { BaseEvent } from "@adonisjs/core/events";
 import emitter from "@adonisjs/core/services/emitter";
+import { guardListener } from "#shared/events/guard-listener";
 import mail from "@adonisjs/mail/services/main";
 import ContactUsEmail from "./email.ts";
 
@@ -22,4 +23,4 @@ class ContactUsHandler {
   }
 }
 
-emitter.listen(ContactUsEvent, [ContactUsHandler]);
+emitter.listen(ContactUsEvent, [guardListener(ContactUsHandler)]);

@@ -1,6 +1,7 @@
 import { outboxService } from "#database/outbox-service";
 import { BaseEvent } from "@adonisjs/core/events";
 import emitter from "@adonisjs/core/services/emitter";
+import { guardListener } from "#shared/events/guard-listener";
 
 interface DancerReferenceEventData {
   dancerId: string;
@@ -21,4 +22,4 @@ class DancerReferenceHandler {
   }
 }
 
-emitter.listen(DancerReferenceEvent, [DancerReferenceHandler]);
+emitter.listen(DancerReferenceEvent, [guardListener(DancerReferenceHandler)]);

@@ -6,6 +6,7 @@ import { users } from "#database/schema/users";
 import cache from "@adonisjs/cache/services/main";
 import { BaseEvent } from "@adonisjs/core/events";
 import emitter from "@adonisjs/core/services/emitter";
+import { guardListener } from "#shared/events/guard-listener";
 import { eq } from "drizzle-orm";
 
 interface VideoUploadEventData {
@@ -59,4 +60,4 @@ class VideoUploadHandler {
   }
 }
 
-emitter.listen(VideoUploadEvent, [VideoUploadHandler]);
+emitter.listen(VideoUploadEvent, [guardListener(VideoUploadHandler)]);

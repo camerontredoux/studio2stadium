@@ -1,6 +1,7 @@
 import { db } from "#database/connection";
 import { BaseEvent } from "@adonisjs/core/events";
 import emitter from "@adonisjs/core/services/emitter";
+import { guardListener } from "#shared/events/guard-listener";
 import mail from "@adonisjs/mail/services/main";
 import ApplicationSubmittedEmail from "./email.ts";
 
@@ -40,4 +41,6 @@ export class ApplicationSubmittedHandler {
   }
 }
 
-emitter.listen(ApplicationSubmittedEvent, [ApplicationSubmittedHandler]);
+emitter.listen(ApplicationSubmittedEvent, [
+  guardListener(ApplicationSubmittedHandler),
+]);

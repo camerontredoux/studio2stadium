@@ -1,5 +1,6 @@
 import { BaseEvent } from "@adonisjs/core/events";
 import emitter from "@adonisjs/core/services/emitter";
+import { guardListener } from "#shared/events/guard-listener";
 import mail from "@adonisjs/mail/services/main";
 import FeedbackEmail from "./email.ts";
 
@@ -24,4 +25,4 @@ class FeedbackHandler {
   }
 }
 
-emitter.listen(FeedbackEvent, [FeedbackHandler]);
+emitter.listen(FeedbackEvent, [guardListener(FeedbackHandler)]);

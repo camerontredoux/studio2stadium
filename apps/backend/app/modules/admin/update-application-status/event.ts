@@ -4,6 +4,7 @@ import env from "#start/env";
 import { BaseEvent } from "@adonisjs/core/events";
 import app from "@adonisjs/core/services/app";
 import emitter from "@adonisjs/core/services/emitter";
+import { guardListener } from "#shared/events/guard-listener";
 import logger from "@adonisjs/core/services/logger";
 import mail from "@adonisjs/mail/services/main";
 import SchoolWelcomeEmail from "./email.ts";
@@ -26,9 +27,14 @@ class SchoolApprovedHandler {
     const { userId, schoolId, schoolName } = event.data;
 
     if (app.inProduction) {
-      const res = await fetch(env.get("CLOUDFLARE_DEPLOY_HOOK"), { method: "POST" });
+      const res = await fetch(env.get("CLOUDFLARE_DEPLOY_HOOK"), {
+        method: "POST",
+      });
       if (!res.ok) {
-        logger.error({ status: res.status, body: await res.text() }, "Cloudflare deploy hook failed (school approved)");
+        logger.error(
+          { status: res.status, body: await res.text() },
+          "Cloudflare deploy hook failed (school approved)"
+        );
       }
     }
 
@@ -60,7 +66,7 @@ class SchoolApprovedHandler {
   }
 }
 
-emitter.listen(SchoolApprovedEvent, [SchoolApprovedHandler]);
+emitter.listen(SchoolApprovedEvent, [guardListener(SchoolApprovedHandler)]);
 
 interface SchoolRejectedEventData {
   userId: string;
@@ -101,4 +107,4 @@ class SchoolRejectedHandler {
   }
 }
 
-emitter.listen(SchoolRejectedEvent, [SchoolRejectedHandler]);
+emitter.listen(SchoolRejectedEvent, [guardListener(SchoolRejectedHandler)]);

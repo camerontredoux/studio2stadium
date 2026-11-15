@@ -28,3 +28,15 @@ if (dsn) {
     },
   });
 }
+
+/*
+| With a DSN, Sentry's default onUnhandledRejection integration ("warn" mode)
+| logs an unhandled rejection and keeps the process up. Without one, Node's
+| default throws and the server exits, so log it and keep running here too.
+| Uncaught exceptions still exit: after one, the process state is unknown.
+*/
+if (!dsn) {
+  process.on("unhandledRejection", (reason) => {
+    console.error("Unhandled promise rejection", reason);
+  });
+}
