@@ -133,7 +133,7 @@ function PlanChoice({
     <label
       data-testid={`change-plan-option-${offer.id}`}
       className={cn(
-        "bg-card relative flex gap-3 rounded-xl border-2 p-4 transition-colors",
+        "bg-card relative grid grid-cols-[auto_1fr] items-center gap-x-3 gap-y-1 rounded-xl border-2 p-4 transition-colors",
         current
           ? "cursor-default opacity-70"
           : "hover:border-brand/50 has-data-checked:border-brand has-data-checked:bg-brand/10 cursor-pointer",
@@ -141,25 +141,25 @@ function PlanChoice({
       )}
     >
       <Radio value={offer.id} disabled={current} />
-      <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-          <span className="flex items-center gap-2 font-semibold">
-            {offer.name}
-            {current && (
-              <Badge variant="outline" className="rounded-full">
-                Current plan
-              </Badge>
-            )}
-          </span>
-          <span className="text-muted-foreground text-sm whitespace-nowrap">
-            <span className="text-primary font-bold tabular-nums">
-              {offer.price}
-            </span>{" "}
-            {offer.per}
-          </span>
-        </div>
-        <span className="text-muted-foreground text-xs">{offer.note}</span>
+      <div className="flex min-w-0 flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+        <span className="flex items-center gap-2 font-semibold">
+          {offer.name}
+          {current && (
+            <Badge variant="outline" className="rounded-full">
+              Current plan
+            </Badge>
+          )}
+        </span>
+        <span className="text-muted-foreground text-sm whitespace-nowrap">
+          <span className="text-primary font-bold tabular-nums">
+            {offer.price}
+          </span>{" "}
+          {offer.per}
+        </span>
       </div>
+      <span className="text-muted-foreground col-start-2 text-xs">
+        {offer.note}
+      </span>
     </label>
   );
 }
