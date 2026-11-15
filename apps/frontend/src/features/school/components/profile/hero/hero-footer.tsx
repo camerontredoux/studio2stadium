@@ -5,8 +5,8 @@ import type { SchoolProfile } from "@/features/school/types";
 import { useSubscribed } from "@/lib/session/hooks/use-subscribed";
 import { queries } from "@/shared/engagement/api/queries";
 import { useQuery } from "@tanstack/react-query";
-import { useNavigate } from "@tanstack/react-router";
-import { EyeIcon, EyeOffIcon, HeartIcon } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { EyeIcon, EyeOffIcon, HeartIcon, LockIcon } from "lucide-react";
 import { SchoolFollowersDialog } from "../../followers-dialog";
 import { SchoolFollowingDialog } from "../../following-dialog";
 import { useProfile } from "../context/use-profile";
@@ -18,8 +18,10 @@ export function HeroFooter({ school }: { school: SchoolProfile }) {
   const { isOwner, isPreview, showOwnerControls, username } = useProfile();
   const navigate = useNavigate({ from: "/explore/$username" });
   const {
-    data: { subscribed },
+    data: { access },
   } = useSubscribed();
+  // Show Interest is a full-plan feature; a 1-Week Pass can only follow.
+  const canShowInterest = access === "premium";
 
   const { data: activity, isPending: isActivityPending } = useQuery(
     queries.activity({ enabled: isOwner }),
@@ -71,11 +73,22 @@ export function HeroFooter({ school }: { school: SchoolProfile }) {
         {!isOwner && !isMetadataPending && (
           <>
             <FollowButton school={school} isFollowing={isFollowing} size="sm" />
-            {isFollowing && subscribed && !isInterested && (
+            {isFollowing && canShowInterest && !isInterested && (
               <ShowInterestDialog
                 schoolId={school.id}
                 count={metadata?.interested ?? 0}
               />
+            )}
+            {isFollowing && access === "pass" && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="flex-1"
+                title="Show Interest is part of the Monthly, Season Pass, and Annual plans"
+                render={<Link to="/checkout" />}
+              >
+                <LockIcon className="size-4" /> Upgrade to Show Interest
+              </Button>
             )}
             {isInterested && (
               <Button size="sm" variant="ghost" disabled className="flex-1">

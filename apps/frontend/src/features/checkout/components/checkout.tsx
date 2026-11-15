@@ -19,7 +19,7 @@ export function Checkout() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const {
-    data: { access, currentPeriodEnd },
+    data: { access, currentPeriodEnd, upgradeFirstChargeAt },
   } = useSubscribed();
 
   const [plan, setPlan] = useState<PaidPlan>("annual");
@@ -72,13 +72,18 @@ export function Checkout() {
             <span className="font-semibold">
               {formatDate(currentPeriodEnd)}
             </span>
-            . Buy another to add seven more days, or go Premium for full access.
+            . Buy another to add seven more days, or upgrade and your
+            remaining pass days are credited toward the new plan.
           </p>
         </div>
       )}
 
       <ChoosePlan plan={plan} onPlanChange={setPlan} />
       <PlanDetails plan={plan} />
+      <BillingDisclosure
+        plan={plan}
+        creditedUntil={access === "pass" ? upgradeFirstChargeAt : null}
+      />
 
       <div className="flex flex-col gap-2">
         <CheckoutDialog key={plan} plan={plan} label={offer.cta} />
@@ -109,6 +114,35 @@ export function Checkout() {
           </Button>
         </div>
       )}
+    </div>
+  );
+}
+
+/**
+ * The charge and renewal terms, shown before the Dancer opens Stripe
+ * Checkout. A Week Pass holder upgrading is not charged until their pass
+ * days run out.
+ */
+function BillingDisclosure({
+  plan,
+  creditedUntil,
+}: {
+  plan: PaidPlan;
+  creditedUntil: string | null;
+}) {
+  const offer = PAID_OFFERS.find((o) => o.id === plan)!;
+  const credited = plan !== "week_pass" && creditedUntil;
+
+  return (
+    <div className="flex flex-col gap-1 text-center text-sm">
+      {credited && (
+        <p className="font-medium">
+          Your 1-Week Pass days are credited. You pay nothing today; your first
+          charge is on{" "}
+          <span className="tabular-nums">{formatDate(creditedUntil)}</span>.
+        </p>
+      )}
+      <p className="text-muted-foreground">{offer.billing}</p>
     </div>
   );
 }
