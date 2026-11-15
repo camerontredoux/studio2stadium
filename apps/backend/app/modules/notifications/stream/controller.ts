@@ -1,6 +1,7 @@
 import { getUserChannel, type RealtimeEvent } from "#shared/realtime/pubsub";
 import type { HttpContext } from "@adonisjs/core/http";
 import redis from "@adonisjs/redis/services/main";
+import { unsubscribeStream } from "./unsubscribe.ts";
 
 /**
  * SSE endpoint for realtime notifications.
@@ -31,7 +32,7 @@ export default class StreamController {
       if (cleanedUp) return;
       cleanedUp = true;
       clearInterval(heartbeat);
-      redis.unsubscribe(channel);
+      void unsubscribeStream(channel);
     };
 
     const messageHandler = (message: string) => {
