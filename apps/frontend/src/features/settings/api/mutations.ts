@@ -25,6 +25,10 @@ export function useManage() {
   return $api.useMutation("post", "/subscriptions/manage");
 }
 
+export function useChangePlan() {
+  return $api.useMutation("post", "/subscriptions/change-plan");
+}
+
 export function useConfirmCheckout() {
   return $api.useMutation("post", "/subscriptions/checkout/confirm");
 }

@@ -19,6 +19,7 @@ import { ProvisionPurchaseService } from "#modules/event-tiers/provisioning/serv
 import { FulfillCheckoutService } from "#modules/subscriptions/fulfill-checkout/service";
 import { GetSubscriptionService } from "#modules/subscriptions/get-status/service";
 import { RevokeWeekPassService } from "#modules/subscriptions/revoke-week-pass/service";
+import { SyncSubscriptionService } from "#modules/subscriptions/sync-subscription/service";
 import { weekPasses } from "#database/schema/subscriptions";
 import { priceIdFor } from "#shared/plans";
 import { PaymentFailedEvent, SubscriptionCreatedEvent } from "./event.ts";
@@ -73,7 +74,8 @@ test.group("Stripe checkout webhook", (group) => {
       new ProvisionPurchaseService(dbService),
       new DeactivatePurchaseService(dbService),
       new FulfillCheckoutService(dbService),
-      new RevokeWeekPassService(dbService)
+      new RevokeWeekPassService(dbService),
+      new SyncSubscriptionService(dbService)
     );
     const startedAtOf = async () => {
       const [row] = await db
@@ -111,7 +113,8 @@ test.group("Stripe checkout webhook", (group) => {
       provision,
       new DeactivatePurchaseService(dbService),
       new FulfillCheckoutService(dbService),
-      new RevokeWeekPassService(dbService)
+      new RevokeWeekPassService(dbService),
+      new SyncSubscriptionService(dbService)
     );
   }
 

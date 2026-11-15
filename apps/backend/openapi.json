@@ -8402,6 +8402,85 @@
         "description": "Opens the Stripe billing portal for the authenticated dancer's subscription, including one whose renewal payment failed, or redirects to checkout when there is none"
       }
     },
+    "/subscriptions/change-plan": {
+      "get": {
+        "parameters": [
+          {
+            "name": "plan",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/SubscriptionPlan"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionsChangeplanResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Subscriptions"
+        ],
+        "summary": "Preview a plan change",
+        "description": "Shows what switching the authenticated dancer's subscription to another plan costs today, when it renews and for how much, from Stripe's invoice preview"
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubscriptionsChangeplanRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionsChangeplanPostResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Subscriptions"
+        ],
+        "summary": "Change plan",
+        "description": "Switches the authenticated dancer's subscription to Monthly, Season Pass or Annual in place, billing the prorated difference now and keeping a subscription that was set to cancel, and returns their subscription status"
+      }
+    },
     "/subscriptions/dev-grant": {
       "post": {
         "responses": {
@@ -12533,6 +12612,14 @@
           "week_pass",
           "free",
           "premium",
+          "monthly",
+          "season_pass",
+          "annual"
+        ]
+      },
+      "SubscriptionPlan": {
+        "type": "string",
+        "enum": [
           "monthly",
           "season_pass",
           "annual"
@@ -23295,6 +23382,155 @@
         },
         "required": [
           "url"
+        ]
+      },
+      "SubscriptionsChangeplanResponse": {
+        "type": "object",
+        "properties": {
+          "currency": {
+            "type": "string"
+          },
+          "terms": {
+            "type": "string"
+          },
+          "plan": {
+            "$ref": "#/components/schemas/SubscriptionPlan"
+          },
+          "amountDue": {
+            "type": "number"
+          },
+          "paidFromCredit": {
+            "type": "number"
+          },
+          "credit": {
+            "type": "number"
+          },
+          "renewsAt": {
+            "type": "string"
+          },
+          "renewalAmount": {
+            "type": "number"
+          },
+          "clearsCancellation": {
+            "type": "boolean"
+          },
+          "prorationDate": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "currency",
+          "terms",
+          "plan",
+          "amountDue",
+          "paidFromCredit",
+          "credit",
+          "renewsAt",
+          "renewalAmount",
+          "clearsCancellation",
+          "prorationDate"
+        ]
+      },
+      "SubscriptionsChangeplanRequest": {
+        "type": "object",
+        "properties": {
+          "plan": {
+            "$ref": "#/components/schemas/SubscriptionPlan"
+          },
+          "prorationDate": {
+            "type": [
+              "string",
+              "number"
+            ]
+          }
+        },
+        "required": [
+          "plan",
+          "prorationDate"
+        ]
+      },
+      "SubscriptionsChangeplanPostResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "object",
+            "properties": {
+              "source": {
+                "$ref": "#/components/schemas/SubscriptionSource"
+              },
+              "cancelAtPeriodEnd": {
+                "type": "boolean"
+              },
+              "currentPeriodEnd": {
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "subscribed": {
+                "type": "boolean"
+              },
+              "access": {
+                "$ref": "#/components/schemas/Access"
+              },
+              "plan": {
+                "$ref": "#/components/schemas/Plan"
+              },
+              "grantedBy": {
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "paymentFailed": {
+                "type": "boolean"
+              },
+              "upgradeFirstChargeAt": {
+                "oneOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "source",
+              "cancelAtPeriodEnd",
+              "currentPeriodEnd",
+              "subscribed",
+              "access",
+              "plan",
+              "grantedBy",
+              "paymentFailed",
+              "upgradeFirstChargeAt"
+            ]
+          },
+          "currency": {
+            "type": "string"
+          },
+          "credit": {
+            "type": "number"
+          },
+          "amountPaid": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "status",
+          "currency",
+          "credit",
+          "amountPaid"
         ]
       },
       "SubscriptionsDevgrantResponse": {
