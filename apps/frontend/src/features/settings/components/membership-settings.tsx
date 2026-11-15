@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useConfirmCheckout, useManage } from "../api/mutations";
+import { ChangePlanDialog } from "./change-plan-dialog";
 
 const HERO_FEATURES = {
   premium: [
@@ -231,20 +232,24 @@ export function MembershipSettings() {
             </div>
 
             {canManageBilling ? (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleManage}
-                disabled={isPending}
-                className="gap-2"
-              >
-                {isPending ? (
-                  <Spinner />
-                ) : (
-                  <CreditCardIcon className="size-4" />
-                )}
-                {paymentFailed ? "Update payment" : "Manage billing"}
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                {/* A failed renewal is fixed with a new card before any switch. */}
+                {onSubscription && !paymentFailed && <ChangePlanDialog />}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleManage}
+                  disabled={isPending}
+                  className="gap-2"
+                >
+                  {isPending ? (
+                    <Spinner />
+                  ) : (
+                    <CreditCardIcon className="size-4" />
+                  )}
+                  {paymentFailed ? "Update payment" : "Manage billing"}
+                </Button>
+              </div>
             ) : (
               access !== "premium" && (
                 <Button

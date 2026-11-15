@@ -659,6 +659,14 @@ type SubscriptionsManagePost = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/subscriptions/manage-subscription/controller.ts').default['handle'], false>
 }
+type SubscriptionsChangeplanGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/subscriptions/preview-plan-change/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/subscriptions/preview-plan-change/controller.ts').default['handle'], true>
+}
+type SubscriptionsChangeplanPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/subscriptions/change-plan/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/subscriptions/change-plan/controller.ts').default['handle'], true>
+}
 type SubscriptionsDevgrantPost = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/subscriptions/dev-grant/controller.ts').default['handle'], false>
@@ -1957,6 +1965,13 @@ export interface ApiDefinition {
       '$url': {
       };
       '$post': SubscriptionsManagePost;
+    };
+    'change-plan': {
+      '$url': {
+      };
+      '$get': SubscriptionsChangeplanGetHead;
+      '$head': SubscriptionsChangeplanGetHead;
+      '$post': SubscriptionsChangeplanPost;
     };
     'dev-grant': {
       '$url': {

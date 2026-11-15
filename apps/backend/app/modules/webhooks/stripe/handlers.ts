@@ -15,13 +15,13 @@ import {
   isWeekPassSession,
 } from "#modules/subscriptions/fulfill-checkout/service";
 import { RevokeWeekPassService } from "#modules/subscriptions/revoke-week-pass/service";
+import { SyncSubscriptionService } from "#modules/subscriptions/sync-subscription/service";
 import stripe from "#payments/stripe/main";
-import { pastDueGraceEndsAt } from "#shared/plans";
 import { inject } from "@adonisjs/core";
 import logger from "@adonisjs/core/services/logger";
 import { eq } from "drizzle-orm";
 import { type Stripe } from "stripe";
-import { PaymentFailedEvent, SubscriptionDeletedEvent } from "./event.ts";
+import { SubscriptionDeletedEvent } from "./event.ts";
 
 @inject()
 export default class WebhookHandlers {
@@ -30,7 +30,8 @@ export default class WebhookHandlers {
     private provisionPurchase: ProvisionPurchaseService,
     private deactivatePurchase: DeactivatePurchaseService,
     private fulfillCheckout: FulfillCheckoutService,
-    private revokeWeekPass: RevokeWeekPassService
+    private revokeWeekPass: RevokeWeekPassService,
+    private syncSubscription: SyncSubscriptionService
   ) {
     stripe.onEvent(
       "checkout.session.completed",
@@ -150,64 +151,15 @@ export default class WebhookHandlers {
   }
 
   // Handles everything after initial creation: renewals, cancellations, plan
-  // changes, a trial (credited Week Pass days) ending, and payment failures.
-  // A renewal whose payment fails moves the subscription to past_due; the
-  // member keeps access for a grace period from the first such event
-  // (`PAST_DUE_GRACE_DAYS`) and is emailed once to update their card. A
-  // later successful payment moves it back to active and clears the grace.
+  // changes (in the billing portal or the app), a trial (credited Week Pass
+  // days) ending, and payment failures. See `SyncSubscriptionService`.
   async subscriptionUpdated(event: Stripe.Event) {
     const subscription = event.data.object as Stripe.Subscription;
-    const item = subscription.items.data[0];
 
-    const priceId = item.price.id;
-    const currentPeriodEnd = item.current_period_end;
-    const pastDue = subscription.status === "past_due";
-
-    const failed = await this.db.tx(async (tx) => {
-      const [row] = await tx
-        .select({
-          userId: subscriptions.userId,
-          pastDueSince: subscriptions.pastDueSince,
-        })
-        .from(subscriptions)
-        .where(eq(subscriptions.subscriptionId, subscription.id))
-        .for("update");
-
-      const pastDueSince = pastDue
-        ? (row?.pastDueSince ??
-          (event.created ? new Date(event.created * 1000) : new Date()))
-        : null;
-
-      await tx
-        .update(subscriptions)
-        .set({
-          status: subscription.status,
-          priceId,
-          cancelAtPeriodEnd:
-            subscription.cancel_at_period_end ||
-            subscription.cancel_at !== null,
-          currentPeriodEnd: new Date(currentPeriodEnd * 1000),
-          canceledAt: subscription.canceled_at
-            ? new Date(subscription.canceled_at * 1000)
-            : null,
-          pastDueSince,
-          updatedAt: new Date(),
-        })
-        .where(eq(subscriptions.subscriptionId, subscription.id));
-
-      // Only the event that first moves the subscription to past_due sends
-      // the notice; later retries and redeliveries find the grace started.
-      return row && pastDueSince && !row.pastDueSince
-        ? { userId: row.userId, pastDueSince }
-        : null;
-    });
-
-    if (failed) {
-      PaymentFailedEvent.dispatch({
-        userId: failed.userId,
-        accessEndsAt: pastDueGraceEndsAt(failed.pastDueSince),
-      });
-    }
+    await this.syncSubscription.execute(
+      subscription,
+      event.created ? new Date(event.created * 1000) : new Date()
+    );
   }
 
   // Fired when a subscription is fully deleted

@@ -22,6 +22,11 @@ export function describePrice(price: DisclosedPrice): string {
     : `${amount} every ${count} ${interval}s`;
 }
 
+/** How a subscription renews: "Renews automatically at $69.00 every 3 months until you cancel in Membership settings." */
+export function renewalTerms(price: DisclosedPrice): string {
+  return `Renews automatically at ${describePrice(price)} until you cancel in Membership settings.`;
+}
+
 /**
  * The line Stripe Checkout shows above its pay button. A subscription says
  * that it renews automatically, at what price and how often, and, for a Week
@@ -37,7 +42,7 @@ export function checkoutDisclosure(
     return "One-time payment for 7 days of access. It does not renew.";
   }
 
-  const renewal = `Renews automatically at ${describePrice(price)} until you cancel in Membership settings.`;
+  const renewal = renewalTerms(price);
 
   if (!firstChargeAt) return renewal;
 

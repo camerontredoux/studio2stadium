@@ -7,6 +7,9 @@ const ManageController = () => import("./manage-subscription/controller.ts");
 const CheckoutController = () => import("./create-checkout/controller.ts");
 const ConfirmCheckoutController = () =>
   import("./confirm-checkout/controller.ts");
+const PreviewPlanChangeController = () =>
+  import("./preview-plan-change/controller.ts");
+const ChangePlanController = () => import("./change-plan/controller.ts");
 const DevGrantController = () => import("./dev-grant/controller.ts");
 
 router
@@ -36,6 +39,21 @@ router
       summary: "Manage a subscription",
       description:
         "Opens the Stripe billing portal for the authenticated dancer's subscription, including one whose renewal payment failed, or redirects to checkout when there is none",
+    });
+
+    // Like `manage`, not behind `subscribed()`: the services refuse anyone
+    // without a live subscription of their own, and send a member whose
+    // renewal failed to update the card first.
+    router.get("change-plan", [PreviewPlanChangeController]).openapi({
+      summary: "Preview a plan change",
+      description:
+        "Shows what switching the authenticated dancer's subscription to another plan costs today, when it renews and for how much, from Stripe's invoice preview",
+    });
+
+    router.post("change-plan", [ChangePlanController]).openapi({
+      summary: "Change plan",
+      description:
+        "Switches the authenticated dancer's subscription to Monthly, Season Pass or Annual in place, billing the prorated difference now and keeping a subscription that was set to cancel, and returns their subscription status",
     });
 
     if (!app.inProduction) {

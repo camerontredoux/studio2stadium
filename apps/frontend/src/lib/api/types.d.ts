@@ -7761,6 +7761,92 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/subscriptions/change-plan": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Preview a plan change
+         * @description Shows what switching the authenticated dancer's subscription to another plan costs today, when it renews and for how much, from Stripe's invoice preview
+         */
+        get: {
+            parameters: {
+                query: {
+                    plan: components["schemas"]["SubscriptionPlan"];
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SubscriptionsChangeplanResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Change plan
+         * @description Switches the authenticated dancer's subscription to Monthly, Season Pass or Annual in place, billing the prorated difference now and keeping a subscription that was set to cancel, and returns their subscription status
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["SubscriptionsChangeplanRequest"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SubscriptionsChangeplanPostResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/subscriptions/dev-grant": {
         parameters: {
             query?: never;
@@ -12579,6 +12665,8 @@ export interface components {
         /** @enum {string} */
         Plan: "week_pass" | "free" | "premium" | "monthly" | "season_pass" | "annual";
         /** @enum {string} */
+        SubscriptionPlan: "monthly" | "season_pass" | "annual";
+        /** @enum {string} */
         DancerFilterParam: "premium" | "name" | "location" | "sports" | "styles" | "following" | "gpaRange";
         MatchTier: ("partial" | "excellent" | "good" | "unqualified") | null;
         /** @enum {string} */
@@ -14496,6 +14584,38 @@ export interface components {
         };
         SubscriptionsManageResponse: {
             url: string;
+        };
+        SubscriptionsChangeplanResponse: {
+            currency: string;
+            terms: string;
+            plan: components["schemas"]["SubscriptionPlan"];
+            amountDue: number;
+            paidFromCredit: number;
+            credit: number;
+            renewsAt: string;
+            renewalAmount: number;
+            clearsCancellation: boolean;
+            prorationDate: number;
+        };
+        SubscriptionsChangeplanRequest: {
+            plan: components["schemas"]["SubscriptionPlan"];
+            prorationDate: string | number;
+        };
+        SubscriptionsChangeplanPostResponse: {
+            status: {
+                source: components["schemas"]["SubscriptionSource"];
+                cancelAtPeriodEnd: boolean;
+                currentPeriodEnd: string | null;
+                subscribed: boolean;
+                access: components["schemas"]["Access"];
+                plan: components["schemas"]["Plan"];
+                grantedBy: string | null;
+                paymentFailed: boolean;
+                upgradeFirstChargeAt: string | null;
+            };
+            currency: string;
+            credit: number;
+            amountPaid: number;
         };
         SubscriptionsDevgrantResponse: {
             expiresAt: string;
