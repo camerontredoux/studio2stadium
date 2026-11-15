@@ -151,7 +151,7 @@ export function MembershipSettings() {
                   {included ? (
                     <CheckIcon className="text-brand size-4" />
                   ) : (
-                    <XIcon className="text-muted-foreground size-4" />
+                    <XIcon className="size-4 text-white/60" />
                   )}
                   <span className="text-white/90">{label}</span>
                 </div>
