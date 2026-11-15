@@ -2,6 +2,7 @@ import { db } from "#database/connection";
 import { outboxService } from "#database/outbox-service";
 import { AppEvent } from "#shared/event";
 import emitter from "@adonisjs/core/services/emitter";
+import { guardListener } from "#shared/events/guard-listener";
 import mail from "@adonisjs/mail/services/main";
 import ProspectStatusEmail from "./email.ts";
 
@@ -57,4 +58,4 @@ class ProspectStatusHandler {
   }
 }
 
-emitter.listen(ProspectStatusEvent, [ProspectStatusHandler]);
+emitter.listen(ProspectStatusEvent, [guardListener(ProspectStatusHandler)]);

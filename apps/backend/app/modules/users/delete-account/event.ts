@@ -1,5 +1,6 @@
 import { AppEvent } from "#shared/event";
 import emitter from "@adonisjs/core/services/emitter";
+import { guardListener } from "#shared/events/guard-listener";
 import mail from "@adonisjs/mail/services/main";
 import DeleteFeedbackEmail from "./emails/feedback.ts";
 import GoodbyeEmail from "./emails/goodbye.ts";
@@ -28,4 +29,4 @@ class DeleteAccountHandler {
   }
 }
 
-emitter.listen(DeleteAccountEvent, [DeleteAccountHandler]);
+emitter.listen(DeleteAccountEvent, [guardListener(DeleteAccountHandler)]);

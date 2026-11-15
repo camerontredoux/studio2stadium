@@ -1,6 +1,7 @@
 import { outboxService } from "#database/outbox-service";
 import { BaseEvent } from "@adonisjs/core/events";
 import emitter from "@adonisjs/core/services/emitter";
+import { guardListener } from "#shared/events/guard-listener";
 
 interface CrvSubmissionEventData {
   dancerId: string;
@@ -25,4 +26,4 @@ class CrvSubmissionHandler {
   }
 }
 
-emitter.listen(CrvSubmissionEvent, [CrvSubmissionHandler]);
+emitter.listen(CrvSubmissionEvent, [guardListener(CrvSubmissionHandler)]);

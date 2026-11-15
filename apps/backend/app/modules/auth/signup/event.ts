@@ -1,6 +1,7 @@
 import { outboxService } from "#database/outbox-service";
 import { BaseEvent } from "@adonisjs/core/events";
 import emitter from "@adonisjs/core/services/emitter";
+import { guardListener } from "#shared/events/guard-listener";
 import { type Service } from "./service.ts";
 
 export class SignupEvent extends BaseEvent {
@@ -23,4 +24,4 @@ class SignupHandler {
   }
 }
 
-emitter.listen(SignupEvent, [SignupHandler]);
+emitter.listen(SignupEvent, [guardListener(SignupHandler)]);

@@ -1,6 +1,7 @@
 import { db } from "#database/connection";
 import { BaseEvent } from "@adonisjs/core/events";
 import emitter from "@adonisjs/core/services/emitter";
+import { guardListener } from "#shared/events/guard-listener";
 import mail from "@adonisjs/mail/services/main";
 import PremiumWelcomeEmail from "./emails/premium-welcome.ts";
 import SubscriptionEndedEmail from "./emails/subscription-ended.ts";
@@ -64,5 +65,9 @@ class SubscriptionDeletedHandler {
   }
 }
 
-emitter.listen(SubscriptionCreatedEvent, [SubscriptionCreatedHandler]);
-emitter.listen(SubscriptionDeletedEvent, [SubscriptionDeletedHandler]);
+emitter.listen(SubscriptionCreatedEvent, [
+  guardListener(SubscriptionCreatedHandler),
+]);
+emitter.listen(SubscriptionDeletedEvent, [
+  guardListener(SubscriptionDeletedHandler),
+]);

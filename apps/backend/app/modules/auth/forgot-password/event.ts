@@ -1,5 +1,6 @@
 import { BaseEvent } from "@adonisjs/core/events";
 import emitter from "@adonisjs/core/services/emitter";
+import { guardListener } from "#shared/events/guard-listener";
 import mail from "@adonisjs/mail/services/main";
 import ForgotPasswordEmail from "./email.ts";
 
@@ -20,4 +21,4 @@ class ForgotPasswordHandler {
   }
 }
 
-emitter.listen(ForgotPasswordEvent, [ForgotPasswordHandler]);
+emitter.listen(ForgotPasswordEvent, [guardListener(ForgotPasswordHandler)]);

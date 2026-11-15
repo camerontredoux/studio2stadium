@@ -3,6 +3,7 @@ import { outboxService } from "#database/outbox-service";
 import { AppEvent } from "#shared/event";
 import env from "#start/env";
 import emitter from "@adonisjs/core/services/emitter";
+import { guardListener } from "#shared/events/guard-listener";
 import mail from "@adonisjs/mail/services/main";
 import ProfileViewedEmail from "./email.ts";
 
@@ -70,4 +71,4 @@ class ProfileViewedHandler {
   }
 }
 
-emitter.listen(ProfileViewedEvent, [ProfileViewedHandler]);
+emitter.listen(ProfileViewedEvent, [guardListener(ProfileViewedHandler)]);

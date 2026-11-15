@@ -1,6 +1,7 @@
 import { outboxService } from "#database/outbox-service";
 import { BaseEvent } from "@adonisjs/core/events";
 import emitter from "@adonisjs/core/services/emitter";
+import { guardListener } from "#shared/events/guard-listener";
 
 interface FollowSchoolEventData {
   dancerId: string;
@@ -24,4 +25,4 @@ class FollowSchoolHandler {
   }
 }
 
-emitter.listen(FollowSchoolEvent, [FollowSchoolHandler]);
+emitter.listen(FollowSchoolEvent, [guardListener(FollowSchoolHandler)]);

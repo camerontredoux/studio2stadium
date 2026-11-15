@@ -3,6 +3,7 @@ import { orgMemberships } from "#database/schema/organizations";
 import { AppEvent } from "#shared/event";
 import { eq } from "drizzle-orm";
 import emitter from "@adonisjs/core/services/emitter";
+import { guardListener } from "#shared/events/guard-listener";
 import mail from "@adonisjs/mail/services/main";
 import DancerWelcomeEmail from "./email.ts";
 
@@ -56,4 +57,4 @@ export class DancerCreatedHandler {
   }
 }
 
-emitter.listen(DancerCreatedEvent, [DancerCreatedHandler]);
+emitter.listen(DancerCreatedEvent, [guardListener(DancerCreatedHandler)]);

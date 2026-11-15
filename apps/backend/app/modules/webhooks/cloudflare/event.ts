@@ -2,6 +2,7 @@ import { outboxService } from "#database/outbox-service";
 import { publishToUser } from "#shared/realtime/pubsub";
 import { BaseEvent } from "@adonisjs/core/events";
 import emitter from "@adonisjs/core/services/emitter";
+import { guardListener } from "#shared/events/guard-listener";
 
 interface VideoReadyEventData {
   userId: string;
@@ -57,5 +58,5 @@ class VideoFailedHandler {
   }
 }
 
-emitter.listen(VideoReadyEvent, [VideoReadyHandler]);
-emitter.listen(VideoFailedEvent, [VideoFailedHandler]);
+emitter.listen(VideoReadyEvent, [guardListener(VideoReadyHandler)]);
+emitter.listen(VideoFailedEvent, [guardListener(VideoFailedHandler)]);
