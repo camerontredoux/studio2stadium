@@ -61,6 +61,15 @@ export default class HttpExceptionHandler extends ExceptionHandler {
         status: error.status,
       });
     }
+    // Any other error, such as a Stripe or network failure, is a 500. Its own
+    // message can hold internals (SQL, provider errors), so the client gets a
+    // generic one; report() still logs the real error. Without this the
+    // request ended with an empty 200.
+    return ctx.response.status(500).send({
+      message: "Something went wrong. Please try again.",
+      code: "E_INTERNAL",
+      status: 500,
+    });
   }
 
   /**
