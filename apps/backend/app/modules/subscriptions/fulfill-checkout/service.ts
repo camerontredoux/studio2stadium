@@ -3,6 +3,7 @@ import { DatabaseService } from "#database/service";
 import { SubscriptionCreatedEvent } from "#modules/webhooks/stripe/event";
 import stripe from "#payments/stripe/main";
 import { WEEK_PASS_DAYS } from "#shared/plans";
+import { RecordWeekPassWelcome } from "#shared/week-pass-emails/record-welcome";
 import { inject } from "@adonisjs/core";
 import { eq, max, ne, sql } from "drizzle-orm";
 import { type Stripe } from "stripe";
@@ -37,7 +38,10 @@ export function isWeekPassSession(session: Pick<CompletedSession, "metadata">) {
  */
 @inject()
 export class FulfillCheckoutService {
-  constructor(private db: DatabaseService) {}
+  constructor(
+    private db: DatabaseService,
+    private recordWelcome: RecordWeekPassWelcome = new RecordWeekPassWelcome()
+  ) {}
 
   async execute(session: CompletedSession) {
     const userId = session.client_reference_id;
@@ -84,15 +88,28 @@ export class FulfillCheckoutService {
       const startsAt =
         latest?.endsAt && latest.endsAt > now ? latest.endsAt : now;
 
-      await tx.insert(weekPasses).values({
+      const [pass] = await tx
+        .insert(weekPasses)
+        .values({
+          userId,
+          checkoutSessionId: session.id,
+          paymentIntentId:
+            typeof session.payment_intent === "string"
+              ? session.payment_intent
+              : (session.payment_intent?.id ?? null),
+          startsAt,
+          endsAt: new Date(startsAt.getTime() + WEEK_PASS_DAYS * DAY_MS),
+        })
+        .returning({ id: weekPasses.id });
+
+      // Owed in this transaction, so only the path that recorded the pass
+      // owes it, and a rollback takes both. Sent after commit by the Week
+      // Pass email job, so a mail failure cannot fail this checkout.
+      await this.recordWelcome.execute(tx, {
         userId,
         checkoutSessionId: session.id,
-        paymentIntentId:
-          typeof session.payment_intent === "string"
-            ? session.payment_intent
-            : (session.payment_intent?.id ?? null),
-        startsAt,
-        endsAt: new Date(startsAt.getTime() + WEEK_PASS_DAYS * DAY_MS),
+        weekPassId: pass!.id,
+        now,
       });
     });
   }

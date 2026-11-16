@@ -11,6 +11,7 @@ import PublishOutboxService from "../services/publish-outbox.ts";
 import ReapStuckVideoUploadsService from "../services/reap-stuck-video-uploads.ts";
 import SendProspectDigestService from "../services/send-prospect-digest.ts";
 import SendProspectRemindersService from "../services/send-prospect-reminders.ts";
+import SendWeekPassEmailsService from "../services/send-week-pass-emails.ts";
 
 const cacheSkillsService = new CacheSkillsService();
 const expireSubscriptionsService = new ExpireSubscriptionsService();
@@ -122,3 +123,25 @@ for (const [label, cronTime] of [
     },
   });
 }
+
+const sendWeekPassEmailsService = new SendWeekPassEmailsService();
+
+/**
+ * Week Pass welcome and expired-pass emails, every minute. Both are off by
+ * default (WEEK_PASS_*_EMAIL_ENABLED), and while they are the tick returns
+ * without touching the database. Not wrapped in `withCronClaim`: rows are
+ * claimed one by one with leases, so every machine can run it at once, and a
+ * per-minute claim row would grow `cron_job_runs` without bound.
+ */
+CronJob.from({
+  cronTime: "0 * * * * *",
+  waitForCompletion: true,
+  start: true,
+  onTick: async () => {
+    try {
+      await sendWeekPassEmailsService.run();
+    } catch (error) {
+      console.error("[WeekPassEmails]: job failed:", error);
+    }
+  },
+});

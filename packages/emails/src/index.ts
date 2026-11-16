@@ -134,3 +134,26 @@ export { OrgEmailLayout } from "./components/OrgEmailLayout.js";
 export { Button } from "./components/Button.js";
 export { Footer } from "./components/Footer.js";
 export * from "./components/styles.js";
+
+export {
+  WeekPassWelcomeEmail,
+  weekPassWelcomePreview,
+  type WeekPassWelcomeEmailProps,
+  type WeekPassWelcomeVariant,
+} from "./templates/WeekPassWelcomeEmail.js";
+
+export {
+  WeekPassExpiredEmail,
+  WEEK_PASS_EXPIRED_PREVIEW,
+  WEEK_PASS_DESIGN_PLANS,
+  type WeekPassExpiredEmailProps,
+  type WeekPassPlanPrice,
+} from "./templates/WeekPassExpiredEmail.js";
+
+export {
+  WEEK_PASS_ASSETS,
+  WEEK_PASS_ASSET_BASE_URL,
+  weekPassAssetUrl,
+  type WeekPassAssetName,
+  type WeekPassAssetUrls,
+} from "./components/WeekPassLayout.js";

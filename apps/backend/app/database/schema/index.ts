@@ -19,3 +19,4 @@ export * from "./org-events.ts";
 export * from "./event-features.ts";
 export * from "./event-tier-purchases.ts";
 export * from "./tracker.ts";
+export * from "./week-pass-emails.ts";
