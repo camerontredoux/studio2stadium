@@ -197,14 +197,20 @@ Not verified here, and they depend on real clients or production:
 `app/shared/email-suppressions/sender-check.ts`: one read-only
 `GET https://api.sender.net/v2/subscribers/{encoded address}` with the
 Bearer token, on every attempt, after the app's own checks pass. It has a
-5-second timeout and caches nothing.
+5-second timeout and caches nothing. Every request sends the fixed
+User-Agent `Mozilla/5.0 (compatible; Studio2StadiumBackend/1.0; +https://studio2stadium.com)`,
+because Sender's bot filtering refused a Python default agent with a 403
+page. Only a full browser agent has been verified against the real API so
+far. Before activation, confirm one real GET with this agent returns JSON
+(200 or the documented 404); if it gets a 403 page instead, the check fails
+closed and nothing sends.
 
-| Sender says                                                                                                            | Result                                                                                                     |
-| ---------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `data.status.email` is `active` (address must match, case-insensitively)                                               | Continue; the app's own consent has already passed                                                         |
-| Any other status (`unsubscribed`, `bounced`, `spam_reported`, …)                                                       | Suppressed, reason `sender_<status>`                                                                       |
-| JSON 404 from the API                                                                                                  | Not in Sender (normal for a new purchaser); the app's consent decides                                      |
-| No token, 401, 403, 429, 5xx, redirect, timeout, network error, non-JSON or unexpected body, another address, HTML 404 | No answer: not sent. The row retries with backoff (2, 4, 8, 16 minutes) and ends `failed` after 5 attempts |
+| Sender says                                                                                                                                                             | Result                                                                                                     |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `data.status.email` is `active` (address must match, case-insensitively)                                                                                                | Continue; the app's own consent has already passed                                                         |
+| Any other status (`unsubscribed`, `bounced`, `spam_reported`, …)                                                                                                        | Suppressed, reason `sender_<status>`                                                                       |
+| HTTP 404 with JSON body exactly `{"success": false, "message": "subscriber not found"}` (Sender's documented, observed not-found answer)                                | Not in Sender (normal for a new purchaser); the app's consent decides                                      |
+| No token, 401, 403, 429, 5xx, redirect, timeout, network error, non-JSON or unexpected body, another address, any other 404 (HTML, other JSON, malformed or empty body) | No answer: not sent. The row retries with backoff (2, 4, 8, 16 minutes) and ends `failed` after 5 attempts |
 
 It never adds, updates or re-subscribes anyone in Sender. Errors record only
 the HTTP status or failure kind, never the token or the address.

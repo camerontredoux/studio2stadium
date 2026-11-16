@@ -10,11 +10,13 @@ import env from "#start/env";
  * - an active subscriber passes on to the app's own checks;
  * - any other Sender status (unsubscribed, bounced, spam_reported, ...)
  *   suppresses the email;
- * - a 404 from Sender's API means Sender has never heard of the address,
- *   which is normal for a new purchaser, so the app's own consent decides;
+ * - Sender's documented "not found" answer (HTTP 404 with the JSON body
+ *   `{"success": false, "message": "subscriber not found"}`) means Sender
+ *   has never heard of the address, which is normal for a new purchaser, so
+ *   the app's own consent decides;
  * - anything else (no token, 401, 403, 429, 5xx, a timeout, a network
- *   error, an unexpected body, a 404 that is not from the API) is not an
- *   answer: the caller must not send, and retries later.
+ *   error, an unexpected body, any other 404) is not an answer: the caller
+ *   must not send, and retries later.
  *
  * Used by the Week Pass emails only. The internal sample command does not
  * call it: samples go to one configured internal mailbox, not a customer.
@@ -22,6 +24,24 @@ import env from "#start/env";
 
 export const SENDER_API_BASE = "https://api.sender.net/v2";
 export const SENDER_TIMEOUT_MS = 5_000;
+
+/**
+ * Sent on every request. Sender sits behind bot filtering that refuses some
+ * client defaults (a Python default agent got a 403 HTML page), so the
+ * backend names itself explicitly and never changes this per request.
+ */
+export const SENDER_USER_AGENT =
+  "Mozilla/5.0 (compatible; Studio2StadiumBackend/1.0; +https://studio2stadium.com)";
+
+/** Sender's documented answer for an address it has never seen. */
+function isNotFoundBody(body: unknown): boolean {
+  return (
+    isObject(body) &&
+    body.success === false &&
+    typeof body.message === "string" &&
+    body.message.trim().toLowerCase() === "subscriber not found"
+  );
+}
 
 export type SenderDecision =
   | { allow: true; reason: "sender_active" | "not_in_sender" }
@@ -68,8 +88,9 @@ export async function checkSenderSubscriber(
       {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
+          "Authorization": `Bearer ${token}`,
+          "Accept": "application/json",
+          "User-Agent": SENDER_USER_AGENT,
         },
         redirect: "error",
         signal: AbortSignal.timeout(options.timeoutMs ?? SENDER_TIMEOUT_MS),
@@ -83,10 +104,22 @@ export async function checkSenderSubscriber(
   }
 
   if (response.status === 404) {
-    // Only Sender's API answering "no such subscriber" counts; an HTML 404
-    // from something in between does not.
-    if (isJson(response)) return { allow: true, reason: "not_in_sender" };
-    throw new SenderCheckUnavailable("404 that did not come from the API");
+    // Only Sender's own "subscriber not found" counts. An HTML page, other
+    // JSON, or a body that does not parse may come from a proxy, a wrong
+    // URL or an outage, so it is no answer.
+    if (!isJson(response)) {
+      throw new SenderCheckUnavailable("404 that did not come from the API");
+    }
+    let notFound: unknown;
+    try {
+      notFound = await response.json();
+    } catch {
+      throw new SenderCheckUnavailable("404 response was not JSON");
+    }
+    if (isNotFoundBody(notFound)) {
+      return { allow: true, reason: "not_in_sender" };
+    }
+    throw new SenderCheckUnavailable("404 without Sender's not-found answer");
   }
   if (response.status !== 200) {
     throw new SenderCheckUnavailable(`HTTP ${response.status}`);

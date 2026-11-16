@@ -2,6 +2,8 @@ import { test } from "@japa/runner";
 import {
   checkSenderSubscriber,
   SENDER_API_BASE,
+  SENDER_TIMEOUT_MS,
+  SENDER_USER_AGENT,
   SenderCheckUnavailable,
 } from "./sender-check.ts";
 
@@ -68,6 +70,14 @@ test.group("Sender send-time check", () => {
       `Bearer ${TOKEN}`
     );
     assert.instanceOf(calls[0]!.init.signal, AbortSignal);
+    assert.equal(
+      (calls[0]!.init.headers as Record<string, string>)["User-Agent"],
+      SENDER_USER_AGENT
+    );
+    assert.match(
+      SENDER_USER_AGENT,
+      /^Mozilla\/5\.0 \(compatible; Studio2StadiumBackend\/1\.0;/
+    );
   });
 
   for (const status of [
@@ -89,17 +99,59 @@ test.group("Sender send-time check", () => {
     });
   }
 
-  test("a 404 from the API means not in Sender: the app's consent decides", async ({
+  test("Sender's documented not-found answer means not in Sender: the app's consent decides", async ({
     assert,
   }) => {
-    const { fetch } = fakeFetch(() =>
-      json(404, { message: "Subscriber not found" })
-    );
-    assert.deepEqual(
-      await checkSenderSubscriber(ADDRESS, { token: TOKEN, fetch }),
-      { allow: true, reason: "not_in_sender" }
-    );
+    // As observed from the real API.
+    for (const body of [
+      { message: "subscriber not found", success: false },
+      { success: false, message: "Subscriber not found " },
+    ]) {
+      const { fetch } = fakeFetch(() => json(404, body));
+      assert.deepEqual(
+        await checkSenderSubscriber(ADDRESS, { token: TOKEN, fetch }),
+        { allow: true, reason: "not_in_sender" }
+      );
+    }
   });
+
+  for (const [name, respond] of [
+    ["an empty JSON object", () => json(404, {})],
+    [
+      "another message",
+      () => json(404, { message: "Not Found", success: false }),
+    ],
+    [
+      "success not false",
+      () => json(404, { message: "subscriber not found", success: true }),
+    ],
+    ["success missing", () => json(404, { message: "subscriber not found" })],
+    ["a JSON array", () => json(404, [{ message: "subscriber not found" }])],
+    [
+      "malformed JSON",
+      () =>
+        new Response("{not json", {
+          status: 404,
+          headers: { "content-type": "application/json" },
+        }),
+    ],
+    [
+      "an empty JSON body",
+      () =>
+        new Response("", {
+          status: 404,
+          headers: { "content-type": "application/json" },
+        }),
+    ],
+  ] as const) {
+    test(`a 404 with ${name} fails closed`, async ({ assert }) => {
+      const { fetch } = fakeFetch(respond);
+      assert.include(
+        await failure(checkSenderSubscriber(ADDRESS, { token: TOKEN, fetch })),
+        "404"
+      );
+    });
+  }
 
   test("a 404 that is not an API answer fails closed", async ({ assert }) => {
     const { fetch } = fakeFetch(
@@ -196,6 +248,24 @@ test.group("Sender send-time check", () => {
       );
       assert.notInclude(message, TOKEN);
       assert.notInclude(message.toLowerCase(), "example.com");
+    }
+  });
+
+  test("every request sends the same User-Agent and the 5-second timeout", async ({
+    assert,
+  }) => {
+    for (const respond of [
+      () => subscriber(ADDRESS, "active"),
+      () => json(404, { message: "subscriber not found", success: false }),
+      () => json(503, {}),
+    ]) {
+      const { fetch, calls } = fakeFetch(respond);
+      await checkSenderSubscriber(ADDRESS, { token: TOKEN, fetch }).catch(
+        () => undefined
+      );
+      const headers = calls[0]!.init.headers as Record<string, string>;
+      assert.equal(headers["User-Agent"], SENDER_USER_AGENT);
+      assert.equal(SENDER_TIMEOUT_MS, 5_000);
     }
   });
 });
