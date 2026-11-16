@@ -101,10 +101,14 @@ redis_owns() {
 }
 
 # Set NAME=VALUE in a private copy (default: the backend's), inserting it
-# above the marker line, which must stay last.
+# above the marker line, which must stay last. A line that already reads
+# NAME=VALUE leaves the file untouched: `sd` rewrites a file even when nothing
+# changes, and the running servers restart on any env file write.
 set_env_var() {
   local file=${3:-$env_file}
-  if rg -q "^$1=" "$file"; then
+  if rg -qxF -- "$1=$2" "$file"; then
+    return 0
+  elif rg -q "^$1=" "$file"; then
     sd "^$1=.*\$" "$1=$2" "$file"
   else
     sd --fixed-strings "$marker" "$1=$2
