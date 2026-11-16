@@ -26,22 +26,31 @@ activation; none of them was silently approved.
   - a changed run end;
   - an opt-out, a suppression-list hit, or a missing user or email.
 
-Delivery is at least once per row, not exactly once. A worker that dies after
-SES accepts a message but before the row is marked `sent` leaves a 5-minute
-lease, and a later tick sends that message again. SES's own retry and
-acceptance behavior adds no idempotency key.
+Rows are claimed 10 at a time (at most 5 batches per tick per machine). Each
+row's lease is renewed, and ownership reconfirmed, immediately before the
+transport call, so a slow batch cannot send a row whose lease another worker
+has since taken over; the worker that lost it skips it.
+
+Delivery is still at least once per row, not exactly once. Two cases remain
+unavoidable:
+
+- A worker dies after SES accepts a message but before the row is marked
+  `sent`. Its lease then lapses and a later tick sends that message again.
+- A single transport call outlives its own 5-minute lease.
+
+SES accepts no idempotency key.
 
 ## Configuration (all fail closed)
 
-| Setting | Needed by | Notes |
-| --- | --- | --- |
-| `WEEK_PASS_WELCOME_EMAIL_ENABLED` | welcome | default off; `CRON_EMAILS_ENABLED` does not affect it |
-| `WEEK_PASS_EXPIRED_EMAIL_ENABLED` | offer | default off |
-| `WEEK_PASS_EMAILS_ACTIVE_FROM` | both | ISO instant with zone; no purchase or run before it is ever emailed |
-| `MAIL_POSTAL_ADDRESS` | both | **Missing from the repo. Not invented.** |
-| `EMAIL_SUPPRESSION_IMPORTED_AT` | offer | **Missing.** Set only after Sender and SES suppression history is imported into `email_suppressions` |
-| `WEEK_PASS_EMAILS_TIMEZONE` | both | default `America/Denver` (users have no time zone column) |
-| `WEEK_PASS_EMAIL_ASSET_BASE_URL` | both | default `https://studio2stadium.com/img/week-pass`; images not uploaded yet |
+| Setting                           | Needed by | Notes                                                                                                                                                             |
+| --------------------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `WEEK_PASS_WELCOME_EMAIL_ENABLED` | welcome   | default off; `CRON_EMAILS_ENABLED` does not affect it                                                                                                             |
+| `WEEK_PASS_EXPIRED_EMAIL_ENABLED` | offer     | default off                                                                                                                                                       |
+| `WEEK_PASS_EMAILS_ACTIVE_FROM`    | both      | ISO instant with zone; no purchase or run before it is ever emailed                                                                                               |
+| `MAIL_POSTAL_ADDRESS`             | both      | Runtime-only; deliberately not committed. The authoritative address has been identified, so all that is left is setting it at activation                          |
+| `EMAIL_SUPPRESSION_IMPORTED_AT`   | both      | **Missing.** Set only after Sender and SES suppression history is imported into `email_suppressions`. Both emails honor opt-outs, so the welcome waits for it too |
+| `WEEK_PASS_EMAILS_TIMEZONE`       | both      | default `America/Denver` (users have no time zone column)                                                                                                         |
+| `WEEK_PASS_EMAIL_ASSET_BASE_URL`  | both      | default `https://studio2stadium.com/img/week-pass`; images not uploaded yet                                                                                       |
 
 ## REVIEW: wording added for the queued-pass variant
 
@@ -61,11 +70,11 @@ stacked passes, not the end of this pass alone.
 
 ## REVIEW: proposed subjects and previews (not approved)
 
-| Email | Subject | Preview |
-| --- | --- | --- |
-| Welcome, current | Your S2S Week Pass starts now | Seven days to explore your options and take your next step. |
-| Welcome, queued | Your next S2S Week Pass is lined up | Your next seven days start {start}. |
-| Expired | Your S2S Week Pass has ended | Keep exploring. Unlock more with Premium. |
+| Email            | Subject                             | Preview                                                     |
+| ---------------- | ----------------------------------- | ----------------------------------------------------------- |
+| Welcome, current | Your S2S Week Pass starts now       | Seven days to explore your options and take your next step. |
+| Welcome, queued  | Your next S2S Week Pass is lined up | Your next seven days start {start}.                         |
+| Expired          | Your S2S Week Pass has ended        | Keep exploring. Unlock more with Premium.                   |
 
 ## REVIEW: copy accuracy flags (copy left as supplied)
 
@@ -93,11 +102,25 @@ stacked passes, not the end of this pass alone.
 
    Either the copy narrows to follows or the product adds the favorites
    limit. Not changed here.
+
 5. **Punctuation.** Em dashes and curly apostrophes are kept as supplied.
    Cleanup to the house style is a separate decision.
 6. **Footer reason lines and postal line** ("You're receiving this because…",
    "Studio 2 Stadium · {address}") were added for compliance. They are not in
    the design.
+
+## Visual treatment
+
+- **Logo.** The wordmark is the app's genuine `MainLogo` vector rendered as
+  an image (white letters, tan "2" unchanged), never set as text. Its alt
+  text reads "Studio 2 Stadium" on black when images are blocked.
+- **Hero.** The design's court-floor artwork sits behind the live
+  headline, with every baked-in text area masked to black. It is a CSS
+  background with a VML fallback for Outlook and a solid black fallback.
+- **Out of scope, flagged.** Several existing emails (`PremiumWelcomeEmail`,
+  `DancerWelcomeEmail`, `ForgotPasswordEmail`, `ProfileViewedEmail`,
+  `SchoolJoinedEmail`, `SchoolWelcomeEmail`) still set the wordmark as
+  text. They were left untouched here.
 
 ## REVIEW: classification and opt-outs
 
@@ -112,8 +135,10 @@ stacked passes, not the end of this pass alone.
   email (`users.notifications = false`), which is the only preference the app
   has. No preference behavior was changed.
 - "Manage preferences" links to `/settings/account`, where that switch lives.
+- The business postal address has been identified. It stays out of the
+  repository and is set as `MAIL_POSTAL_ADDRESS` at activation; the emails
+  fail closed until then.
 - Not established from the repo, and so blocking activation:
-  - the business postal address;
   - any Sender suppression or removal history (Sender is not referenced
     anywhere in the code);
   - whether SES account-level suppression is enabled;
@@ -129,7 +154,7 @@ stacked passes, not the end of this pass alone.
    check they load from a mail client.
 4. Import the Sender and SES suppression history into `email_suppressions`,
    then set `EMAIL_SUPPRESSION_IMPORTED_AT`.
-5. Set `MAIL_POSTAL_ADDRESS` to the authoritative address and
+5. Set `MAIL_POSTAL_ADDRESS` to the identified address and
    `WEEK_PASS_EMAILS_ACTIVE_FROM` to an instant at or after the switch-on
    time.
 6. Run `node ace week-pass-emails:dry-run`. It reports, writes nothing and

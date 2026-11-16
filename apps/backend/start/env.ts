@@ -77,10 +77,10 @@ export default await Env.create(new URL("../", import.meta.url), {
   | CRON_EMAILS_ENABLED does not turn them on. Turning one on
   | also needs WEEK_PASS_EMAILS_ACTIVE_FROM (only passes bought,
   | or runs ended, at or after it count, so history is never
-  | replayed) and MAIL_POSTAL_ADDRESS. The expired-pass offer
-  | also needs EMAIL_SUPPRESSION_IMPORTED_AT: when the Sender
-  | and SES suppression history was loaded into
-  | email_suppressions. Anything missing keeps that email off.
+  | replayed), MAIL_POSTAL_ADDRESS, and
+  | EMAIL_SUPPRESSION_IMPORTED_AT: when the Sender and SES
+  | suppression history was loaded into email_suppressions.
+  | Anything missing keeps that email off.
   */
   WEEK_PASS_WELCOME_EMAIL_ENABLED: Env.schema.boolean.optional(),
   WEEK_PASS_EXPIRED_EMAIL_ENABLED: Env.schema.boolean.optional(),

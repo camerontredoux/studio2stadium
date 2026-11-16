@@ -58,120 +58,170 @@ const css = `
     .wp-cta { font-size: 21px !important; }
     .wp-price { font-size: 32px !important; }
     .wp-plan-label { font-size: 18px !important; }
+    .wp-badge { font-size: 10px !important; letter-spacing: 0.2px !important; padding: 1px 6px !important; }
+    .wp-plan-label-cell { padding-left: 14px !important; padding-right: 6px !important; }
+    .wp-plan-price-cell { padding-left: 12px !important; padding-right: 10px !important; }
+    .wp-per { font-size: 14px !important; }
     .wp-date-box { font-size: 16px !important; }
     .wp-icon-col { width: 52px !important; }
     .wp-icon-col img { width: 44px !important; height: 44px !important; }
   }
+  @media only screen and (max-width: 360px) {
+    .wp-hero-title { font-size: 34px !important; line-height: 37px !important; }
+    .wp-price { font-size: 27px !important; }
+    .wp-per { font-size: 12px !important; }
+    .wp-plan-label { font-size: 16px !important; }
+    .wp-plan-label-cell { padding-left: 12px !important; padding-right: 4px !important; }
+    .wp-plan-price-cell { padding-left: 10px !important; padding-right: 8px !important; }
+  }
 `;
 
-export function Wordmark({ size }: { size: number }) {
+/**
+ * The genuine Studio 2 Stadium wordmark (the app's `MainLogo` vector, white
+ * on black, tan "2"), as an image. Never set as text. The alt text is styled
+ * so it still reads as the brand name on black when images are blocked.
+ */
+export function Logo({
+  assetBaseUrl,
+  width,
+}: {
+  assetBaseUrl: string;
+  width: number;
+}) {
+  const height = Math.round((width * 131) / 1200);
   return (
-    <Text
+    <Img
+      src={`${assetBaseUrl}/logo-wordmark-white.png`}
+      alt="Studio 2 Stadium"
+      width={String(width)}
+      height={String(height)}
       style={{
-        margin: 0,
-        fontFamily: displayFont,
-        fontSize: `${size}px`,
-        lineHeight: `${Math.round(size * 1.15)}px`,
-        fontWeight: 800,
-        letterSpacing: "-0.5px",
+        display: "block",
+        margin: "0 auto",
+        width: `${width}px`,
+        maxWidth: "100%",
+        height: "auto",
+        border: 0,
         color: weekPassColors.white,
+        fontFamily: displayFont,
+        fontSize: `${Math.round(height * 0.75)}px`,
+        fontWeight: 800,
         textAlign: "center",
       }}
-    >
-      studio<span style={{ color: weekPassColors.tan }}>2</span>stadium
-    </Text>
+    />
   );
 }
+
+/** Outlook (Word engine) ignores CSS backgrounds; VML draws the same image. */
+const HERO_VML_HEIGHT = 330;
+function vmlOpen(url: string) {
+  return `<!--[if gte mso 9]><v:rect xmlns:v="urn:schemas-microsoft-com:vml" fill="true" stroke="false" style="width:600px;height:${HERO_VML_HEIGHT}px;"><v:fill type="frame" src="${url}" color="#000000" /><v:textbox inset="0,0,0,0"><![endif]-->`;
+}
+const VML_CLOSE = `<!--[if gte mso 9]></v:textbox></v:rect><![endif]-->`;
 
 export interface WeekPassHeroProps {
   eyebrow: string;
   /** Lines of the headline, each on its own line on wide screens. */
   title: string[];
   subtitle: string;
-  /** A decorative strip cropped from the supplied design, shown under the text. */
-  bandUrl?: string;
+  /**
+   * The design's court-floor artwork with its baked-in text masked to black,
+   * drawn behind the live text. Black when images are blocked.
+   */
+  backgroundUrl: string;
+  assetBaseUrl: string;
 }
 
 export function WeekPassHero({
   eyebrow,
   title,
   subtitle,
-  bandUrl,
+  backgroundUrl,
+  assetBaseUrl,
 }: WeekPassHeroProps) {
+  const cellProps = {
+    background: backgroundUrl,
+    bgcolor: weekPassColors.black,
+  } as Record<string, string>;
   return (
-    <Section
+    <table
+      role="presentation"
+      width="100%"
+      cellPadding={0}
+      cellSpacing={0}
       style={{ backgroundColor: weekPassColors.black }}
-      bgcolor={weekPassColors.black}
     >
-      <Section className="wp-pad" style={{ padding: "26px 40px 0" }}>
-        <Wordmark size={40} />
-        <Text
-          style={{
-            margin: "18px 0 8px",
-            fontFamily: displayFont,
-            fontSize: "15px",
-            lineHeight: "20px",
-            fontWeight: 700,
-            letterSpacing: "3px",
-            textTransform: "uppercase",
-            color: weekPassColors.tan,
-          }}
-        >
-          {eyebrow}
-        </Text>
-        <Text
-          className="wp-hero-title"
-          role="heading"
-          aria-level={1}
-          style={{
-            margin: 0,
-            fontFamily: displayFont,
-            fontSize: "56px",
-            lineHeight: "56px",
-            fontWeight: 800,
-            letterSpacing: "-1.5px",
-            color: weekPassColors.white,
-          }}
-        >
-          {title.map((line, i) => (
-            <span key={i}>
-              {line}
-              {i < title.length - 1 ? <br /> : null}
-            </span>
-          ))}
-        </Text>
-        <Text
-          className="wp-hero-sub"
-          style={{
-            margin: "12px 0 0",
-            fontFamily: bodyFont,
-            fontSize: "18px",
-            lineHeight: "26px",
-            fontWeight: 500,
-            color: weekPassColors.white,
-          }}
-        >
-          {subtitle}
-        </Text>
-      </Section>
-      {bandUrl ? (
-        <Img
-          src={bandUrl}
-          alt=""
-          width="600"
-          style={{
-            display: "block",
-            width: "100%",
-            maxWidth: "600px",
-            height: "auto",
-            marginTop: "14px",
-            border: 0,
-          }}
-        />
-      ) : (
-        <div style={{ height: "24px", lineHeight: "24px" }}>&nbsp;</div>
-      )}
-    </Section>
+      <tbody>
+        <tr>
+          <td
+            {...cellProps}
+            valign="top"
+            className="wp-hero-cell"
+            style={{
+              backgroundColor: weekPassColors.black,
+              backgroundImage: `url(${backgroundUrl})`,
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "right bottom",
+              backgroundSize: "cover",
+            }}
+          >
+            <div dangerouslySetInnerHTML={{ __html: vmlOpen(backgroundUrl) }} />
+            <div className="wp-pad" style={{ padding: "26px 40px 34px" }}>
+              <Logo assetBaseUrl={assetBaseUrl} width={300} />
+              <Text
+                style={{
+                  margin: "20px 0 8px",
+                  fontFamily: displayFont,
+                  fontSize: "15px",
+                  lineHeight: "20px",
+                  fontWeight: 700,
+                  letterSpacing: "3px",
+                  textTransform: "uppercase",
+                  color: weekPassColors.tan,
+                }}
+              >
+                {eyebrow}
+              </Text>
+              <Text
+                className="wp-hero-title"
+                role="heading"
+                aria-level={1}
+                style={{
+                  margin: 0,
+                  fontFamily: displayFont,
+                  fontSize: "56px",
+                  lineHeight: "56px",
+                  fontWeight: 800,
+                  letterSpacing: "-1.5px",
+                  color: weekPassColors.white,
+                }}
+              >
+                {title.map((line, i) => (
+                  <span key={i}>
+                    {line}
+                    {i < title.length - 1 ? <br /> : null}
+                  </span>
+                ))}
+              </Text>
+              <Text
+                className="wp-hero-sub"
+                style={{
+                  margin: "12px 0 0",
+                  fontFamily: bodyFont,
+                  fontSize: "18px",
+                  lineHeight: "26px",
+                  fontWeight: 500,
+                  color: weekPassColors.white,
+                }}
+              >
+                {subtitle}
+              </Text>
+            </div>
+            <div dangerouslySetInnerHTML={{ __html: VML_CLOSE }} />
+          </td>
+        </tr>
+      </tbody>
+    </table>
   );
 }
 
@@ -224,6 +274,7 @@ export interface WeekPassFooterProps {
   postalAddress: string;
   /** Why this reader got the email. */
   reason: string;
+  assetBaseUrl: string;
 }
 
 export function WeekPassFooter({
@@ -231,6 +282,7 @@ export function WeekPassFooter({
   unsubscribeUrl,
   postalAddress,
   reason,
+  assetBaseUrl,
 }: WeekPassFooterProps) {
   const small = {
     margin: "0",
@@ -246,7 +298,7 @@ export function WeekPassFooter({
       bgcolor={weekPassColors.black}
     >
       <Section className="wp-pad" style={{ padding: "26px 40px 28px" }}>
-        <Wordmark size={28} />
+        <Logo assetBaseUrl={assetBaseUrl} width={190} />
         <Text
           style={{
             margin: "6px 0 14px",

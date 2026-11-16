@@ -79,7 +79,7 @@ export type WeekPassEmailStatus =
  * bounces and complaints, or a manual request. Only the Week Pass emails
  * read it today; `users.notifications` remains the in-app opt-out.
  *
- * Empty until someone imports that history. The expired-pass email will not
+ * Empty until someone imports that history. Neither Week Pass email will
  * activate until `EMAIL_SUPPRESSION_IMPORTED_AT` records that import.
  */
 export const emailSuppressions = pg.pgTable("email_suppressions", {

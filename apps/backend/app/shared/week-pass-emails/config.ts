@@ -59,28 +59,25 @@ export function weekPassEmailConfig(): WeekPassEmailConfig {
       "MAIL_POSTAL_ADDRESS is missing (the business's physical postal address)"
     );
   }
+  // Both emails honor opt-outs, so neither may go out before the Sender and
+  // SES suppression history is in email_suppressions.
+  if (!suppressionImportedAt) {
+    shared.push(
+      "EMAIL_SUPPRESSION_IMPORTED_AT is missing: import the Sender and SES suppression history into email_suppressions first"
+    );
+  }
   if (!IANAZone.isValidZone(timezone)) {
     shared.push(`WEEK_PASS_EMAILS_TIMEZONE "${timezone}" is not an IANA zone`);
   }
 
-  const kind = (
-    enabled: boolean,
-    extra: string[] = []
-  ): WeekPassEmailKindConfig => {
-    const problems = [...shared, ...extra];
+  const kind = (enabled: boolean): WeekPassEmailKindConfig => {
+    const problems = [...shared];
     return { enabled, active: enabled && problems.length === 0, problems };
   };
 
   return {
     welcome: kind(env.get("WEEK_PASS_WELCOME_EMAIL_ENABLED") === true),
-    expired: kind(
-      env.get("WEEK_PASS_EXPIRED_EMAIL_ENABLED") === true,
-      suppressionImportedAt
-        ? []
-        : [
-            "EMAIL_SUPPRESSION_IMPORTED_AT is missing: import the Sender and SES suppression history into email_suppressions first",
-          ]
-    ),
+    expired: kind(env.get("WEEK_PASS_EXPIRED_EMAIL_ENABLED") === true),
     activeFrom,
     timezone,
     postalAddress,

@@ -81,6 +81,7 @@ test.group("Week Pass fulfilment: welcome email obligation", (group) => {
     "WEEK_PASS_EXPIRED_EMAIL_ENABLED",
     "WEEK_PASS_EMAILS_ACTIVE_FROM",
     "MAIL_POSTAL_ADDRESS",
+    "EMAIL_SUPPRESSION_IMPORTED_AT",
   ] as const;
   let saved: Record<string, unknown> = {};
 
@@ -90,6 +91,7 @@ test.group("Week Pass fulfilment: welcome email obligation", (group) => {
     env.set("WEEK_PASS_WELCOME_EMAIL_ENABLED", true);
     env.set("WEEK_PASS_EMAILS_ACTIVE_FROM", "2026-01-01T00:00:00Z");
     env.set("MAIL_POSTAL_ADDRESS", "TEST ADDRESS, NOT REAL");
+    env.set("EMAIL_SUPPRESSION_IMPORTED_AT", "2026-01-01T00:00:00Z");
     return () => {
       for (const key of SETTINGS) env.set(key, saved[key] as never);
     };
@@ -216,6 +218,18 @@ test.group("Week Pass fulfilment: welcome email obligation", (group) => {
     const dancer = await createDancer();
 
     await fulfill.execute(weekPassSession(dancer.id, "cs_early"));
+
+    assert.lengthOf(await passes(), 1);
+    assert.lengthOf(await owed(), 0);
+  });
+
+  test("the welcome fails closed until suppression history is imported", async ({
+    assert,
+  }) => {
+    env.set("EMAIL_SUPPRESSION_IMPORTED_AT", "");
+    const dancer = await createDancer();
+
+    await fulfill.execute(weekPassSession(dancer.id, "cs_no_suppression"));
 
     assert.lengthOf(await passes(), 1);
     assert.lengthOf(await owed(), 0);

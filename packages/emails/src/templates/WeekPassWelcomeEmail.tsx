@@ -257,7 +257,8 @@ export function WeekPassWelcomeEmail({
         eyebrow="Welcome to your Week Pass"
         title={[...copy.title]}
         subtitle={copy.subtitle}
-        bandUrl={`${assetBaseUrl}/welcome-band.png`}
+        backgroundUrl={`${assetBaseUrl}/hero-welcome.jpg`}
+        assetBaseUrl={assetBaseUrl}
       />
       <WeekPassBody>
         <DateBox
@@ -345,6 +346,7 @@ export function WeekPassWelcomeEmail({
         unsubscribeUrl={unsubscribeUrl}
         postalAddress={postalAddress}
         reason="You're receiving this because you bought a Studio 2 Stadium Week Pass."
+        assetBaseUrl={assetBaseUrl}
       />
     </WeekPassLayout>
   );

@@ -72,14 +72,22 @@ test.group("Week Pass email settings", (group) => {
     );
   });
 
-  test("the offer stays off until the suppression history is imported", ({
+  test("neither email activates until the suppression history is imported", ({
     assert,
   }) => {
     ready();
     env.set("EMAIL_SUPPRESSION_IMPORTED_AT", "");
     env.set("WEEK_PASS_EXPIRED_EMAIL_ENABLED", true);
     env.set("WEEK_PASS_WELCOME_EMAIL_ENABLED", true);
-    assert.deepEqual(activeKinds(weekPassEmailConfig()), ["welcome"]);
+    const config = weekPassEmailConfig();
+    assert.deepEqual(activeKinds(config), []);
+    for (const kind of ["welcome", "expired"] as const) {
+      assert.isTrue(
+        config[kind].problems.some((p) =>
+          p.startsWith("EMAIL_SUPPRESSION_IMPORTED_AT")
+        )
+      );
+    }
   });
 
   test("a cutoff without a zone, or an unknown time zone, is refused", ({

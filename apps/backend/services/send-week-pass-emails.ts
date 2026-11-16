@@ -30,7 +30,15 @@ export type MailSender = (message: BaseMail) => Promise<{ messageId?: string }>;
 export const MAX_ATTEMPTS = 5;
 /** How long a worker owns a claimed row before another may take it. */
 export const LEASE_MS = 5 * 60_000;
-const BATCH_SIZE = 50;
+/**
+ * Rows claimed at a time. Each row's lease is renewed right before it is
+ * handed to the transport, so a slow batch cannot leave later rows on a
+ * lease another worker has since taken over; small batches keep the
+ * renewals rare and the rows a crashed worker strands few.
+ */
+export const BATCH_SIZE = 10;
+/** Batches per tick, so one tick on one machine stays bounded. */
+export const MAX_BATCHES_PER_TICK = 5;
 
 /** Minutes before attempt n+1: 2, 4, 8, 16. */
 export function retryDelayMs(attempts: number) {
@@ -56,6 +64,8 @@ export interface WeekPassEmailReport {
   suppressed: Partial<Record<SuppressReason, number>>;
   retrying: number;
   failed: number;
+  /** Rows skipped because another worker took over their lease. */
+  lostLease: number;
   /** Dry run only: what a live run would do, row by row. */
   plan: {
     kind: WeekPassEmailKind;
@@ -120,6 +130,7 @@ export default class SendWeekPassEmailsService {
       suppressed: {},
       retrying: 0,
       failed: 0,
+      lostLease: 0,
       plan: [],
     };
 
@@ -143,9 +154,12 @@ export default class SendWeekPassEmailsService {
       report.enqueued = await this.enqueueExpired(config, now);
     }
 
-    const rows = await this.claim(kinds, now);
-    for (const row of rows) {
-      await this.deliver(row, config, report);
+    for (let batch = 0; batch < MAX_BATCHES_PER_TICK; batch++) {
+      const rows = await this.claim(kinds, this.now());
+      for (const row of rows) {
+        await this.deliver(row, config, report);
+      }
+      if (rows.length < BATCH_SIZE) break;
     }
     return report;
   }
@@ -243,6 +257,26 @@ export default class SendWeekPassEmailsService {
       .returning();
   }
 
+  /**
+   * Extend this worker's lease from now, if it still holds the row. False
+   * means another worker reclaimed it (or it was finished), so this worker
+   * must not send it.
+   */
+  private async renewLease(row: Row): Promise<boolean> {
+    const renewed = await db
+      .update(weekPassEmails)
+      .set({ claimedUntil: new Date(this.now().getTime() + LEASE_MS) })
+      .where(
+        and(
+          eq(weekPassEmails.id, row.id),
+          eq(weekPassEmails.status, "sending"),
+          eq(weekPassEmails.claimToken, row.claimToken!)
+        )
+      )
+      .returning({ id: weekPassEmails.id });
+    return renewed.length > 0;
+  }
+
   /** Finish a row this worker still holds; a lost lease changes nothing. */
   private async finish(row: Row, values: Partial<Row>) {
     await db
@@ -302,6 +336,17 @@ export default class SendWeekPassEmailsService {
         return;
       }
 
+      // Reconfirm ownership and restart the lease immediately before the
+      // transport, so a row whose lease ran out while earlier rows in the
+      // batch were sending is never sent by two workers at once.
+      if (!(await this.renewLease(row))) {
+        report.lostLease++;
+        console.warn(
+          `[WeekPassEmails]: ${row.kind} email ${row.id} was reclaimed by another worker; not sending`
+        );
+        return;
+      }
+
       const { messageId } = await this.send(prepared.message);
       await this.finish(row, {
         status: "sent",
@@ -356,12 +401,28 @@ export default class SendWeekPassEmailsService {
         )
       );
 
-    const owedKeys = new Set(
-      owed.filter((r) => r.kind === "expired").map((r) => r.dedupeKey)
-    );
+    // A live run inserts with ON CONFLICT DO NOTHING on (kind, dedupeKey),
+    // so any persisted row for a run, whatever its status (sent, suppressed,
+    // failed, in flight), means that run is not new work.
     const candidates = await this.expiredCandidates(config, now);
+    const candidateKeys = candidates.map((c) =>
+      expiredDedupeKey(c.userId, c.endsAt)
+    );
+    const persisted =
+      candidateKeys.length === 0
+        ? []
+        : await db
+            .select({ dedupeKey: weekPassEmails.dedupeKey })
+            .from(weekPassEmails)
+            .where(
+              and(
+                eq(weekPassEmails.kind, "expired"),
+                inArray(weekPassEmails.dedupeKey, candidateKeys)
+              )
+            );
+    const persistedKeys = new Set(persisted.map((r) => r.dedupeKey));
     const fresh = candidates
-      .filter((c) => !owedKeys.has(expiredDedupeKey(c.userId, c.endsAt)))
+      .filter((c) => !persistedKeys.has(expiredDedupeKey(c.userId, c.endsAt)))
       .map((c) => ({
         kind: "expired" as const,
         userId: c.userId,

@@ -9,10 +9,13 @@ import {
 import type { WeekPassEmailConfig } from "#shared/week-pass-emails/config";
 import { verifyUnsubscribeToken } from "#shared/prospect-emails/unsubscribe-token";
 import { createDancer, DAY_MS, subscribe } from "#tests/helpers/premium";
+import type { WeekPassWelcomeMail } from "#shared/week-pass-emails/mails";
 import type { BaseMail } from "@adonisjs/mail";
 import { test } from "@japa/runner";
 import { eq, sql } from "drizzle-orm";
 import SendWeekPassEmailsService, {
+  BATCH_SIZE,
+  LEASE_MS,
   MAX_ATTEMPTS,
   type MailSender,
 } from "./send-week-pass-emails.ts";
@@ -205,6 +208,103 @@ test.group("Week Pass emails: switches and dry run", (group) => {
     // Eligibility was not used up: a live run afterwards still sends both.
     const live = await service(days(start, 7), send).run();
     assert.equal(live.sent, 2);
+  });
+});
+
+test.group("Week Pass emails: dry run matches live dedupe", (group) => {
+  group.each.setup(async () => {
+    await db.execute(sql`truncate table ${users} cascade`);
+    await db.execute(sql`truncate table ${emailSuppressions}`);
+  });
+
+  const start = at("2026-11-16T17:15:00Z");
+  const end = days(start, 7);
+
+  for (const status of ["sent", "suppressed", "failed"] as const) {
+    test(`a run already ${status} is neither owed nor sent again by a dry run`, async ({
+      assert,
+    }) => {
+      const dancer = await createDancer();
+      const pass = await addPass(dancer.id, start, end);
+      await db.insert(weekPassEmails).values({
+        kind: "expired",
+        dedupeKey: `${dancer.id}:${end.toISOString()}`,
+        userId: dancer.id,
+        weekPassId: pass.id,
+        accessEndsAt: end,
+        status,
+        attempts: status === "failed" ? MAX_ATTEMPTS : 1,
+        nextAttemptAt: end,
+      });
+      const { sent, send } = recorder();
+
+      const dry = await service(days(end, 0.5), send).run({ dryRun: true });
+      assert.equal(dry.enqueued, 0);
+      assert.equal(dry.sent, 0);
+      assert.deepEqual(dry.plan, []);
+
+      // And the live run agrees.
+      const live = await service(days(end, 0.5), send).run();
+      assert.equal(live.enqueued, 0);
+      assert.equal(live.sent, 0);
+      assert.lengthOf(sent, 0);
+      const row = await firstRow();
+      assert.equal(row.status, status);
+    });
+  }
+
+  test("a run in flight on another worker's live lease is not reported as new", async ({
+    assert,
+  }) => {
+    const dancer = await createDancer();
+    const pass = await addPass(dancer.id, start, end);
+    await db.insert(weekPassEmails).values({
+      kind: "expired",
+      dedupeKey: `${dancer.id}:${end.toISOString()}`,
+      userId: dancer.id,
+      weekPassId: pass.id,
+      accessEndsAt: end,
+      status: "sending",
+      attempts: 1,
+      claimToken: crypto.randomUUID(),
+      claimedUntil: days(end, 1),
+      nextAttemptAt: end,
+    });
+
+    const dry = await service(days(end, 0.5), recorder().send).run({
+      dryRun: true,
+    });
+    assert.equal(dry.enqueued, 0);
+    assert.deepEqual(dry.plan, []);
+  });
+
+  test("a dry run's counts match the live run that follows it", async ({
+    assert,
+  }) => {
+    const owedAndSent = await createDancer();
+    const fresh = await createDancer();
+    const p1 = await addPass(owedAndSent.id, start, end);
+    await addPass(fresh.id, start, end);
+    await db.insert(weekPassEmails).values({
+      kind: "expired",
+      dedupeKey: `${owedAndSent.id}:${end.toISOString()}`,
+      userId: owedAndSent.id,
+      weekPassId: p1.id,
+      accessEndsAt: end,
+      status: "sent",
+      nextAttemptAt: end,
+    });
+    const { sent, send } = recorder();
+
+    const dry = await service(days(end, 0.5), send).run({ dryRun: true });
+    const live = await service(days(end, 0.5), send).run();
+
+    assert.equal(dry.enqueued, 1);
+    assert.equal(dry.sent, 1);
+    assert.equal(live.enqueued, dry.enqueued);
+    assert.equal(live.sent, dry.sent);
+    assert.lengthOf(sent, 1);
+    assert.equal(sent[0]!.to, fresh.displayEmail);
   });
 });
 
@@ -493,6 +593,114 @@ test.group("Week Pass emails: welcome delivery", (group) => {
     assert.lengthOf(new Set(sent.map((s) => s.to)), 6);
     const final = await rows();
     assert.isTrue(final.every((r) => r.status === "sent"));
+  });
+
+  test("a slow batch never sends a row another worker has reclaimed", async ({
+    assert,
+  }) => {
+    const start = at("2026-11-16T17:15:00Z");
+    const ids: string[] = [];
+    for (let i = 0; i < 3; i++) {
+      const dancer = await createDancer();
+      const pass = await addPass(dancer.id, start, days(start, 7));
+      const row = await oweWelcome(dancer.id, pass.id, `cs_slow_${i}`);
+      // Fix the claim order: row 0, then 1, then 2.
+      await db
+        .update(weekPassEmails)
+        .set({ nextAttemptAt: new Date(ACTIVE_FROM.getTime() + i) })
+        .where(eq(weekPassEmails.id, row.id));
+      ids.push(row.id);
+    }
+
+    let clock = start;
+    const sentBy: Record<string, string[]> = { a: [], b: [] };
+    const { send: recordB } = recorder();
+    const workerB = new SendWeekPassEmailsService({
+      now: () => clock,
+      config: config(),
+      send: async (m) => {
+        sentBy.b!.push((m as WeekPassWelcomeMail).data.userId);
+        return recordB(m);
+      },
+    });
+    const { send: recordA } = recorder();
+    let callsA = 0;
+    const workerA = new SendWeekPassEmailsService({
+      now: () => clock,
+      config: config(),
+      send: async (m) => {
+        callsA++;
+        sentBy.a!.push((m as WeekPassWelcomeMail).data.userId);
+        // Each send takes three minutes. During A's second send the batch
+        // lease A took at `start` runs out for row 2, and B takes it.
+        clock = new Date(clock.getTime() + 3 * 60_000);
+        if (callsA === 2) await workerB.run();
+        return recordA(m);
+      },
+    });
+
+    const report = await workerA.run();
+
+    const rowsAfter = await rows();
+    const byId = new Map(rowsAfter.map((r) => [r.id, r]));
+    assert.isTrue(rowsAfter.every((r) => r.status === "sent"));
+    // Every Dancer got exactly one welcome, across both workers.
+    const all = [...sentBy.a!, ...sentBy.b!];
+    assert.lengthOf(all, 3);
+    assert.lengthOf(new Set(all), 3);
+    assert.lengthOf(sentBy.a!, 2);
+    assert.lengthOf(sentBy.b!, 1);
+    assert.equal(report.lostLease, 1);
+    assert.equal(byId.get(ids[2]!)!.attempts, 2);
+  });
+
+  test("a renewed lease runs a full lease from the moment of sending", async ({
+    assert,
+  }) => {
+    const dancer = await createDancer();
+    const start = at("2026-11-16T17:15:00Z");
+    const pass = await addPass(dancer.id, start, days(start, 7));
+    await oweWelcome(dancer.id, pass.id, "cs_renew");
+    let clock = start;
+    let leaseAtSend: Date | null = null;
+    const svc = new SendWeekPassEmailsService({
+      now: () => clock,
+      config: config(),
+      send: async () => {
+        const [row] = await rows();
+        leaseAtSend = row!.claimedUntil;
+        return { messageId: "x" };
+      },
+    });
+    // Recheck takes a while: the clock moves before the transport is called.
+    const original = (svc as any).prepare.bind(svc);
+    (svc as any).prepare = async (...args: unknown[]) => {
+      clock = new Date(clock.getTime() + 4 * 60_000);
+      return original(...args);
+    };
+
+    await svc.run();
+
+    assert.equal(
+      leaseAtSend!.getTime(),
+      start.getTime() + 4 * 60_000 + LEASE_MS
+    );
+  });
+
+  test("claims are bounded per tick", async ({ assert }) => {
+    const start = at("2026-11-16T17:15:00Z");
+    const total = BATCH_SIZE * 5 + 3;
+    for (let i = 0; i < total; i++) {
+      const dancer = await createDancer();
+      const pass = await addPass(dancer.id, start, days(start, 7));
+      await oweWelcome(dancer.id, pass.id, `cs_bulk_${i}`);
+    }
+    const { sent, send } = recorder();
+
+    await service(start, send).run();
+    assert.lengthOf(sent, BATCH_SIZE * 5);
+    await service(start, send).run();
+    assert.lengthOf(sent, total);
   });
 
   test("a lease left by a crashed worker is reclaimed only after it expires", async ({

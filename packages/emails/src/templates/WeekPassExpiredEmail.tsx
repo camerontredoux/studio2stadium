@@ -165,6 +165,7 @@ function PlanRow({ plan }: { plan: WeekPassPlanPrice }) {
           <td
             valign="middle"
             width="46%"
+            className="wp-plan-label-cell"
             style={{ width: "46%", padding: "14px 10px 14px 20px" }}
           >
             <Text
@@ -183,6 +184,7 @@ function PlanRow({ plan }: { plan: WeekPassPlanPrice }) {
             </Text>
             {plan.badge ? (
               <Text
+                className="wp-badge"
                 style={{
                   margin: "4px 0 0",
                   display: "inline-block",
@@ -195,6 +197,7 @@ function PlanRow({ plan }: { plan: WeekPassPlanPrice }) {
                   fontWeight: 700,
                   letterSpacing: "0.5px",
                   textTransform: "uppercase",
+                  whiteSpace: "nowrap",
                   color: weekPassColors.white,
                 }}
               >
@@ -213,6 +216,7 @@ function PlanRow({ plan }: { plan: WeekPassPlanPrice }) {
           </td>
           <td
             valign="middle"
+            className="wp-plan-price-cell"
             style={{ padding: "10px 16px 10px 20px", whiteSpace: "nowrap" }}
           >
             <Text style={{ margin: 0, color: weekPassColors.ink }}>
@@ -229,6 +233,7 @@ function PlanRow({ plan }: { plan: WeekPassPlanPrice }) {
                 {plan.price}
               </span>
               <span
+                className="wp-per"
                 style={{
                   fontFamily: bodyFont,
                   fontSize: "17px",
@@ -260,7 +265,8 @@ export function WeekPassExpiredEmail({
         eyebrow="Your next move"
         title={["Your week was", "just the beginning."]}
         subtitle="Keep exploring. Unlock more with Premium."
-        bandUrl={`${assetBaseUrl}/expired-band.png`}
+        backgroundUrl={`${assetBaseUrl}/hero-expired.jpg`}
+        assetBaseUrl={assetBaseUrl}
       />
       <WeekPassBody>
         <Text
@@ -339,6 +345,7 @@ export function WeekPassExpiredEmail({
         unsubscribeUrl={unsubscribeUrl}
         postalAddress={postalAddress}
         reason="You're receiving this because your Studio 2 Stadium Week Pass ended and your email notifications are on."
+        assetBaseUrl={assetBaseUrl}
       />
     </WeekPassLayout>
   );
