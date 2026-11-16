@@ -71,6 +71,30 @@ export default await Env.create(new URL("../", import.meta.url), {
 
   /*
   |----------------------------------------------------------
+  | Week Pass emails (welcome and expired-pass Premium offer)
+  |----------------------------------------------------------
+  | Each email has its own switch, off unless set to true;
+  | CRON_EMAILS_ENABLED does not turn them on. Turning one on
+  | also needs WEEK_PASS_EMAILS_ACTIVE_FROM (only passes bought,
+  | or runs ended, at or after it count, so history is never
+  | replayed) and MAIL_POSTAL_ADDRESS. The expired-pass offer
+  | also needs EMAIL_SUPPRESSION_IMPORTED_AT: when the Sender
+  | and SES suppression history was loaded into
+  | email_suppressions. Anything missing keeps that email off.
+  */
+  WEEK_PASS_WELCOME_EMAIL_ENABLED: Env.schema.boolean.optional(),
+  WEEK_PASS_EXPIRED_EMAIL_ENABLED: Env.schema.boolean.optional(),
+  WEEK_PASS_EMAILS_ACTIVE_FROM: Env.schema.string.optional(),
+  // IANA zone the emails print dates in. Defaults to America/Denver.
+  WEEK_PASS_EMAILS_TIMEZONE: Env.schema.string.optional(),
+  // Where the decorative email images are served from.
+  WEEK_PASS_EMAIL_ASSET_BASE_URL: Env.schema.string.optional(),
+  // The business's physical postal address, printed in promotional email.
+  MAIL_POSTAL_ADDRESS: Env.schema.string.optional(),
+  EMAIL_SUPPRESSION_IMPORTED_AT: Env.schema.string.optional(),
+
+  /*
+  |----------------------------------------------------------
   | Who gets the "new school application" email when a school
   | submits its application (defaults to
   | abbey@studio2stadium.com when unset)
