@@ -245,7 +245,7 @@ export default class SendWeekPassEmailsService {
       .limit(BATCH_SIZE)
       .for("update", { skipLocked: true });
 
-    return await db
+    const claimed = await db
       .update(weekPassEmails)
       .set({
         status: "sending",
@@ -255,6 +255,14 @@ export default class SendWeekPassEmailsService {
       })
       .where(inArray(weekPassEmails.id, due))
       .returning();
+
+    // UPDATE ... RETURNING does not keep the subquery's order; send the
+    // longest-waiting rows first.
+    return claimed.sort(
+      (a, b) =>
+        a.nextAttemptAt.getTime() - b.nextAttemptAt.getTime() ||
+        a.createdAt.getTime() - b.createdAt.getTime()
+    );
   }
 
   /**

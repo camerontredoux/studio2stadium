@@ -76,38 +76,76 @@ stacked passes, not the end of this pass alone.
 | Welcome, queued  | Your next S2S Week Pass is lined up | Your next seven days start {start}.                         |
 | Expired          | Your S2S Week Pass has ended        | Keep exploring. Unlock more with Premium.                   |
 
-## REVIEW: copy accuracy flags (copy left as supplied)
+## Approved copy edits (Abbey, after reviewing the previews)
+
+Applied in both emails, their plain-text versions and the tests:
+
+1. **Five-program limit.** The limit is enforced on follows only
+   (`app/modules/schools/follow/service.ts`), so:
+   - welcome now says "use your five follows to keep track of programs that
+     interest you";
+   - the offer's benefit now says "Follow programs without the Week Pass’s
+     five-program limit."
+
+   Neither implies favorites are capped.
+
+2. **Privacy line.** The heading "Your recruiting journey is personal." is
+   kept. The body is now exactly "Other dancers can’t view your full
+   recruiting profile." `GetDancerController` does block other Dancers from
+   a Dancer's full profile. No permissions were changed.
+3. **Plans.** The "MOST POPULAR" badge is removed. "Seasonal" is renamed
+   "Season Pass", matching the code's plan name; its price ($69) and
+   duration (/ 3 months) are unchanged. The design's tan outline on that row
+   is kept as a plain highlight with no wording; `highlight: false` on that
+   row removes it if it should go too.
+4. **Em dashes removed.**
+   - Welcome: "Look beyond familiar names. You might discover a team you
+     hadn’t considered."
+   - Offer: "Ready for more time to explore your options and more ways to
+     take the next step?"
+
+   The privacy body no longer has one. Curly apostrophes are kept as
+   supplied.
+
+## REVIEW: remaining copy and data flags
 
 1. **"Seniors can use Common Recruit…"** is true but incomplete. The
    create-submission service allows `gradYear <= graduatingClass(now)`: this
    cycle's seniors and older graduates. Optional precision: "Eligible seniors
    and older graduates can use…".
-2. **"Your profile is visible to verified college coaches—not other
-   dancers."** `GetDancerController` blocks other Dancers, but it also allows
-   admins and any `school`-type account. It does not check that a school
-   account is `verified`. Other surfaces (Org rosters, explore lists) were not
-   audited. Treat the absolute promise as unverified. Permissions were not
-   changed.
-3. **Prices and plan names.** $25/$69/$250 and the "Monthly / Seasonal /
-   Annual" labels come from the design, not from Stripe (the repo only holds
-   price IDs). The code calls the 3-month plan "Season Pass". Confirm the live
-   prices and label. "MOST POPULAR" is a factual claim that needs data behind
-   it.
-4. **Five-program limit wording.** `PASS_PROGRAM_LIMIT = 5` is enforced
-   only on **follows** (`app/modules/schools/follow/service.ts`); no code
-   limits a Week Pass holder's **favorites**. So two lines overstate it:
-   - welcome: "use your five follows and favorites";
-   - offer: "Follow and favorite programs without the Week Pass’s
-     five-program limit".
-
-   Either the copy narrows to follows or the product adds the favorites
-   limit. Not changed here.
-
-5. **Punctuation.** Em dashes and curly apostrophes are kept as supplied.
-   Cleanup to the house style is a separate decision.
-6. **Footer reason lines and postal line** ("You're receiving this because…",
+2. **Prices.** $25/$69/$250 come from the design, not from Stripe (the repo
+   only holds price IDs). Confirm they match the live Prices before
+   activation.
+3. **Footer reason lines and postal line** ("You're receiving this because…",
    "Studio 2 Stadium · {address}") were added for compliance. They are not in
    the design.
+
+## Link targets (checked against the frontend routes)
+
+| Link                  | URL                           | Route and guard                                                                                                                                                                                             |
+| --------------------- | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Build My Profile      | `SITE_URL/{username}`         | `/_app/(routes)/$username`: the Dancer's own profile (`access.self`)                                                                                                                                        |
+| Explore Premium Plans | `SITE_URL/checkout`           | `/_app/(routes)/checkout`: "Choose Your Plan". Admits free and Week Pass Dancers; Premium members go on to `/feed`. Changed from `/settings/membership`, which only shows a "See plans" button leading here |
+| Manage preferences    | `SITE_URL/settings/account`   | `/_app/(routes)/settings/account`: holds the Notifications switch                                                                                                                                           |
+| Unsubscribe           | `API_URL/unsubscribe?token=…` | backend `GET /unsubscribe` (confirmation page, no write) and `POST /unsubscribe` (form submit and RFC 8058 one-click). No `/api` prefix                                                                     |
+
+Every app link sits under `/_app`. A signed-out reader is sent to
+`/login?redirect=…` and returned to the link after signing in.
+
+Not verified here, and they depend on real clients or production:
+
+- `SITE_URL` and `API_URL` hold their production values and are reachable.
+- Mailbox providers (Gmail, Yahoo, Apple) actually POST the one-click
+  unsubscribe and honor it.
+- Existing behavior, unchanged here: the unsubscribe confirmation page
+  says it stops "billing notices", but billing emails such as payment-failed
+  ignore `users.notifications`.
+- Profile links follow a username. Signup's username blacklist
+  (`app/modules/auth/signup/validator.ts`) blocks most top-level routes
+  ("settings", "checkout", "feed", "events" and others) but not "tracker",
+  "recruiting", "dancers" or "recommended". A Dancer holding one of those
+  usernames would land on that page instead of their profile. This is an
+  existing app-wide gap and was not changed here.
 
 ## Visual treatment
 
@@ -150,7 +188,7 @@ stacked passes, not the end of this pass alone.
 1. Review and approve or replace every REVIEW item above.
 2. Apply migration `20261116180420_week_pass_emails`. It adds two new tables
    and doesn't touch existing ones. Fly runs it on deploy.
-3. Upload `packages/emails/assets/week-pass/*.png` to `/img/week-pass/` and
+3. Upload `packages/emails/assets/week-pass/*.{png,jpg}` to `/img/week-pass/` and
    check they load from a mail client.
 4. Import the Sender and SES suppression history into `email_suppressions`,
    then set `EMAIL_SUPPRESSION_IMPORTED_AT`.

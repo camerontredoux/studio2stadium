@@ -58,7 +58,6 @@ const css = `
     .wp-cta { font-size: 21px !important; }
     .wp-price { font-size: 32px !important; }
     .wp-plan-label { font-size: 18px !important; }
-    .wp-badge { font-size: 10px !important; letter-spacing: 0.2px !important; padding: 1px 6px !important; }
     .wp-plan-label-cell { padding-left: 14px !important; padding-right: 6px !important; }
     .wp-plan-price-cell { padding-left: 12px !important; padding-right: 10px !important; }
     .wp-per { font-size: 14px !important; }
@@ -70,7 +69,7 @@ const css = `
     .wp-hero-title { font-size: 34px !important; line-height: 37px !important; }
     .wp-price { font-size: 27px !important; }
     .wp-per { font-size: 12px !important; }
-    .wp-plan-label { font-size: 16px !important; }
+    .wp-plan-label { font-size: 14px !important; line-height: 18px !important; white-space: nowrap !important; }
     .wp-plan-label-cell { padding-left: 12px !important; padding-right: 4px !important; }
     .wp-plan-price-cell { padding-left: 10px !important; padding-right: 8px !important; }
   }

@@ -118,7 +118,9 @@ export class WeekPassExpiredMail extends BaseMail {
     const { siteUrl, preferencesUrl, unsubscribeUrl } = links(this.data.userId);
     const template = WeekPassExpiredEmail({
       firstName: this.data.firstName,
-      plansUrl: `${siteUrl}/settings/membership`,
+      // The app's plan picker ("Choose Your Plan"). It admits a lapsed Week
+      // Pass holder; someone already on Premium is sent on to their feed.
+      plansUrl: `${siteUrl}/checkout`,
       preferencesUrl,
       unsubscribeUrl,
       postalAddress: this.data.postalAddress,

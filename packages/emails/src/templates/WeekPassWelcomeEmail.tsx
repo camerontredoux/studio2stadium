@@ -67,7 +67,7 @@ const STEPS = [
   {
     number: "02",
     title: "Find programs worth a closer look.",
-    body: "Explore teams and use your five follows and favorites to keep track of programs that interest you. Look beyond familiar names—you might discover a team you hadn’t considered.",
+    body: "Explore teams and use your five follows to keep track of programs that interest you. Look beyond familiar names. You might discover a team you hadn’t considered.",
   },
   {
     number: "03",
@@ -334,8 +334,7 @@ export function WeekPassWelcomeEmail({
                   color: weekPassColors.text,
                 }}
               >
-                Your profile is visible to verified college coaches{"—"}not
-                other dancers. Focus on your own next step.
+                Other dancers can’t view your full recruiting profile.
               </Text>
             </Column>
           </Row>

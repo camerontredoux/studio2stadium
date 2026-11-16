@@ -17,7 +17,8 @@ export interface WeekPassPlanPrice {
   label: string;
   price: string;
   per: string;
-  badge?: string;
+  /** Outline the row in tan, as the design does for the 3-month plan. */
+  highlight?: boolean;
 }
 
 export interface WeekPassExpiredEmailProps {
@@ -42,10 +43,10 @@ export const WEEK_PASS_EXPIRED_PREVIEW =
 export const WEEK_PASS_DESIGN_PLANS: WeekPassPlanPrice[] = [
   { label: "Monthly", price: "$25", per: "/ month" },
   {
-    label: "Seasonal",
+    label: "Season Pass",
     price: "$69",
     per: "/ 3 months",
-    badge: "Most popular",
+    highlight: true,
   },
   { label: "Annual", price: "$250", per: "/ year" },
 ];
@@ -54,7 +55,7 @@ const FEATURES = [
   {
     icon: "icon-radar.png",
     title: "More programs on your radar.",
-    body: "Follow and favorite programs without the Week Pass’s five-program limit.",
+    body: "Follow programs without the Week Pass’s five-program limit.",
   },
   {
     icon: "icon-upload.png",
@@ -146,7 +147,7 @@ function Feature({
 }
 
 function PlanRow({ plan }: { plan: WeekPassPlanPrice }) {
-  const featured = Boolean(plan.badge);
+  const featured = Boolean(plan.highlight);
   return (
     <table
       role="presentation"
@@ -182,28 +183,6 @@ function PlanRow({ plan }: { plan: WeekPassPlanPrice }) {
             >
               {plan.label}
             </Text>
-            {plan.badge ? (
-              <Text
-                className="wp-badge"
-                style={{
-                  margin: "4px 0 0",
-                  display: "inline-block",
-                  padding: "2px 10px",
-                  borderRadius: "4px",
-                  backgroundColor: weekPassColors.tan,
-                  fontFamily: displayFont,
-                  fontSize: "12px",
-                  lineHeight: "20px",
-                  fontWeight: 700,
-                  letterSpacing: "0.5px",
-                  textTransform: "uppercase",
-                  whiteSpace: "nowrap",
-                  color: weekPassColors.white,
-                }}
-              >
-                {plan.badge}
-              </Text>
-            ) : null}
           </td>
           <td width="1" style={{ width: "1px", padding: "12px 0" }}>
             <div
@@ -279,7 +258,7 @@ export function WeekPassExpiredEmail({
         </Text>
         <Text style={bodyTextStyle}>
           Your S2S Week Pass has ended. Ready for more time to explore your
-          options{"—"}and more ways to take the next step?
+          options and more ways to take the next step?
         </Text>
         <Text
           role="heading"
@@ -353,7 +332,7 @@ export function WeekPassExpiredEmail({
 
 WeekPassExpiredEmail.PreviewProps = {
   firstName: "Avery",
-  plansUrl: "https://app.studio2stadium.com/settings/membership",
+  plansUrl: "https://app.studio2stadium.com/checkout",
   preferencesUrl: "https://app.studio2stadium.com/settings/account",
   unsubscribeUrl: "https://api.studio2stadium.com/unsubscribe?token=preview",
   postalAddress: "[postal address not configured]",

@@ -74,7 +74,9 @@ function recorder() {
         : json.to,
       subject: json.subject,
       html: json.html,
-      text: json.text,
+      // Plain text wraps at 78 columns; collapse it so phrases can be
+      // matched whole.
+      text: String(json.text).replace(/\s+/g, " "),
       headers,
     });
     return { messageId: `fake-${sent.length}` };
@@ -334,7 +336,30 @@ test.group("Week Pass emails: welcome delivery", (group) => {
     assert.include(mail.text, "Monday, November 23, 2026 at 10:15 AM MST");
     assert.include(mail.text, `Hi ${dancer.firstName},`);
     assert.include(mail.html, "TEST ADDRESS, NOT REAL");
-    assert.include(mail.html, "/settings/account");
+    // Links: the Dancer's own profile, the in-app notification switch, and
+    // the opt-out on this backend (API_URL), where providers POST.
+    assert.include(
+      mail.html,
+      `href="http://localhost:5173/${dancer.username}"`
+    );
+    assert.include(mail.html, 'href="http://localhost:5173/settings/account"');
+    assert.include(mail.html, 'href="http://localhost:3333/unsubscribe?token=');
+
+    // Approved copy (Abbey, review of the previews).
+    assert.include(mail.text, "use your five follows to keep track");
+    assert.notInclude(mail.text, "follows and favorites");
+    assert.include(
+      mail.text,
+      "Look beyond familiar names. You might discover a team you hadn’t considered."
+    );
+    assert.include(mail.text, "Your recruiting journey is personal.");
+    assert.include(
+      mail.text,
+      "Other dancers can’t view your full recruiting profile."
+    );
+    assert.notInclude(mail.text, "verified college coaches—not");
+    assert.notInclude(mail.html, "—");
+    assert.notInclude(mail.text, "—");
 
     const unsubscribe = mail.headers["List-Unsubscribe"]!;
     assert.match(unsubscribe, /^<http:\/\/localhost:3333\/unsubscribe\?token=/);
@@ -386,6 +411,12 @@ test.group("Week Pass emails: welcome delivery", (group) => {
     const mail = sent[0]!;
     assert.equal(mail.subject, "Your next S2S Week Pass is lined up");
     assert.notInclude(mail.html, "starts now");
+    assert.notInclude(mail.html, "—");
+    assert.notInclude(mail.text, "—");
+    assert.include(
+      mail.text,
+      "Other dancers can’t view your full recruiting profile."
+    );
     assert.include(
       mail.text,
       "Your pass starts: Monday, November 23, 2026 at 10:15 AM MST"
@@ -755,7 +786,34 @@ test.group("Week Pass emails: expired-pass offer", (group) => {
     assert.lengthOf(sent, 1);
     assert.equal(sent[0]!.subject, "Your S2S Week Pass has ended");
     assert.include(sent[0]!.html, "Explore Premium Plans");
-    assert.include(sent[0]!.html, "/settings/membership");
+    assert.include(sent[0]!.html, 'href="http://localhost:5173/checkout"');
+    assert.include(
+      sent[0]!.html,
+      'href="http://localhost:5173/settings/account"'
+    );
+    assert.include(
+      sent[0]!.html,
+      'href="http://localhost:3333/unsubscribe?token='
+    );
+
+    // Approved copy (Abbey, review of the previews).
+    const text = sent[0]!.text;
+    assert.include(
+      text,
+      "Follow programs without the Week Pass’s five-program limit."
+    );
+    assert.notInclude(text.toLowerCase(), "favorite");
+    assert.notInclude(text.toLowerCase(), "most popular");
+    assert.notInclude(text, "Seasonal");
+    assert.include(text, "Season Pass");
+    assert.include(text, "$69");
+    assert.include(text, "/ 3 months");
+    assert.include(
+      text,
+      "Ready for more time to explore your options and more ways to take the next step?"
+    );
+    assert.notInclude(sent[0]!.html, "—");
+    assert.notInclude(text, "—");
     assert.include(sent[0]!.html, "TEST ADDRESS, NOT REAL");
     assert.equal(
       sent[0]!.headers["List-Unsubscribe-Post"],
