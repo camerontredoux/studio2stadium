@@ -92,6 +92,16 @@ export default await Env.create(new URL("../", import.meta.url), {
   // The business's physical postal address, printed in promotional email.
   MAIL_POSTAL_ADDRESS: Env.schema.string.optional(),
   EMAIL_SUPPRESSION_IMPORTED_AT: Env.schema.string.optional(),
+  // The one internal mailbox `node ace week-pass-emails:send-sample` may
+  // send to. Unset means samples can be previewed but never sent.
+  WEEK_PASS_SAMPLE_RECIPIENT: Env.schema.string.optional({ format: "email" }),
+  // JSON object of image file name to https URL, e.g.
+  // {"hero-welcome.jpg":"https://cdn.example.com/hero.jpg"}. Overrides
+  // WEEK_PASS_EMAIL_ASSET_BASE_URL for the images it names.
+  WEEK_PASS_EMAIL_ASSETS: Env.schema.string.optional(),
+  // Sender API token for the read-only, send-time opt-out check on the Week
+  // Pass emails. Secret: set it with `fly secrets set`, never in a file.
+  SENDER_API_TOKEN: Env.schema.string.optional(),
 
   /*
   |----------------------------------------------------------

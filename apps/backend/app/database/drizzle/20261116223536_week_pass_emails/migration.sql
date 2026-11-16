@@ -1,9 +1,13 @@
 CREATE TABLE "email_suppressions" (
-	"email" citext PRIMARY KEY,
-	"source" text NOT NULL,
+	"email" citext,
+	"source" text,
 	"reason" text NOT NULL,
+	"source_recorded_at" timestamp with time zone,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
-	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
+	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "email_suppressions_pkey" PRIMARY KEY("email","source"),
+	CONSTRAINT "email_suppressions_source_check" CHECK ("source" in ('sender', 'ses', 'manual')),
+	CONSTRAINT "email_suppressions_reason_check" CHECK ("reason" in ('unsubscribed', 'bounced', 'complained', 'removal_requested'))
 );
 --> statement-breakpoint
 CREATE TABLE "week_pass_emails" (

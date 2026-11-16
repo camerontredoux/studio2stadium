@@ -1,6 +1,9 @@
 import { Column, Img, Row, Section, Text } from "@react-email/components";
 import {
   WEEK_PASS_ASSET_BASE_URL,
+  weekPassAssetUrl,
+  type WeekPassAssetName,
+  type WeekPassAssetUrls,
   WeekPassBody,
   WeekPassButton,
   WeekPassFooter,
@@ -34,6 +37,8 @@ export interface WeekPassWelcomeEmailProps {
   unsubscribeUrl: string;
   postalAddress: string;
   assetBaseUrl?: string;
+  /** Explicit image URLs, overriding `assetBaseUrl` for those images. */
+  assets?: WeekPassAssetUrls;
 }
 
 /** Proposed preview (inbox snippet) text for each variant. */
@@ -244,7 +249,10 @@ export function WeekPassWelcomeEmail({
   unsubscribeUrl,
   postalAddress,
   assetBaseUrl = WEEK_PASS_ASSET_BASE_URL,
+  assets,
 }: WeekPassWelcomeEmailProps) {
+  const asset = (name: WeekPassAssetName) =>
+    weekPassAssetUrl(name, assetBaseUrl, assets);
   const copy = COPY[variant];
   const intro =
     variant === "current"
@@ -257,15 +265,15 @@ export function WeekPassWelcomeEmail({
         eyebrow="Welcome to your Week Pass"
         title={[...copy.title]}
         subtitle={copy.subtitle}
-        backgroundUrl={`${assetBaseUrl}/hero-welcome.jpg`}
-        assetBaseUrl={assetBaseUrl}
+        backgroundUrl={asset("hero-welcome.jpg")}
+        logoUrl={asset("logo-wordmark-white.png")}
       />
       <WeekPassBody>
         <DateBox
           variant={variant}
           startsAt={startsAt}
           accessEndsAt={accessEndsAt}
-          iconUrl={`${assetBaseUrl}/icon-calendar.png`}
+          iconUrl={asset("icon-calendar.png")}
         />
         <Text
           role="heading"
@@ -305,7 +313,7 @@ export function WeekPassWelcomeEmail({
               style={{ width: "72px", padding: "4px 0 4px 18px" }}
             >
               <Img
-                src={`${assetBaseUrl}/icon-shield.png`}
+                src={asset("icon-shield.png")}
                 alt=""
                 width="44"
                 height="46"
@@ -345,7 +353,7 @@ export function WeekPassWelcomeEmail({
         unsubscribeUrl={unsubscribeUrl}
         postalAddress={postalAddress}
         reason="You're receiving this because you bought a Studio 2 Stadium Week Pass."
-        assetBaseUrl={assetBaseUrl}
+        logoUrl={asset("logo-wordmark-white.png")}
       />
     </WeekPassLayout>
   );

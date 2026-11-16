@@ -6,6 +6,7 @@ import {
   renderEmailText,
   WeekPassExpiredEmail,
   WeekPassWelcomeEmail,
+  type WeekPassAssetUrls,
   type WeekPassWelcomeVariant,
 } from "@stos/emails";
 import { formatEmailDate } from "./schedule.ts";
@@ -31,6 +32,7 @@ interface Recipient {
 interface Footer {
   postalAddress: string;
   assetBaseUrl: string;
+  assets?: WeekPassAssetUrls;
 }
 
 function links(userId: string) {
@@ -95,6 +97,7 @@ export class WeekPassWelcomeMail extends BaseMail {
       unsubscribeUrl,
       postalAddress: this.data.postalAddress,
       assetBaseUrl: this.data.assetBaseUrl,
+      assets: this.data.assets,
     });
 
     this.message.to(this.data.email);
@@ -125,6 +128,7 @@ export class WeekPassExpiredMail extends BaseMail {
       unsubscribeUrl,
       postalAddress: this.data.postalAddress,
       assetBaseUrl: this.data.assetBaseUrl,
+      assets: this.data.assets,
     });
 
     this.message.to(this.data.email);

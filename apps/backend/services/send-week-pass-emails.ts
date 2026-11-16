@@ -19,6 +19,10 @@ import {
   WeekPassExpiredMail,
   WeekPassWelcomeMail,
 } from "#shared/week-pass-emails/mails";
+import {
+  checkSenderSubscriber,
+  type SenderCheck,
+} from "#shared/email-suppressions/sender-check";
 import type { BaseMail } from "@adonisjs/mail";
 import mail from "@adonisjs/mail/services/main";
 import { randomUUID } from "node:crypto";
@@ -80,6 +84,12 @@ interface Options {
   send?: MailSender;
   /** Overrides the settings, for tests. */
   config?: () => WeekPassEmailConfig;
+  /**
+   * Asks Sender whether the recipient opted out there. Called on every
+   * attempt, after the app's own checks pass; an error means no send now
+   * and a retry later. Tests replace it; production calls Sender's API.
+   */
+  senderCheck?: SenderCheck;
 }
 
 type Row = typeof weekPassEmails.$inferSelect;
@@ -103,8 +113,11 @@ export default class SendWeekPassEmailsService {
   private now: () => Date;
   private send: MailSender;
   private config: () => WeekPassEmailConfig;
+  private senderCheck: SenderCheck;
 
   constructor(options: Options = {}) {
+    this.senderCheck =
+      options.senderCheck ?? ((email) => checkSenderSubscriber(email));
     this.now = options.now ?? (() => new Date());
     this.send =
       options.send ??
@@ -302,10 +315,13 @@ export default class SendWeekPassEmailsService {
     const footer = {
       postalAddress: config.postalAddress!,
       assetBaseUrl: config.assetBaseUrl,
+      assets: config.assets,
     };
     if (row.kind === "welcome") {
       const decision = await decideWelcome(row, config, now);
       if (!decision.send) return decision;
+      const sender = await this.senderCheck(decision.recipient.email);
+      if (!sender.allow) return { send: false as const, reason: sender.reason };
       return {
         send: true as const,
         message: new WeekPassWelcomeMail({
@@ -320,6 +336,8 @@ export default class SendWeekPassEmailsService {
     }
     const decision = await decideExpired(row, config, now);
     if (!decision.send) return decision;
+    const sender = await this.senderCheck(decision.recipient.email);
+    if (!sender.allow) return { send: false as const, reason: sender.reason };
     return {
       send: true as const,
       message: new WeekPassExpiredMail({ ...decision.recipient, ...footer }),

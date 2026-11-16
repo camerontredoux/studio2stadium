@@ -1,6 +1,9 @@
 import { Column, Img, Row, Section, Text } from "@react-email/components";
 import {
   WEEK_PASS_ASSET_BASE_URL,
+  weekPassAssetUrl,
+  type WeekPassAssetName,
+  type WeekPassAssetUrls,
   WeekPassBody,
   WeekPassButton,
   WeekPassFooter,
@@ -34,6 +37,8 @@ export interface WeekPassExpiredEmailProps {
    */
   plans?: WeekPassPlanPrice[];
   assetBaseUrl?: string;
+  /** Explicit image URLs, overriding `assetBaseUrl` for those images. */
+  assets?: WeekPassAssetUrls;
 }
 
 /** Proposed preview (inbox snippet) text. */
@@ -51,7 +56,7 @@ export const WEEK_PASS_DESIGN_PLANS: WeekPassPlanPrice[] = [
   { label: "Annual", price: "$250", per: "/ year" },
 ];
 
-const FEATURES = [
+const FEATURES: { icon: WeekPassAssetName; title: string; body: string }[] = [
   {
     icon: "icon-radar.png",
     title: "More programs on your radar.",
@@ -237,15 +242,18 @@ export function WeekPassExpiredEmail({
   postalAddress,
   plans = WEEK_PASS_DESIGN_PLANS,
   assetBaseUrl = WEEK_PASS_ASSET_BASE_URL,
+  assets,
 }: WeekPassExpiredEmailProps) {
+  const asset = (name: WeekPassAssetName) =>
+    weekPassAssetUrl(name, assetBaseUrl, assets);
   return (
     <WeekPassLayout preview={WEEK_PASS_EXPIRED_PREVIEW}>
       <WeekPassHero
         eyebrow="Your next move"
         title={["Your week was", "just the beginning."]}
         subtitle="Keep exploring. Unlock more with Premium."
-        backgroundUrl={`${assetBaseUrl}/hero-expired.jpg`}
-        assetBaseUrl={assetBaseUrl}
+        backgroundUrl={asset("hero-expired.jpg")}
+        logoUrl={asset("logo-wordmark-white.png")}
       />
       <WeekPassBody>
         <Text
@@ -272,7 +280,7 @@ export function WeekPassExpiredEmail({
           {FEATURES.map((feature, i) => (
             <Feature
               key={feature.icon}
-              iconUrl={`${assetBaseUrl}/${feature.icon}`}
+              iconUrl={asset(feature.icon)}
               title={feature.title}
               body={feature.body}
               last={i === FEATURES.length - 1}
@@ -324,7 +332,7 @@ export function WeekPassExpiredEmail({
         unsubscribeUrl={unsubscribeUrl}
         postalAddress={postalAddress}
         reason="You're receiving this because your Studio 2 Stadium Week Pass ended and your email notifications are on."
-        assetBaseUrl={assetBaseUrl}
+        logoUrl={asset("logo-wordmark-white.png")}
       />
     </WeekPassLayout>
   );

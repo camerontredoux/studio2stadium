@@ -9,6 +9,10 @@ import {
 import type { WeekPassEmailConfig } from "#shared/week-pass-emails/config";
 import { verifyUnsubscribeToken } from "#shared/prospect-emails/unsubscribe-token";
 import { createDancer, DAY_MS, subscribe } from "#tests/helpers/premium";
+import {
+  SenderCheckUnavailable,
+  type SenderCheck,
+} from "#shared/email-suppressions/sender-check";
 import type { WeekPassWelcomeMail } from "#shared/week-pass-emails/mails";
 import type { BaseMail } from "@adonisjs/mail";
 import { test } from "@japa/runner";
@@ -45,6 +49,7 @@ function config(
     timezone: overrides.timezone ?? "America/Denver",
     postalAddress: "TEST ADDRESS, NOT REAL",
     assetBaseUrl: "https://assets.example.invalid/week-pass",
+    assets: {},
   });
 }
 
@@ -84,8 +89,24 @@ function recorder() {
   return { sent, send };
 }
 
-function service(now: Date, send: MailSender, cfg = config()) {
-  return new SendWeekPassEmailsService({ now: () => now, send, config: cfg });
+/** Sender has never heard of anyone: the app's own consent decides. */
+const notInSender: SenderCheck = async () => ({
+  allow: true,
+  reason: "not_in_sender",
+});
+
+function service(
+  now: Date,
+  send: MailSender,
+  cfg = config(),
+  senderCheck: SenderCheck = notInSender
+) {
+  return new SendWeekPassEmailsService({
+    now: () => now,
+    send,
+    config: cfg,
+    senderCheck,
+  });
 }
 
 async function addPass(
@@ -647,6 +668,7 @@ test.group("Week Pass emails: welcome delivery", (group) => {
     const sentBy: Record<string, string[]> = { a: [], b: [] };
     const { send: recordB } = recorder();
     const workerB = new SendWeekPassEmailsService({
+      senderCheck: notInSender,
       now: () => clock,
       config: config(),
       send: async (m) => {
@@ -657,6 +679,7 @@ test.group("Week Pass emails: welcome delivery", (group) => {
     const { send: recordA } = recorder();
     let callsA = 0;
     const workerA = new SendWeekPassEmailsService({
+      senderCheck: notInSender,
       now: () => clock,
       config: config(),
       send: async (m) => {
@@ -695,6 +718,7 @@ test.group("Week Pass emails: welcome delivery", (group) => {
     let clock = start;
     let leaseAtSend: Date | null = null;
     const svc = new SendWeekPassEmailsService({
+      senderCheck: notInSender,
       now: () => clock,
       config: config(),
       send: async () => {
@@ -759,6 +783,179 @@ test.group("Week Pass emails: welcome delivery", (group) => {
     assert.lengthOf(sent, 1);
     const row4 = await firstRow();
     assert.equal(row4.attempts, 2);
+  });
+});
+
+test.group("Week Pass emails: Sender opt-out check", (group) => {
+  group.each.setup(async () => {
+    await db.execute(sql`truncate table ${users} cascade`);
+    await db.execute(sql`truncate table ${emailSuppressions}`);
+  });
+
+  const start = at("2026-11-16T17:15:00Z");
+
+  async function owedWelcome(key: string) {
+    const dancer = await createDancer();
+    const pass = await addPass(dancer.id, start, days(start, 7));
+    await oweWelcome(dancer.id, pass.id, key);
+    return dancer;
+  }
+
+  for (const status of ["unsubscribed", "bounced", "spam_reported"]) {
+    test(`a Sender ${status} recipient gets no welcome`, async ({ assert }) => {
+      await owedWelcome(`cs_sender_${status}`);
+      const { sent, send } = recorder();
+      const check: SenderCheck = async () => ({
+        allow: false,
+        reason: `sender_${status}`,
+      });
+
+      await service(start, send, config(), check).run();
+
+      assert.lengthOf(sent, 0);
+      const row = await firstRow();
+      assert.equal(row.status, "suppressed");
+      assert.equal(row.suppressedReason, `sender_${status}`);
+    });
+  }
+
+  test("an active Sender subscriber is sent to, at their own address", async ({
+    assert,
+  }) => {
+    const dancer = await owedWelcome("cs_sender_active");
+    const asked: string[] = [];
+    const { sent, send } = recorder();
+
+    await service(start, send, config(), async (email) => {
+      asked.push(email);
+      return { allow: true, reason: "sender_active" };
+    }).run();
+
+    assert.deepEqual(asked, [dancer.displayEmail]);
+    assert.lengthOf(sent, 1);
+  });
+
+  test("when Sender cannot answer, nothing is sent and the next attempt asks again", async ({
+    assert,
+  }) => {
+    await owedWelcome("cs_sender_down");
+    const { sent, send } = recorder();
+    let calls = 0;
+    const flaky: SenderCheck = async () => {
+      calls++;
+      if (calls === 1) throw new SenderCheckUnavailable("HTTP 503");
+      return { allow: true, reason: "sender_active" };
+    };
+
+    await service(start, send, config(), flaky).run();
+    let row = await firstRow();
+    assert.lengthOf(sent, 0);
+    assert.equal(row.status, "pending");
+    assert.equal(row.attempts, 1);
+    assert.include(row.lastError!, "Sender check unavailable: HTTP 503");
+
+    // Not due yet: Sender is not asked again in a tight loop.
+    await service(
+      new Date(start.getTime() + 30_000),
+      send,
+      config(),
+      flaky
+    ).run();
+    assert.equal(calls, 1);
+
+    await service(row.nextAttemptAt, send, config(), flaky).run();
+    row = await firstRow();
+    assert.equal(calls, 2);
+    assert.lengthOf(sent, 1);
+    assert.equal(row.status, "sent");
+  });
+
+  test("Sender failing every attempt ends as failed, never sent", async ({
+    assert,
+  }) => {
+    await owedWelcome("cs_sender_always_down");
+    const { sent, send } = recorder();
+    const down: SenderCheck = async () => {
+      throw new SenderCheckUnavailable("timed out");
+    };
+
+    let now = start;
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      await service(now, send, config(), down).run();
+      const row = await firstRow();
+      now = row.nextAttemptAt;
+    }
+
+    assert.lengthOf(sent, 0);
+    const row = await firstRow();
+    assert.equal(row.status, "failed");
+  });
+
+  test("Sender is not asked when the app's own consent already says no", async ({
+    assert,
+  }) => {
+    const dancer = await owedWelcome("cs_sender_optout");
+    await db
+      .update(users)
+      .set({ notifications: false })
+      .where(eq(users.id, dancer.id));
+    let asked = 0;
+    const { send } = recorder();
+
+    await service(start, send, config(), async () => {
+      asked++;
+      return { allow: true, reason: "sender_active" };
+    }).run();
+
+    assert.equal(asked, 0);
+    const row = await firstRow();
+    assert.equal(row.suppressedReason, "opted_out");
+  });
+
+  test("the expired-pass offer is checked against Sender too", async ({
+    assert,
+  }) => {
+    const dancer = await createDancer();
+    await addPass(dancer.id, start, days(start, 7));
+    const { sent, send } = recorder();
+
+    await service(days(start, 7), send, config(), async () => ({
+      allow: false,
+      reason: "sender_spam_reported",
+    })).run();
+
+    assert.lengthOf(sent, 0);
+    const row = await firstRow();
+    assert.equal(row.suppressedReason, "sender_spam_reported");
+  });
+
+  test("images named in the asset map are used; the rest follow the base URL", async ({
+    assert,
+  }) => {
+    await owedWelcome("cs_assets");
+    const { sent, send } = recorder();
+    const base = config();
+    const mapped = () => ({
+      ...base(),
+      assets: {
+        "logo-wordmark-white.png": "https://cdn.example.com/a/1_logo.png",
+        "hero-welcome.jpg": "https://cdn.example.com/a/2_hero.jpg",
+      },
+    });
+
+    await service(start, send, mapped).run();
+
+    const html = sent[0]!.html;
+    assert.include(html, "https://cdn.example.com/a/1_logo.png");
+    assert.include(html, "https://cdn.example.com/a/2_hero.jpg");
+    assert.include(
+      html,
+      "https://assets.example.invalid/week-pass/icon-calendar.png"
+    );
+    assert.notInclude(
+      html,
+      "assets.example.invalid/week-pass/hero-welcome.jpg"
+    );
   });
 });
 

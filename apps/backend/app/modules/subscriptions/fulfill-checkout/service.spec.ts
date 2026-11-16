@@ -1,3 +1,4 @@
+import { snapshotEnv } from "#tests/helpers/env";
 import { db } from "#database/connection";
 import { weekPasses } from "#database/schema/subscriptions";
 import { weekPassEmails } from "#database/schema/week-pass-emails";
@@ -82,18 +83,22 @@ test.group("Week Pass fulfilment: welcome email obligation", (group) => {
     "WEEK_PASS_EMAILS_ACTIVE_FROM",
     "MAIL_POSTAL_ADDRESS",
     "EMAIL_SUPPRESSION_IMPORTED_AT",
+    "SENDER_API_TOKEN",
+    "WEEK_PASS_EMAIL_ASSET_BASE_URL",
   ] as const;
-  let saved: Record<string, unknown> = {};
+  let restore: () => void = () => {};
 
   group.each.setup(async () => {
     await db.execute(sql`truncate table ${users} cascade`);
-    saved = Object.fromEntries(SETTINGS.map((k) => [k, env.get(k)]));
+    restore = snapshotEnv(SETTINGS);
     env.set("WEEK_PASS_WELCOME_EMAIL_ENABLED", true);
     env.set("WEEK_PASS_EMAILS_ACTIVE_FROM", "2026-01-01T00:00:00Z");
     env.set("MAIL_POSTAL_ADDRESS", "TEST ADDRESS, NOT REAL");
     env.set("EMAIL_SUPPRESSION_IMPORTED_AT", "2026-01-01T00:00:00Z");
+    env.set("SENDER_API_TOKEN", "test-token-not-real");
+    env.set("WEEK_PASS_EMAIL_ASSET_BASE_URL", "https://images.example.com/wp");
     return () => {
-      for (const key of SETTINGS) env.set(key, saved[key] as never);
+      restore();
     };
   });
 
@@ -230,6 +235,18 @@ test.group("Week Pass fulfilment: welcome email obligation", (group) => {
     const dancer = await createDancer();
 
     await fulfill.execute(weekPassSession(dancer.id, "cs_no_suppression"));
+
+    assert.lengthOf(await passes(), 1);
+    assert.lengthOf(await owed(), 0);
+  });
+
+  test("the welcome fails closed without a Sender token", async ({
+    assert,
+  }) => {
+    env.set("SENDER_API_TOKEN", "");
+    const dancer = await createDancer();
+
+    await fulfill.execute(weekPassSession(dancer.id, "cs_no_sender"));
 
     assert.lengthOf(await passes(), 1);
     assert.lengthOf(await owed(), 0);

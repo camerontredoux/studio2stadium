@@ -42,15 +42,31 @@ SES accepts no idempotency key.
 
 ## Configuration (all fail closed)
 
-| Setting                           | Needed by | Notes                                                                                                                                                             |
-| --------------------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `WEEK_PASS_WELCOME_EMAIL_ENABLED` | welcome   | default off; `CRON_EMAILS_ENABLED` does not affect it                                                                                                             |
-| `WEEK_PASS_EXPIRED_EMAIL_ENABLED` | offer     | default off                                                                                                                                                       |
-| `WEEK_PASS_EMAILS_ACTIVE_FROM`    | both      | ISO instant with zone; no purchase or run before it is ever emailed                                                                                               |
-| `MAIL_POSTAL_ADDRESS`             | both      | Runtime-only; deliberately not committed. The authoritative address has been identified, so all that is left is setting it at activation                          |
-| `EMAIL_SUPPRESSION_IMPORTED_AT`   | both      | **Missing.** Set only after Sender and SES suppression history is imported into `email_suppressions`. Both emails honor opt-outs, so the welcome waits for it too |
-| `WEEK_PASS_EMAILS_TIMEZONE`       | both      | default `America/Denver` (users have no time zone column)                                                                                                         |
-| `WEEK_PASS_EMAIL_ASSET_BASE_URL`  | both      | default `https://studio2stadium.com/img/week-pass`; images not uploaded yet                                                                                       |
+Every setting is runtime-only. The token and the postal address are secrets
+or private and must never be committed; set them with `fly secrets set`.
+
+| Setting                           | Needed by | Notes                                                                                                                      |
+| --------------------------------- | --------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `WEEK_PASS_WELCOME_EMAIL_ENABLED` | welcome   | Default off. `CRON_EMAILS_ENABLED` does not affect it                                                                      |
+| `WEEK_PASS_EXPIRED_EMAIL_ENABLED` | offer     | Default off. Stays off: its images are not hosted                                                                          |
+| `WEEK_PASS_EMAILS_ACTIVE_FROM`    | both      | ISO instant with zone. No purchase or run before it is ever emailed                                                        |
+| `MAIL_POSTAL_ADDRESS`             | both      | The authoritative address is identified; only setting it remains                                                           |
+| `EMAIL_SUPPRESSION_IMPORTED_AT`   | both      | Set by a person once the Sender and SES history is imported. The import command never sets it                              |
+| `SENDER_API_TOKEN`                | both      | Secret. Used only for the read-only send-time Sender check below                                                           |
+| `WEEK_PASS_EMAIL_ASSETS`          | both      | JSON object, image file name to https URL. Takes precedence over the base URL for the images it names                      |
+| `WEEK_PASS_EMAIL_ASSET_BASE_URL`  | both      | Optional explicit base. The built-in default (`studio2stadium.com/img/week-pass`) hosts nothing and never counts as hosted |
+| `WEEK_PASS_EMAILS_TIMEZONE`       | both      | Default `America/Denver` (users have no time zone column)                                                                  |
+| `WEEK_PASS_SAMPLE_RECIPIENT`      | samples   | The one internal mailbox the sample command may send to                                                                    |
+
+An email activates only when its switch is on and nothing it needs is
+missing:
+
+- the welcome needs `logo-wordmark-white.png`, `hero-welcome.jpg`,
+  `icon-calendar.png` and `icon-shield.png` hosted;
+- the offer needs the logo plus `hero-expired.jpg`, `icon-radar.png`,
+  `icon-upload.png` and `icon-gears.png`.
+
+`node ace week-pass-emails:dry-run` lists every missing item by name.
 
 ## REVIEW: wording added for the queued-pass variant
 
@@ -68,13 +84,13 @@ be false for it. The proposed queued variant is:
 In both variants "Your access ends" shows the end of continuous access across
 stacked passes, not the end of this pass alone.
 
-## REVIEW: proposed subjects and previews (not approved)
+## Subjects (approved) and previews
 
-| Email            | Subject                             | Preview                                                     |
-| ---------------- | ----------------------------------- | ----------------------------------------------------------- |
-| Welcome, current | Your S2S Week Pass starts now       | Seven days to explore your options and take your next step. |
-| Welcome, queued  | Your next S2S Week Pass is lined up | Your next seven days start {start}.                         |
-| Expired          | Your S2S Week Pass has ended        | Keep exploring. Unlock more with Premium.                   |
+| Email            | Subject                                        | Preview                                                     |
+| ---------------- | ---------------------------------------------- | ----------------------------------------------------------- |
+| Welcome, current | Your S2S Week Pass starts now (approved)       | Seven days to explore your options and take your next step. |
+| Welcome, queued  | Your next S2S Week Pass is lined up (approved) | Your next seven days start {start}.                         |
+| Expired          | Your S2S Week Pass has ended                   | Keep exploring. Unlock more with Premium.                   |
 
 ## Approved copy edits (Abbey, after reviewing the previews)
 
@@ -160,41 +176,136 @@ Not verified here, and they depend on real clients or production:
   `SchoolJoinedEmail`, `SchoolWelcomeEmail`) still set the wordmark as
   text. They were left untouched here.
 
-## REVIEW: classification and opt-outs
+## Classification and opt-outs
 
-- The offer is promotional. The welcome is treated as relationship/onboarding
-  mail, not transactional, so it honors the same opt-outs. Both:
-  - honor `users.notifications`;
-  - honor `email_suppressions`;
-  - carry `List-Unsubscribe` and `List-Unsubscribe-Post: One-Click` headers;
-  - include the postal address.
-- They reuse the existing signed unsubscribe link (`/unsubscribe`, purpose
-  `prospect-email-unsubscribe`). That link turns off **all** notification
-  email (`users.notifications = false`), which is the only preference the app
-  has. No preference behavior was changed.
-- "Manage preferences" links to `/settings/account`, where that switch lives.
-- The business postal address has been identified. It stays out of the
-  repository and is set as `MAIL_POSTAL_ADDRESS` at activation; the emails
-  fail closed until then.
-- Not established from the repo, and so blocking activation:
-  - any Sender suppression or removal history (Sender is not referenced
-    anywhere in the code);
-  - whether SES account-level suppression is enabled;
-  - SES production access and sending limits;
-  - consent records beyond `users.notifications`.
+- The offer is promotional. The welcome is relationship/onboarding mail, not
+  transactional, so it honors the same opt-outs.
+- On every send attempt both emails, in order:
+  1. skip a missing user, a blank address or `users.notifications = false`;
+  2. skip an address in `email_suppressions`, from any source;
+  3. ask Sender (below).
+- Both carry `List-Unsubscribe` and `List-Unsubscribe-Post: One-Click`
+  headers and the postal address.
+- They reuse the existing signed unsubscribe link (`/unsubscribe`). It turns
+  off **all** notification email (`users.notifications = false`), the only
+  preference the app has. "Manage preferences" links to `/settings/account`.
+- SES's own account-level suppression (bounces and complaints) is enabled
+  and still applies at send time, on top of the imported list.
+
+## Send-time Sender check
+
+`app/shared/email-suppressions/sender-check.ts`: one read-only
+`GET https://api.sender.net/v2/subscribers/{encoded address}` with the
+Bearer token, on every attempt, after the app's own checks pass. It has a
+5-second timeout and caches nothing.
+
+| Sender says                                                                                                            | Result                                                                                                     |
+| ---------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `data.status.email` is `active` (address must match, case-insensitively)                                               | Continue; the app's own consent has already passed                                                         |
+| Any other status (`unsubscribed`, `bounced`, `spam_reported`, …)                                                       | Suppressed, reason `sender_<status>`                                                                       |
+| JSON 404 from the API                                                                                                  | Not in Sender (normal for a new purchaser); the app's consent decides                                      |
+| No token, 401, 403, 429, 5xx, redirect, timeout, network error, non-JSON or unexpected body, another address, HTML 404 | No answer: not sent. The row retries with backoff (2, 4, 8, 16 minutes) and ends `failed` after 5 attempts |
+
+It never adds, updates or re-subscribes anyone in Sender. Errors record only
+the HTTP status or failure kind, never the token or the address.
+
+A per-recipient check covers opt-outs made in Sender up to the moment of
+sending, so no webhook is added. A webhook would only be needed to mirror
+Sender into the local table for other mail. If that is ever wanted, the
+minimal form is a signed endpoint that only inserts `email_suppressions`
+rows (source `sender`), rejects unsigned or stale calls, and never removes
+rows.
+
+## Importing suppression history
+
+`node ace email-suppressions:import <sender|ses|removals> <file> [--apply]`
+
+- **Inputs:**
+  - Sender JSON array (`status.email` gives the reason; `spam_reported`
+    becomes `complained`);
+  - SES JSON array or the AWS CLI wrapper (`BOUNCE` becomes `bounced`,
+    `COMPLAINT` becomes `complained`);
+  - a private one-address-per-line removals file (reason
+    `removal_requested`).
+- **Location:** files must be outside the project, so real addresses are
+  never committed or deployed.
+- **Validation:** the whole file is validated first. One bad entry, of any
+  kind, stops the import before anything is written.
+- **Dry run by default.** `--apply` writes everything in one transaction or
+  nothing.
+- **Never deletes.** Each source keeps its own row per address, a re-run is
+  a no-op, and an older statement never overwrites a newer one.
+- **Output:** counts only, never addresses. It does not set
+  `EMAIL_SUPPRESSION_IMPORTED_AT`.
+
+## Internal samples
+
+`node ace week-pass-emails:send-sample <mailbox> [--variant current|queued|both] [--out dir] [--send]`
+
+- **Fake data only:** "Sample", the `sample-dancer` username, and dates from
+  now. No customer lookup, no database reads or writes, and no welcome
+  recorded as owed.
+- **Real configuration:** links, postal address and images come from the
+  running config, so the sample matches what a customer would get.
+- **Preview by default:** prints recipient, sender, subjects, dates, links,
+  every image URL and the switch states. `--out` writes HTML and text
+  outside the project.
+- **`--send` is refused unless:**
+  - `<mailbox>` is exactly one address equal to
+    `WEEK_PASS_SAMPLE_RECIPIENT`;
+  - the postal address is set;
+  - every welcome image has a hosted URL.
+- **Marking:** each sample carries an `X-S2S-Internal-Sample` header.
+- **Unlike customer sends:** it does not call Sender, does not need or
+  change the switches, and records nothing. The unsubscribe link in a sample
+  is signed for a user id that matches no account, so using it changes
+  nothing.
+
+## Images without hosting: CID embedding (analysis only, not built)
+
+Attaching the images to each message and referencing them as `cid:` is
+possible with Adonis Mail (`embedImage`), but it is a poor fit here:
+
+- **Hero background:** CSS `background-image` and VML do not reliably
+  resolve `cid:` URLs (Gmail and Outlook in particular), so the hero would
+  fall back to plain black.
+- **Clients:** some show embedded images as attachments (paper clip, or
+  files at the bottom), and Gmail on the web handles `cid:` inline images
+  inconsistently.
+- **Size:** every message grows by the image bytes (the welcome's four are
+  about 45 KB raw, about 60 KB base64), against no cost for hosted images.
+- **Deliverability and privacy:** image-heavy MIME is scored somewhat worse;
+  the only upside is that nothing loads remotely.
+- **Testing:** the rendered HTML would differ from the approved previews and
+  need its own real-client pass.
+
+Hosted images (now on Sender's CDN) remain the right path. CID would be a
+deliberate design change, not a silent swap.
 
 ## Review-only activation steps (do not run as part of this change)
 
-1. Review and approve or replace every REVIEW item above.
-2. Apply migration `20261116180420_week_pass_emails`. It adds two new tables
-   and doesn't touch existing ones. Fly runs it on deploy.
-3. Upload `packages/emails/assets/week-pass/*.{png,jpg}` to `/img/week-pass/` and
-   check they load from a mail client.
-4. Import the Sender and SES suppression history into `email_suppressions`,
-   then set `EMAIL_SUPPRESSION_IMPORTED_AT`.
-5. Set `MAIL_POSTAL_ADDRESS` to the identified address and
-   `WEEK_PASS_EMAILS_ACTIVE_FROM` to an instant at or after the switch-on
-   time.
-6. Run `node ace week-pass-emails:dry-run`. It reports, writes nothing and
-   sends nothing.
-7. Turn on one switch at a time and watch `week_pass_emails` statuses.
+Welcome only; the offer stays off.
+
+1. Merge and deploy. Migration `20261116223536_week_pass_emails` adds two
+   new tables only. With both switches off nothing new runs.
+2. Import suppression history with `email-suppressions:import`: Sender and
+   SES (and any removals), dry run first, then `--apply`. Then set
+   `EMAIL_SUPPRESSION_IMPORTED_AT`.
+3. Set the secrets:
+   - `SENDER_API_TOKEN`;
+   - `MAIL_POSTAL_ADDRESS`;
+   - `WEEK_PASS_EMAIL_ASSETS`, with the four hosted welcome images;
+   - `WEEK_PASS_SAMPLE_RECIPIENT`.
+4. Preview with `week-pass-emails:send-sample <mailbox>`, then send the two
+   approved samples with `--send` and check them in real clients.
+5. Run `week-pass-emails:dry-run`. The welcome should list no problems.
+6. Set `WEEK_PASS_EMAILS_ACTIVE_FROM` to the switch-on instant and
+   `WEEK_PASS_WELCOME_EMAIL_ENABLED=true`. Leave
+   `WEEK_PASS_EXPIRED_EMAIL_ENABLED` unset.
+7. Watch `week_pass_emails` statuses. To stop, unset the welcome switch.
+
+In local runs these commands (like the existing `send:prospect-emails`)
+print their final line and then keep the process open. Stop them with
+Ctrl-C once the last line appears. An `--apply` import prints "Applied" only
+after its transaction has committed. Check the same behavior once in
+production before relying on it.

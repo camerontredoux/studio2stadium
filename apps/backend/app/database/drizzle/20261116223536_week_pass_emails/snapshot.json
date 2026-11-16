@@ -1,7 +1,7 @@
 {
   "version": "8",
   "dialect": "postgres",
-  "id": "f6e1e9fb-6cf3-498e-854b-1f71bd080fb1",
+  "id": "c2b5bd73-e2a7-466a-91e1-d02d757d3a81",
   "prevIds": [
     "66bf543a-1059-490c-b142-2b20bf6f4252"
   ],
@@ -8023,6 +8023,19 @@
     {
       "type": "timestamp with time zone",
       "typeSchema": null,
+      "notNull": false,
+      "dimensions": 0,
+      "default": null,
+      "generated": null,
+      "identity": null,
+      "name": "source_recorded_at",
+      "entityType": "columns",
+      "schema": "public",
+      "table": "email_suppressions"
+    },
+    {
+      "type": "timestamp with time zone",
+      "typeSchema": null,
       "notNull": true,
       "dimensions": 0,
       "default": "now()",
@@ -13153,6 +13166,17 @@
     },
     {
       "columns": [
+        "email",
+        "source"
+      ],
+      "nameExplicit": false,
+      "name": "email_suppressions_pkey",
+      "entityType": "pks",
+      "schema": "public",
+      "table": "email_suppressions"
+    },
+    {
+      "columns": [
         "id"
       ],
       "nameExplicit": false,
@@ -13753,16 +13777,6 @@
     },
     {
       "columns": [
-        "email"
-      ],
-      "nameExplicit": false,
-      "name": "email_suppressions_pkey",
-      "schema": "public",
-      "table": "email_suppressions",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
         "id"
       ],
       "nameExplicit": false,
@@ -14080,6 +14094,20 @@
       "entityType": "checks",
       "schema": "public",
       "table": "tracker_items"
+    },
+    {
+      "value": "\"source\" in ('sender', 'ses', 'manual')",
+      "name": "email_suppressions_source_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "email_suppressions"
+    },
+    {
+      "value": "\"reason\" in ('unsubscribed', 'bounced', 'complained', 'removal_requested')",
+      "name": "email_suppressions_reason_check",
+      "entityType": "checks",
+      "schema": "public",
+      "table": "email_suppressions"
     },
     {
       "value": "\"kind\" in ('welcome', 'expired')",

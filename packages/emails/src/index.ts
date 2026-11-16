@@ -149,3 +149,11 @@ export {
   type WeekPassExpiredEmailProps,
   type WeekPassPlanPrice,
 } from "./templates/WeekPassExpiredEmail.js";
+
+export {
+  WEEK_PASS_ASSETS,
+  WEEK_PASS_ASSET_BASE_URL,
+  weekPassAssetUrl,
+  type WeekPassAssetName,
+  type WeekPassAssetUrls,
+} from "./components/WeekPassLayout.js";

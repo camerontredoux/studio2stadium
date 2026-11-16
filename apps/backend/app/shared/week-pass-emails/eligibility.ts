@@ -28,7 +28,10 @@ export type SuppressReason =
   | "stale"
   | "subscription_access"
   | "upgraded"
-  | "premium_grant";
+  | "premium_grant"
+  // Sender reports the recipient as not active (unsubscribed, bounced,
+  // spam_reported, ...).
+  | `sender_${string}`;
 
 export interface Recipient {
   userId: string;

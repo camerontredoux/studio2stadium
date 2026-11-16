@@ -39,7 +39,7 @@ export default class WeekPassEmailsDryRun extends BaseCommand {
     }
 
     this.logger.info(
-      `Dry run: ${report.enqueued} would be owed, ${report.sent} would send, ${Object.values(report.suppressed).reduce((a, b) => a + (b ?? 0), 0)} would be suppressed. Nothing was written or sent.`
+      `Dry run: ${report.enqueued} would be owed, ${report.sent} would send, ${Object.values(report.suppressed).reduce<number>((a, b) => a + (b ?? 0), 0)} would be suppressed. Nothing was written or sent.`
     );
   }
 }

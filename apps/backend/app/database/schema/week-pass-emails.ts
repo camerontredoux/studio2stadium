@@ -75,16 +75,44 @@ export type WeekPassEmailStatus =
 
 /**
  * Addresses that must not get promotional mail from this platform, recorded
- * from outside it: the retired Sender list's unsubscribes and removals, SES
- * bounces and complaints, or a manual request. Only the Week Pass emails
- * read it today; `users.notifications` remains the in-app opt-out.
+ * from outside it: the Sender list's unsubscribes, bounces and spam reports,
+ * the SES account suppression list's bounces and complaints, and explicit
+ * removal requests. One row per address per source, so a later import from
+ * one source never erases what another recorded. Rows are only ever added or
+ * refreshed by `node ace email-suppressions:import`; nothing deletes them.
+ * Only the Week Pass emails read it today; `users.notifications` remains the
+ * in-app opt-out.
  *
- * Empty until someone imports that history. Neither Week Pass email will
- * activate until `EMAIL_SUPPRESSION_IMPORTED_AT` records that import.
+ * Neither Week Pass email will activate until `EMAIL_SUPPRESSION_IMPORTED_AT`
+ * records that the history was imported. The import never sets it.
  */
-export const emailSuppressions = pg.pgTable("email_suppressions", {
-  email: citext().primaryKey(),
-  source: pg.text().notNull(),
-  reason: pg.text().notNull(),
-  ...timestamps,
-});
+export const emailSuppressions = pg.pgTable(
+  "email_suppressions",
+  {
+    email: citext().notNull(),
+    source: pg.text().$type<SuppressionSource>().notNull(),
+    reason: pg.text().$type<SuppressionReason>().notNull(),
+    // When the source says it happened (unsubscribed_at, bounced_at,
+    // LastUpdateTime), when it said so.
+    sourceRecordedAt: pg.timestamp({ withTimezone: true }),
+    ...timestamps,
+  },
+  (table) => [
+    pg.primaryKey({ columns: [table.email, table.source] }),
+    pg.check(
+      "email_suppressions_source_check",
+      sql`${table.source} in ('sender', 'ses', 'manual')`
+    ),
+    pg.check(
+      "email_suppressions_reason_check",
+      sql`${table.reason} in ('unsubscribed', 'bounced', 'complained', 'removal_requested')`
+    ),
+  ]
+);
+
+export type SuppressionSource = "sender" | "ses" | "manual";
+export type SuppressionReason =
+  | "unsubscribed"
+  | "bounced"
+  | "complained"
+  | "removal_requested";

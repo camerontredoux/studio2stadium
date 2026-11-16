@@ -44,6 +44,39 @@ export const bodyFont =
 export const WEEK_PASS_ASSET_BASE_URL =
   "https://studio2stadium.com/img/week-pass";
 
+/** Every image the Week Pass emails use, by file name. */
+export const WEEK_PASS_ASSETS = {
+  welcome: [
+    "logo-wordmark-white.png",
+    "hero-welcome.jpg",
+    "icon-calendar.png",
+    "icon-shield.png",
+  ],
+  expired: [
+    "logo-wordmark-white.png",
+    "hero-expired.jpg",
+    "icon-radar.png",
+    "icon-upload.png",
+    "icon-gears.png",
+  ],
+} as const;
+
+export type WeekPassAssetName =
+  | (typeof WEEK_PASS_ASSETS.welcome)[number]
+  | (typeof WEEK_PASS_ASSETS.expired)[number];
+
+/** Explicit URLs for some images, for example ones hosted elsewhere. */
+export type WeekPassAssetUrls = Partial<Record<WeekPassAssetName, string>>;
+
+/** An explicit URL when one is given, else the file under the base URL. */
+export function weekPassAssetUrl(
+  name: WeekPassAssetName,
+  assetBaseUrl: string = WEEK_PASS_ASSET_BASE_URL,
+  assets?: WeekPassAssetUrls,
+): string {
+  return assets?.[name] ?? `${assetBaseUrl}/${name}`;
+}
+
 const css = `
   body { -webkit-text-size-adjust: 100%; }
   .wp-hero-title { font-size: 56px !important; }
@@ -80,17 +113,11 @@ const css = `
  * on black, tan "2"), as an image. Never set as text. The alt text is styled
  * so it still reads as the brand name on black when images are blocked.
  */
-export function Logo({
-  assetBaseUrl,
-  width,
-}: {
-  assetBaseUrl: string;
-  width: number;
-}) {
+export function Logo({ src, width }: { src: string; width: number }) {
   const height = Math.round((width * 131) / 1200);
   return (
     <Img
-      src={`${assetBaseUrl}/logo-wordmark-white.png`}
+      src={src}
       alt="Studio 2 Stadium"
       width={String(width)}
       height={String(height)}
@@ -128,7 +155,7 @@ export interface WeekPassHeroProps {
    * drawn behind the live text. Black when images are blocked.
    */
   backgroundUrl: string;
-  assetBaseUrl: string;
+  logoUrl: string;
 }
 
 export function WeekPassHero({
@@ -136,7 +163,7 @@ export function WeekPassHero({
   title,
   subtitle,
   backgroundUrl,
-  assetBaseUrl,
+  logoUrl,
 }: WeekPassHeroProps) {
   const cellProps = {
     background: backgroundUrl,
@@ -166,7 +193,7 @@ export function WeekPassHero({
           >
             <div dangerouslySetInnerHTML={{ __html: vmlOpen(backgroundUrl) }} />
             <div className="wp-pad" style={{ padding: "26px 40px 34px" }}>
-              <Logo assetBaseUrl={assetBaseUrl} width={300} />
+              <Logo src={logoUrl} width={300} />
               <Text
                 style={{
                   margin: "20px 0 8px",
@@ -273,7 +300,7 @@ export interface WeekPassFooterProps {
   postalAddress: string;
   /** Why this reader got the email. */
   reason: string;
-  assetBaseUrl: string;
+  logoUrl: string;
 }
 
 export function WeekPassFooter({
@@ -281,7 +308,7 @@ export function WeekPassFooter({
   unsubscribeUrl,
   postalAddress,
   reason,
-  assetBaseUrl,
+  logoUrl,
 }: WeekPassFooterProps) {
   const small = {
     margin: "0",
@@ -297,7 +324,7 @@ export function WeekPassFooter({
       bgcolor={weekPassColors.black}
     >
       <Section className="wp-pad" style={{ padding: "26px 40px 28px" }}>
-        <Logo assetBaseUrl={assetBaseUrl} width={190} />
+        <Logo src={logoUrl} width={190} />
         <Text
           style={{
             margin: "6px 0 14px",
