@@ -1,3 +1,4 @@
+import { withRedisKeyPrefix } from "#shared/redis/key-prefix";
 import env from "#start/env";
 import app from "@adonisjs/core/services/app";
 import { defineConfig } from "@adonisjs/transmit";
@@ -25,6 +26,8 @@ export default defineConfig({
             password: env.get("REDIS_PASSWORD"),
             tls: app.inProduction ? {} : undefined,
           }),
+          // REDIS_KEY_PREFIX keeps staging's broadcasts off prod's channel.
+          channel: withRedisKeyPrefix("transmit::broadcast"),
         }
       : null,
 });

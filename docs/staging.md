@@ -8,11 +8,12 @@ test changes before they go to `main`.
 | Part | Staging | Notes |
 | --- | --- | --- |
 | API | https://api-staging.studio2stadium.com. Fly app `studio2stadium-staging` (org `abbey-nugent`, region `iad`), config `fly.staging.toml` | One shared-cpu-1x/512mb machine. It stops when idle and starts on the next request, so the first request can be slow. |
-| Database | Supabase staging project | A copy of prod. Migrations run on each deploy (`release_command`). |
+| Database | Supabase staging project | A copy of prod, scrubbed by `scripts/staging/anonymise.sql` (emails, names, phones) and `scripts/staging/remove-dancer-photos.sql`. Migrations run on each deploy (`release_command`). |
 | Redis | Prod's Upstash Redis, shared | `REDIS_KEY_PREFIX=staging:` namespaces all keys and pub/sub channels. See below. |
 | Events | SQS queues `events-staging` and `events-staging-dlq` | No consumer. The outbox cron publishes to them and the messages stay there. |
-| Storage | R2 bucket `s2s-staging` | |
+| Storage | R2 bucket `s2s-staging` | Public at its r2.dev URL (`IMAGE_BASE_URL`). CORS allows `app-staging`, the `staging` Pages preview, and localhost. |
 | Payments | Stripe test mode | Test keys, test price ids, and a test-mode webhook endpoint. |
+| Videos | Prod's Cloudflare Stream account | Deletes are off and staging polls Stream for ready uploads. See below. |
 | Frontend | https://app-staging.studio2stadium.com | Custom domain on the `staging` branch of the frontend Pages project (branch preview https://staging.studio2stadium.pages.dev). |
 | Marketing | https://staging.studio2stadium.com | Custom domain on the `staging` branch of the marketing Pages project (branch preview https://staging.marketing-1uy.pages.dev). |
 | Errors | Same Sentry project as prod | Events have environment `staging` (`SENTRY_ENVIRONMENT`). |
@@ -57,10 +58,23 @@ do not set any of these as a secret with a prod value.
   names, a staging login would replace the prod login in the browser, and the
   other way round. `COOKIE_DOMAIN` can change the domain, but staging keeps the
   default.
-- `CORS_ORIGINS=https://app-staging.studio2stadium.com,https://staging.studio2stadium.com`.
-  `config/cors.ts` adds these exact origins to prod's allowlist
-  (`api.studio2stadium.com`, `app.studio2stadium.com`) on every route. When
-  the variable is not set, only prod's origins are allowed.
+- `CORS_ORIGINS=https://app-staging.studio2stadium.com`. `config/cors.ts`
+  adds these exact origins to prod's product origins, which are allowed on
+  every route. When the variable is not set, only prod's origins are allowed.
+  The staging marketing site reaches the checkout routes through
+  `MARKETING_SITE_URL`, as prod's does.
+- `WEEK_PASS_WELCOME_EMAIL_ENABLED=false` and
+  `WEEK_PASS_EXPIRED_EMAIL_ENABLED=false`.
+- `CLOUDFLARE_STREAM_DELETES_ENABLED=false`. Staging shares prod's Stream
+  account and its DB holds prod's video ids, so every Stream delete
+  (`deleteStreamVideo`) logs and does nothing.
+- `STREAM_READY_POLL_ENABLED=true`. Stream sends its account-wide webhook to
+  prod, which ignores staging's uploads. A cron job polls Stream every minute
+  for staging uploads younger than two hours and replays the ready webhook.
+  It assumes one machine, as two would both replay it.
+- `IMAGE_BASE_URL` is the public r2.dev URL of `s2s-staging`. Prod's
+  `studio2stadium.com/img` Worker reads only prod's bucket. Images that came
+  with the copy of prod (school logos, gallery images) do not show on staging.
 - `SITE_URL=https://app-staging.studio2stadium.com`,
   `API_URL=https://api-staging.studio2stadium.com` and
   `MARKETING_SITE_URL=https://staging.studio2stadium.com`. Links in mail and
@@ -100,14 +114,23 @@ names come from `apps/backend/start/env.ts`.
 | `SQS_QUEUE_URL`, `SQS_DEAD_LETTER_QUEUE_URL` | `events-staging` and `events-staging-dlq`. Prod's queues would make the prod consumer process staging events. |
 | `SQS_ACCESS_KEY_ID`, `SQS_SECRET_ACCESS_KEY` | Preferably an IAM user that can use only the staging queues. |
 | `R2_BUCKET` | `s2s-staging`. Prod's bucket would let staging delete or overwrite prod files. |
+| `R2_KEY`, `R2_SECRET` | An R2 API token with Object Read & Write on `s2s-staging` only (Cloudflare dashboard, R2, Manage API tokens). Prod's token can also write prod's buckets. |
+| `STRIPE_PRICE_ID_SEASON_PASS`, `STRIPE_PRICE_ID_WEEK_PASS` | Test-mode price ids. |
 | `CLOUDFLARE_WEBHOOK_URL` | `https://api-staging.studio2stadium.com/cloudflare/stream/webhook`. It has no effect. See "Known limitations". |
 | `CLOUDFLARE_DEPLOY_HOOK` | Deploy hook for the `staging` branch of the marketing Pages project. See "Known limitations". |
 | `MAIL_TO_ADDRESS` | An allowlisted inbox. Contact and feedback mail goes here, and the allowlist drops any other address. |
 
 These are in `[env]` and must not be set as secrets with prod values:
 `REDIS_KEY_PREFIX`, `MAIL_ALLOWLIST`, `CRON_EMAILS_ENABLED`,
-`SENTRY_ENVIRONMENT`, `SITE_URL`, `API_URL`, `MARKETING_SITE_URL`,
-`CORS_ORIGINS`, `SESSION_COOKIE_NAME`, `CACHE_COOKIE_NAME`.
+`WEEK_PASS_WELCOME_EMAIL_ENABLED`, `WEEK_PASS_EXPIRED_EMAIL_ENABLED`,
+`CLOUDFLARE_STREAM_DELETES_ENABLED`, `STREAM_READY_POLL_ENABLED`,
+`IMAGE_BASE_URL`, `SENTRY_ENVIRONMENT`, `SITE_URL`, `API_URL`,
+`MARKETING_SITE_URL`, `CORS_ORIGINS`, `SESSION_COOKIE_NAME`,
+`CACHE_COOKIE_NAME`.
+
+Staging does not set the Sender and Week Pass email secrets
+(`SENDER_API_TOKEN`, `WEEK_PASS_*`, `EMAIL_SUPPRESSION_IMPORTED_AT`,
+`MAIL_POSTAL_ADDRESS`); the Week Pass emails are off.
 
 ### Can match prod
 
@@ -116,8 +139,8 @@ These are in `[env]` and must not be set as secrets with prod values:
 | `REDIS_HOST`, `REDIS_PORT`, `REDIS_USERNAME`, `REDIS_PASSWORD` | Shared Upstash. `REDIS_KEY_PREFIX` keeps the data apart. |
 | `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION` | SES. `MAIL_ALLOWLIST` limits the recipients. |
 | `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME` | |
-| `R2_KEY`, `R2_SECRET`, `R2_ENDPOINT` | A token limited to `s2s-staging` is safer. |
-| `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_STREAM_TOKEN`, `CLOUDFLARE_STREAM_URL`, `CLOUDFLARE_WEBHOOK_SECRET` | Same Stream account as prod. See "Known limitations". |
+| `R2_ENDPOINT` | |
+| `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_STREAM_TOKEN`, `CLOUDFLARE_STREAM_URL`, `CLOUDFLARE_WEBHOOK_SECRET` | Same Stream account as prod. `CLOUDFLARE_STREAM_DELETES_ENABLED=false` keeps staging from deleting prod videos. |
 | `SENTRY_DSN` | Same project. `SENTRY_ENVIRONMENT` separates the events. |
 
 Set in `[env]`, no secret needed: `APP_NAME`, `HOST`, `PORT`, `TZ`,
@@ -126,15 +149,18 @@ Set in `[env]`, no secret needed: `APP_NAME`, `HOST`, `PORT`, `TZ`,
 ## Known limitations
 
 - Cloudflare Stream webhooks are account-wide: one webhook URL for each
-  account. Staging uses prod's Stream account, so the video-ready webhooks for
-  staging uploads go to prod. Staging video uploads do not leave
-  "processing". `CLOUDFLARE_WEBHOOK_URL` has no effect on staging.
+  account. Staging uses prod's Stream account, so the webhooks for staging
+  uploads go to prod, which finds no matching upload and ignores them.
+  `STREAM_READY_POLL_ENABLED` covers ready videos. A failed staging upload
+  becomes `failed` only through the hourly stuck-upload job, after two hours.
+  `CLOUDFLARE_WEBHOOK_URL` has no effect on staging.
+- Videos and dancer videos that came with the copy of prod still point at
+  prod's Stream account and play from it.
 - `CLOUDFLARE_DEPLOY_HOOK` on staging must be a deploy hook for the `staging`
   branch of the marketing Pages project. A staging admin who changes a blog
   post triggers this hook. With prod's hook, the change rebuilds the live
   marketing site.
-- `CORS_ORIGINS` allows its origins on every route. That includes the
-  marketing origin `https://staging.studio2stadium.com`. In prod, the
-  marketing site is not in the allowlist.
+- The staging marketing homepage cannot read `GET /stats/public`: that
+  route allows only prod's marketing origins.
 - The `apps/events` consumer does not run for staging. Events stay in
   `events-staging`.

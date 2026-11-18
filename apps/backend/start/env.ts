@@ -289,4 +289,12 @@ export default await Env.create(new URL("../", import.meta.url), {
   CLOUDFLARE_STREAM_TOKEN: Env.schema.string(),
   CLOUDFLARE_STREAM_URL: Env.schema.string(),
   CLOUDFLARE_DEPLOY_HOOK: Env.schema.string(),
+  // Staging shares prod's Stream account and holds copies of prod's video
+  // rows, so it sets this to false: a staging delete would remove a prod video.
+  // Base of public image URLs. Unset uses prod's https://studio2stadium.com/img.
+  IMAGE_BASE_URL: Env.schema.string.optional({ format: "url", tld: false }),
+  CLOUDFLARE_STREAM_DELETES_ENABLED: Env.schema.boolean.optional(),
+  // Stream sends one account-wide webhook, to prod. Staging sets this to true
+  // to poll Stream each minute for its own uploads that became ready.
+  STREAM_READY_POLL_ENABLED: Env.schema.boolean.optional(),
 });

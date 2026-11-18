@@ -31,12 +31,24 @@ primary_region = 'iad'
   # allowlisted recipients. Extend MAIL_ALLOWLIST with test inboxes as needed.
   CRON_EMAILS_ENABLED = 'false'
   MAIL_ALLOWLIST = '@studio2stadium.com,@bytebot.io,camtredoux@gmail.com'
+  WEEK_PASS_WELCOME_EMAIL_ENABLED = 'false'
+  WEEK_PASS_EXPIRED_EMAIL_ENABLED = 'false'
+  # Shares prod's Stream account, and the DB holds prod's video ids: never
+  # delete a Stream video. Stream's one webhook goes to prod, so poll Stream
+  # for staging's own uploads instead (needs a single machine).
+  CLOUDFLARE_STREAM_DELETES_ENABLED = 'false'
+  # Public r2.dev URL of the s2s-staging bucket. Prod's /img Worker reads only
+  # prod's bucket, so images copied from prod do not show on staging.
+  IMAGE_BASE_URL = 'https://pub-09edc4c56d2a4b0eb171c4eeb9378b13.r2.dev'
+  STREAM_READY_POLL_ENABLED = 'true'
   # Staging hostnames (single-level subdomains, so Cloudflare Universal SSL
   # covers them). CORS_ORIGINS is added to prod's allowlist in config/cors.ts.
   SITE_URL = 'https://app-staging.studio2stadium.com'
   API_URL = 'https://api-staging.studio2stadium.com'
   MARKETING_SITE_URL = 'https://staging.studio2stadium.com'
-  CORS_ORIGINS = 'https://app-staging.studio2stadium.com,https://staging.studio2stadium.com'
+  # Only the app: MARKETING_SITE_URL already lets the staging marketing site
+  # call the checkout routes.
+  CORS_ORIGINS = 'https://app-staging.studio2stadium.com'
   # Cookies keep prod's .studio2stadium.com domain, so staging needs its own
   # names (prod: auth_session, auth_cache) or each env reads the other's.
   SESSION_COOKIE_NAME = 'staging_auth_session'

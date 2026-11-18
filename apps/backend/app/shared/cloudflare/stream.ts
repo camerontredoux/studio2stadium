@@ -1,8 +1,14 @@
 import env from "#start/env";
 
 // Deletes a Cloudflare Stream video. A 404 means it is already gone, which
-// counts as success.
+// counts as success. Does nothing when CLOUDFLARE_STREAM_DELETES_ENABLED is
+// false (staging).
 export async function deleteStreamVideo(mediaId: string) {
+  if (env.get("CLOUDFLARE_STREAM_DELETES_ENABLED") === false) {
+    console.info(`Stream deletes are disabled; kept video ${mediaId}`);
+    return;
+  }
+
   const response = await fetch(
     `https://api.cloudflare.com/client/v4/accounts/${env.get("CLOUDFLARE_ACCOUNT_ID")}/stream/${mediaId}`,
     {

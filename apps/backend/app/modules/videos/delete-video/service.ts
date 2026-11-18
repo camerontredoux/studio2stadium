@@ -2,7 +2,7 @@ import { feed } from "#database/schema/feed";
 import { videoUploads, videos } from "#database/schema/media";
 import { DatabaseService } from "#database/service";
 import { E_NOT_FOUND } from "#exceptions/not-found";
-import env from "#start/env";
+import { deleteStreamVideo } from "#shared/cloudflare/stream";
 import { inject } from "@adonisjs/core";
 import { and, eq } from "drizzle-orm";
 import { Validator } from "./validator.ts";
@@ -32,7 +32,7 @@ export class DeleteProfileVideoService {
 
     // Delete from Cloudflare if it's a Cloudflare video
     if (video.type === "cloudflare") {
-      await this.deleteFromCloudflare(video.mediaId);
+      await deleteStreamVideo(video.mediaId);
     }
 
     await this.db.tx(async (tx) => {
@@ -51,24 +51,5 @@ export class DeleteProfileVideoService {
           and(eq(feed.contentId, video.id), eq(feed.contentType, "video"))
         );
     });
-  }
-
-  private async deleteFromCloudflare(mediaId: string) {
-    const response = await fetch(
-      `https://api.cloudflare.com/client/v4/accounts/${env.get("CLOUDFLARE_ACCOUNT_ID")}/stream/${mediaId}`,
-      {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${env.get("CLOUDFLARE_STREAM_TOKEN")}`,
-        },
-      }
-    );
-
-    // 404 is fine - video already deleted from Cloudflare
-    if (!response.ok && response.status !== 404) {
-      throw new Error(
-        `Failed to delete video from Cloudflare: ${response.status}`
-      );
-    }
   }
 }
