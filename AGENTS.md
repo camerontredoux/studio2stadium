@@ -58,7 +58,7 @@ Env var names are declared and validated in `apps/backend/start/env.ts`; `.env.e
 - AWS: SES sends mail (`config/mail.ts`); SQS carries outbox events (`SQS_*`).
 - Stripe: `config/stripe.ts` and `start/payments.ts`; Event Tier and subscription price IDs come from `STRIPE_PRICE_ID_*`.
 - Sentry: `instrument.ts` loads first in `bin/server.ts` and is a no-op without `SENTRY_DSN`.
-- Fly.io backend: root `fly.toml` (app `studio2stadium-dev`, `iad`, health check `/health`) built from the root `Dockerfile`. `.github/workflows/deploy.yml` deploys on push to `main` touching backend paths. It is the only workflow, so no CI runs tests or lint.
+- Fly.io backend: root `fly.toml` (app `studio2stadium-dev`, `iad`, health check `/health`) built from the root `Dockerfile`. `.github/workflows/deploy.yml` deploys on push to `main` touching backend paths. The only other workflow, `deploy-staging.yml`, deploys the `staging` branch to `studio2stadium-staging` (`fly.staging.toml`, `docs/staging.md`). No CI runs tests or lint.
 - Fly.io events worker: `apps/events/fly.toml` (`studio2stadium-events-dev`). No workflow deploys it.
 - The root `Dockerfile` pins patched Node 24.22.1. Node 24.20+ broke the OpenAPI command index build until `patches/jsonschema@1.5.0.patch`; read the Dockerfile header before changing the base image or that patch.
 

@@ -1,3 +1,4 @@
+import { keyPrefixOption, redisKeyPrefix } from "#shared/redis/key-prefix";
 import env from "#start/env";
 import app from "@adonisjs/core/services/app";
 import { defineConfig } from "@adonisjs/redis";
@@ -22,7 +23,8 @@ const redisConfig = defineConfig({
       port: env.get("REDIS_PORT"),
       username: env.get("REDIS_USERNAME"),
       password: env.get("REDIS_PASSWORD"),
-      keyPrefix: "session:",
+      // REDIS_KEY_PREFIX (if any) goes in front: "staging:session:".
+      ...keyPrefixOption(redisKeyPrefix, "session:"),
 
       connectTimeout: 1000,
       commandTimeout: 1500,
@@ -38,6 +40,8 @@ const redisConfig = defineConfig({
       port: env.get("REDIS_PORT"),
       username: env.get("REDIS_USERNAME"),
       password: env.get("REDIS_PASSWORD"),
+      // Only set when REDIS_KEY_PREFIX is set, so prod's options are unchanged.
+      ...keyPrefixOption(redisKeyPrefix),
 
       connectTimeout: 1000,
       commandTimeout: 1500,

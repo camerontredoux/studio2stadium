@@ -1,7 +1,7 @@
 import { feed } from "#database/schema/feed";
 import { videoUploads, videos } from "#database/schema/media";
 import { DatabaseService } from "#database/service";
-import env from "#start/env";
+import { deleteStreamVideo } from "#shared/cloudflare/stream";
 import { inject } from "@adonisjs/core";
 import { and, eq } from "drizzle-orm";
 import {
@@ -42,21 +42,7 @@ export class Service {
     }
 
     if (video.type === "cloudflare") {
-      const response = await fetch(
-        `https://api.cloudflare.com/client/v4/accounts/${env.get("CLOUDFLARE_ACCOUNT_ID")}/stream/${video.mediaId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${env.get("CLOUDFLARE_STREAM_TOKEN")}`,
-          },
-        }
-      );
-
-      if (!response.ok && response.status !== 404) {
-        throw new Error(
-          `Failed to delete video from Cloudflare: ${response.status}`
-        );
-      }
+      await deleteStreamVideo(video.mediaId);
     }
 
     await this.db.tx(async (tx) => {

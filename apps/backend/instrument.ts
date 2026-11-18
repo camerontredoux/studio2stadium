@@ -19,7 +19,9 @@ const dsn = process.env.SENTRY_DSN;
 if (dsn) {
   Sentry.init({
     dsn,
-    environment: process.env.NODE_ENV ?? "development",
+    // SENTRY_ENVIRONMENT tells staging apart (both run NODE_ENV=production).
+    environment:
+      process.env.SENTRY_ENVIRONMENT ?? process.env.NODE_ENV ?? "development",
     dataCollection: {
       // To disable sending user data and HTTP bodies, uncomment the lines below:
       // https://docs.sentry.io/platforms/javascript/guides/node/configuration/options/#dataCollection

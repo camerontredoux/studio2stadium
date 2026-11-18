@@ -5,6 +5,7 @@ import {
   PROSPECT_REMINDER_JOB,
   withCronClaim,
 } from "#shared/cron/claim-run";
+import env from "#start/env";
 import CacheSkillsService from "../services/cache-skills.ts";
 import ExpireSubscriptionsService from "../services/expire-subscriptions.ts";
 import PublishOutboxService from "../services/publish-outbox.ts";
@@ -42,6 +43,17 @@ new CronJob("0 * * * *", async () => {
     console.error("[Cron]: Error reaping stuck video uploads:", error);
   }
 }).start();
+
+// Staging only: Stream's webhook goes to prod, so poll for ready uploads.
+if (env.get("STREAM_READY_POLL_ENABLED") === true) {
+  new CronJob("0 * * * * *", async () => {
+    try {
+      await reapStuckVideoUploadsService.pollReady();
+    } catch (error) {
+      console.error("[Cron]: Error polling Stream for ready uploads:", error);
+    }
+  }).start();
+}
 
 // Publish outbox events to SQS every 10 seconds
 new CronJob("*/10 * * * * *", async () => {

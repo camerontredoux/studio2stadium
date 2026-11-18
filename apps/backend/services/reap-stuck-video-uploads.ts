@@ -4,8 +4,9 @@ import {
   handleStreamWebhook,
   type StreamWebhookPayload,
 } from "#modules/webhooks/cloudflare/handlers";
+import { deleteStreamVideo } from "#shared/cloudflare/stream";
 import env from "#start/env";
-import { and, eq, inArray, isNull, lt } from "drizzle-orm";
+import { and, eq, gte, inArray, isNull, lt } from "drizzle-orm";
 
 // A direct (TUS) upload that never finishes leaves a `pending` row and a
 // Cloudflare Stream entry stuck in `pendingupload`. Cloudflare never fires a
@@ -65,35 +66,47 @@ export default class ReapStuckVideoUploadsService {
     }
   }
 
-  private async reconcile(upload: StuckUpload) {
-    const response = await fetch(
-      `https://api.cloudflare.com/client/v4/accounts/${env.get(
-        "CLOUDFLARE_ACCOUNT_ID"
-      )}/stream/${upload.cloudflareMediaId}`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${env.get("CLOUDFLARE_STREAM_TOKEN")}`,
-        },
-      }
-    );
+  /**
+   * Replays the ready webhook for uploads younger than the stuck threshold
+   * that Stream reports as ready. Only staging runs this
+   * (STREAM_READY_POLL_ENABLED): its uploads' webhooks go to prod. Anything
+   * else is left for `run()` once the upload passes the threshold.
+   */
+  async pollReady() {
+    const cutoff = new Date(Date.now() - STUCK_THRESHOLD_MS);
+    const pending = await db
+      .select()
+      .from(videoUploads)
+      .where(
+        and(
+          isNull(videoUploads.videoId),
+          inArray(videoUploads.status, ["pending", "processing"]),
+          gte(videoUploads.createdAt, cutoff)
+        )
+      );
 
-    // The Cloudflare entry is already gone — nothing to delete, just fail the row.
-    if (response.status === 404) {
+    for (const upload of pending) {
+      try {
+        const result = await this.fetchStreamVideo(upload.cloudflareMediaId);
+        if (result?.status.state === "ready") {
+          await handleStreamWebhook(this.toWebhookPayload(result));
+        }
+      } catch (error) {
+        console.error(
+          `[ReapStuckVideoUploads]: Failed to poll ${upload.cloudflareMediaId}:`,
+          error
+        );
+      }
+    }
+  }
+
+  private async reconcile(upload: StuckUpload) {
+    const result = await this.fetchStreamVideo(upload.cloudflareMediaId);
+
+    // The Cloudflare entry is already gone: nothing to delete, just fail the row.
+    if (!result) {
       await this.markFailed(upload, "stale/abandoned upload");
       return;
-    }
-
-    if (!response.ok) {
-      throw new Error(`Cloudflare Stream API error: ${response.status}`);
-    }
-
-    const body = (await response.json()) as {
-      result?: CloudflareStreamResult;
-    };
-    const result = body.result;
-    if (!result) {
-      throw new Error("Missing result in Cloudflare response");
     }
 
     switch (result.status.state) {
@@ -130,6 +143,39 @@ export default class ReapStuckVideoUploadsService {
     }
   }
 
+  // Returns null when Stream has no such video.
+  private async fetchStreamVideo(
+    mediaId: string
+  ): Promise<CloudflareStreamResult | null> {
+    const response = await fetch(
+      `https://api.cloudflare.com/client/v4/accounts/${env.get(
+        "CLOUDFLARE_ACCOUNT_ID"
+      )}/stream/${mediaId}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${env.get("CLOUDFLARE_STREAM_TOKEN")}`,
+        },
+      }
+    );
+
+    if (response.status === 404) {
+      return null;
+    }
+
+    if (!response.ok) {
+      throw new Error(`Cloudflare Stream API error: ${response.status}`);
+    }
+
+    const body = (await response.json()) as {
+      result?: CloudflareStreamResult;
+    };
+    if (!body.result) {
+      throw new Error("Missing result in Cloudflare response");
+    }
+    return body.result;
+  }
+
   private toWebhookPayload(
     result: CloudflareStreamResult
   ): StreamWebhookPayload {
@@ -158,22 +204,12 @@ export default class ReapStuckVideoUploadsService {
   }
 
   private async deleteFromCloudflare(mediaId: string) {
-    const response = await fetch(
-      `https://api.cloudflare.com/client/v4/accounts/${env.get(
-        "CLOUDFLARE_ACCOUNT_ID"
-      )}/stream/${mediaId}`,
-      {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${env.get("CLOUDFLARE_STREAM_TOKEN")}`,
-        },
-      }
-    );
-
-    // 404 is fine — the entry is already gone.
-    if (!response.ok && response.status !== 404) {
+    try {
+      await deleteStreamVideo(mediaId);
+    } catch (error) {
       console.error(
-        `[ReapStuckVideoUploads]: Failed to delete ${mediaId} from Cloudflare: ${response.status}`
+        `[ReapStuckVideoUploads]: Failed to delete ${mediaId} from Cloudflare:`,
+        error
       );
     }
   }
