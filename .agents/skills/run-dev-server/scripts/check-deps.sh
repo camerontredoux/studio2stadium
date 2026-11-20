@@ -9,19 +9,28 @@ case "$(node -v 2>/dev/null)" in
   *) die "Node is $(node -v 2>/dev/null || echo missing), not 24 (the root Dockerfile's): run 'fnm use 24' in your shell, then retry" ;;
 esac
 
-if [ ! -f node_modules/.modules.yaml ]; then
+lock_hash=$(sha256sum <pnpm-lock.yaml)
+lock_stamp=node_modules/.run-dev-server-lockfile.sha256
+installed=""
+if [ "$(cat "$lock_stamp" 2>/dev/null)" != "$lock_hash" ]; then
   echo "installing packages"
   pnpm install --frozen-lockfile >"$out_dir/run-dev-server-install.log" 2>&1 \
     || die "pnpm install failed: read $out_dir/run-dev-server-install.log"
+  printf '%s\n' "$lock_hash" >"$lock_stamp"
+  installed=1
 fi
 
 # The backend imports both workspace packages from their build/ folders,
 # which are not committed.
 for pkg in emails openapi; do
-  if [ ! -f "packages/$pkg/build/index.js" ]; then
+  src_hash=$(fdfind -t f -0 . "packages/$pkg" | sort -z | xargs -0 sha256sum | sha256sum)
+  src_stamp=packages/$pkg/build/.run-dev-server-src.sha256
+  if [ -n "$installed" ] || [ ! -f "packages/$pkg/build/index.js" ] \
+    || [ "$(cat "$src_stamp" 2>/dev/null)" != "$src_hash" ]; then
     echo "building @stos/$pkg"
     pnpm --dir "packages/$pkg" build >"$out_dir/run-dev-server-$pkg-$slug.log" 2>&1 \
       || die "building @stos/$pkg failed: read $out_dir/run-dev-server-$pkg-$slug.log"
+    printf '%s\n' "$src_hash" >"$src_stamp"
   fi
 done
 
