@@ -26,7 +26,7 @@ The scripts live in `.agents/skills/run-dev-server/scripts/`. Run them from the 
 
 | Script          | Does                                                                                                     | Success line                       |
 | --------------- | -------------------------------------------------------------------------------------------------------- | ---------------------------------- |
-| `check-deps.sh` | Node 24, `pnpm install` if missing, builds `@stos/emails` and `@stos/openapi`, Docker, shared Postgres up | `deps-ok`                          |
+| `check-deps.sh` | Node 24, `pnpm install` when the lockfile changed, builds `@stos/emails` and `@stos/openapi` when their files changed, Docker, shared Postgres up | `deps-ok`                          |
 | `env-copy.sh`   | Swaps the symlinked env files for private `0600` copies and checks the backend's required variables       | `private-copy-ok ...`              |
 | `db.sh`         | Copies `s2s_<slug>` from `s2s_prod_anon` (anonymized production data) when it exists, and `s2s_<slug>_test` from the schema template, or reuses them; migrates each unless it already holds every migration; sets `DATABASE_URL` | `db-ok s2s_<slug> (<state>, <migrate>) s2s_<slug>_test (...)` |
 | `pick-port.sh`  | Keeps or chooses a free slot, and sets `PORT`, `SITE_URL`, `API_URL` and `VITE_API_URL` to match          | `port=<n> api=<n> redis=<n>`       |
