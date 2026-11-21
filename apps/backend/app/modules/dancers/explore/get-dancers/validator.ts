@@ -27,6 +27,30 @@ const gpaRangeRule = vine.createRule((value, _, ctx) => {
   ctx.mutate({ min, max }, ctx);
 });
 
+// A Class of YYYY year. Empty means "All years" (no filter), so a client that
+// sends the reset option as an empty value still gets the full list.
+const gradYearRule = vine.createRule((value, _, ctx) => {
+  const raw = typeof value === "number" ? String(value) : value;
+
+  if (typeof raw !== "string") {
+    ctx.report("Graduation year must be a year", "gradYear", ctx);
+    return;
+  }
+
+  const year = raw.trim();
+  if (year === "") {
+    ctx.mutate(undefined, ctx);
+    return;
+  }
+
+  if (!/^\d{4}$/.test(year)) {
+    ctx.report("Graduation year must be a four-digit year", "gradYear", ctx);
+    return;
+  }
+
+  ctx.mutate(Number(year), ctx);
+});
+
 const csvEnum =
   <T extends readonly string[]>(validValues: T) =>
   (value: string) => {
@@ -47,6 +71,11 @@ export const validator = vine.create(
     premium: vine.boolean().optional(),
     following: vine.boolean().optional(),
     gpaRange: vine.any().use(gpaRangeRule()).optional(),
+    gradYear: vine
+      .any()
+      .use(gradYearRule())
+      .optional()
+      .transform((value) => value as number | undefined),
     location: vine.enum(stateCodes).optional(),
     sports: vine.string().transform(csvEnum(sportCodes)).optional(),
     styles: vine.string().transform(csvEnum(styleCodes)).optional(),

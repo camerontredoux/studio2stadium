@@ -126,6 +126,10 @@ export class Service {
       }
     }
 
+    if (filters.gradYear !== undefined) {
+      conditions.push(eq(dancerProfiles.gradYear, filters.gradYear));
+    }
+
     if (filters.sports?.length) {
       conditions.push(
         exists(

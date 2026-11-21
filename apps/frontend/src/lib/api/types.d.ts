@@ -8077,6 +8077,7 @@ export interface paths {
                 query?: {
                     name?: string | null;
                     location?: ("ID" | "OR" | "AL" | "AK" | "AZ" | "AR" | "CA" | "CO" | "CT" | "DE" | "FL" | "GA" | "HI" | "IL" | "IN" | "IA" | "KS" | "KY" | "LA" | "ME" | "MD" | "MA" | "MI" | "MN" | "MS" | "MO" | "MT" | "NE" | "NV" | "NH" | "NJ" | "NM" | "NY" | "NC" | "ND" | "OH" | "OK" | "PA" | "RI" | "SC" | "SD" | "TN" | "TX" | "UT" | "VT" | "VA" | "WA" | "WV" | "WI" | "WY") | null;
+                    gradYear?: Record<string, never>;
                     sports?: string | null;
                     styles?: string | null;
                     following?: (string | number | boolean) | null;
@@ -12667,7 +12668,7 @@ export interface components {
         /** @enum {string} */
         SubscriptionPlan: "monthly" | "season_pass" | "annual";
         /** @enum {string} */
-        DancerFilterParam: "premium" | "name" | "location" | "sports" | "styles" | "following" | "gpaRange";
+        DancerFilterParam: "premium" | "name" | "location" | "gradYear" | "sports" | "styles" | "following" | "gpaRange";
         MatchTier: ("partial" | "excellent" | "good" | "unqualified") | null;
         /** @enum {string} */
         EventFilterParam: "location" | "date" | "schoolName";

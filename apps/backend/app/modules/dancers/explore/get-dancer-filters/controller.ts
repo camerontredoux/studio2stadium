@@ -1,6 +1,6 @@
 import { inject } from "@adonisjs/core";
 import { HttpContext } from "@adonisjs/core/http";
-import { filters } from "./filters.ts";
+import { dancerFilters } from "./filters.ts";
 
 export default class GetFiltersController {
   @inject()
@@ -10,6 +10,6 @@ export default class GetFiltersController {
       "public, max-age=300, s-maxage=86400, stale-while-revalidate=600"
     );
 
-    return ctx.response.ok(filters);
+    return ctx.response.ok(dancerFilters());
   }
 }

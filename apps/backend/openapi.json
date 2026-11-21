@@ -8694,6 +8694,15 @@
             }
           },
           {
+            "name": "gradYear",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "object",
+              "properties": {}
+            }
+          },
+          {
             "name": "sports",
             "in": "query",
             "required": false,
@@ -12631,6 +12640,7 @@
           "premium",
           "name",
           "location",
+          "gradYear",
           "sports",
           "styles",
           "following",
