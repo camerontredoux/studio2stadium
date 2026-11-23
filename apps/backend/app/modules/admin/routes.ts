@@ -23,6 +23,8 @@ const GetSchoolsController = () =>
   import("#modules/admin/get-all-schools/controller");
 const GetDancersController = () =>
   import("#modules/admin/get-all-dancers/controller");
+const ExportDancerAccessController = () =>
+  import("#modules/admin/export-dancer-access/controller");
 const CreateBlogPostController = () =>
   import("#modules/admin/create-blog-post/controller");
 const DeleteBlogPostController = () =>
@@ -224,6 +226,14 @@ router
       summary: "Get all dancers",
       description: "Returns all dancers for admin dashboard",
     });
+
+    router
+      .get("dancers/access-export", [ExportDancerAccessController])
+      .openapi({
+        summary: "Export dancer access CSV",
+        description:
+          "Every Dancer account with its emails and current access as the live app resolves it, as an uncached CSV attachment",
+      });
 
     router.post("blog", [CreateBlogPostController]).openapi({
       summary: "Create blog post",

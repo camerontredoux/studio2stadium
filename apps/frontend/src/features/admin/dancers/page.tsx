@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { adminQueries } from "../api/queries";
 import { DancersTable } from "./components/dancers-table";
+import { DownloadAccessCsvButton } from "./components/download-access-csv";
 
 export function DancersPage() {
   const search = useSearch({ from: "/_admin/(routes)/admin/dancers" });
@@ -32,7 +33,10 @@ export function DancersPage() {
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-bold">Dancers</h2>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-2xl font-bold">Dancers</h2>
+        <DownloadAccessCsvButton />
+      </div>
       {stats && (
         <div className="grid gap-4 sm:grid-cols-4">
           <StatCard

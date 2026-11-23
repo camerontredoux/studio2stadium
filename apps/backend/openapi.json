@@ -924,6 +924,21 @@
         "description": "Returns all dancers for admin dashboard"
       }
     },
+    "/admin/dancers/access-export": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Export dancer access CSV",
+        "description": "Every Dancer account with its emails and current access as the live app resolves it, as an uncached CSV attachment"
+      }
+    },
     "/admin/dancers/stats": {
       "get": {
         "parameters": [],

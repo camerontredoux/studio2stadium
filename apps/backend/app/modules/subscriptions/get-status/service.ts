@@ -42,6 +42,25 @@ export interface SubscriptionStatus {
   upgradeFirstChargeAt: Date | null;
 }
 
+/** One source giving the Dancer paid access now, and when it ends. */
+export interface ActiveAccessSource {
+  source: Exclude<SubscriptionSource, "none">;
+  endsAt: Date;
+}
+
+export interface ResolvedAccess {
+  /** Exactly what `execute()` returns: the source the app acts on. */
+  status: SubscriptionStatus;
+  /**
+   * Every source giving access at `now`, in the order the app ranks them
+   * (subscription, premium grant, Week Pass). Overlapping sources all appear;
+   * `status` reflects the first.
+   */
+  activeSources: ActiveAccessSource[];
+  /** The stored Stripe subscription status, when the Dancer has one. */
+  subscriptionStatus: string | null;
+}
+
 /**
  * The Dancer's plan right now. Premium wins over a Week Pass running
  * alongside it, and a subscription wins over a premium grant.
@@ -50,9 +69,22 @@ export interface SubscriptionStatus {
 export class GetSubscriptionService {
   constructor(private db: DatabaseService) {}
 
-  async execute(userId: string): Promise<SubscriptionStatus> {
-    const now = new Date();
+  async execute(
+    userId: string,
+    now: Date = new Date()
+  ): Promise<SubscriptionStatus> {
+    const { status } = await this.resolve(userId, now);
+    return status;
+  }
 
+  /**
+   * The same lookup and decision as `execute()`, plus every source that is
+   * giving access at `now`, for reports that must show overlaps.
+   */
+  async resolve(
+    userId: string,
+    now: Date = new Date()
+  ): Promise<ResolvedAccess> {
     const [subscription, grant, passes] = await Promise.all([
       this.db.use((db) =>
         db
@@ -90,6 +122,39 @@ export class GetSubscriptionService {
     const subscriptionEndsAt =
       subscription && subscriptionAccessEndsAt(subscription, now);
 
+    const activeSources: ActiveAccessSource[] = [];
+    if (subscriptionEndsAt) {
+      activeSources.push({ source: "stripe", endsAt: subscriptionEndsAt });
+    }
+    if (grant) {
+      activeSources.push({ source: "org_event", endsAt: grant.expiresAt });
+    }
+    if (passEndsAt) {
+      activeSources.push({ source: "week_pass", endsAt: passEndsAt });
+    }
+
+    return {
+      status: this.decide(
+        subscription,
+        subscriptionEndsAt,
+        grant,
+        passEndsAt,
+        paymentFailed,
+        now
+      ),
+      activeSources,
+      subscriptionStatus: subscription?.status ?? null,
+    };
+  }
+
+  private decide(
+    subscription: typeof subscriptions.$inferSelect | undefined,
+    subscriptionEndsAt: Date | null | undefined,
+    grant: typeof premiumGrants.$inferSelect | undefined,
+    passEndsAt: Date | null,
+    paymentFailed: boolean,
+    now: Date
+  ): SubscriptionStatus {
     if (subscription && subscriptionEndsAt) {
       return {
         subscribed: true,

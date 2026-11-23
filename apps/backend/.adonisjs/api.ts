@@ -91,6 +91,10 @@ type AdminDancersGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/get-all-dancers/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/admin/get-all-dancers/controller.ts').default['handle'], true>
 }
+type AdminDancersAccessexportGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/admin/export-dancer-access/controller.ts').default['handle'], false>
+}
 type AdminBlogPost = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/admin/create-blog-post/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/admin/create-blog-post/controller.ts').default['handle'], true>
@@ -1207,6 +1211,12 @@ export interface ApiDefinition {
       };
       '$get': AdminDancersGetHead;
       '$head': AdminDancersGetHead;
+      'access-export': {
+        '$url': {
+        };
+        '$get': AdminDancersAccessexportGetHead;
+        '$head': AdminDancersAccessexportGetHead;
+      };
       'stats': {
         '$url': {
         };
