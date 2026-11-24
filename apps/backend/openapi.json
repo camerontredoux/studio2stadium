@@ -7112,6 +7112,57 @@
         "description": "Returns dancers recommended to the authenticated school based on how well they match the school's skill, style, sport, GPA, and location preferences"
       }
     },
+    "/dancers/priority-spotlights": {
+      "get": {
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "oneOf": [
+                {
+                  "type": [
+                    "string",
+                    "number"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DancersPriorityspotlightsResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Dancers"
+        ],
+        "summary": "Get priority spotlights",
+        "description": "Returns dancers with an active paid Priority Spotlight placement featuring them to the authenticated school"
+      }
+    },
     "/dancers/me": {
       "patch": {
         "requestBody": {
@@ -7400,6 +7451,59 @@
         ],
         "summary": "Get dancer profile checklist",
         "description": "Returns the dancer's profile checklist"
+      }
+    },
+    "/dancers/me/spotlights": {
+      "get": {
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DancersMeSpotlightsResponse"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Dancers"
+        ],
+        "summary": "Get my spotlights",
+        "description": "Returns the dancer's purchased Priority Spotlight placements with their schools and active state"
+      },
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DancersMeSpotlightsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Dancers"
+        ],
+        "summary": "Send a spotlight",
+        "description": "Creates a 7-day Priority Spotlight placement featuring the dancer to a program (payment not yet wired)"
       }
     },
     "/dancers/submissions": {
@@ -14576,6 +14680,16 @@
                 "lastName": {
                   "type": "string"
                 },
+                "paid": {
+                  "oneOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
                 "profile": {
                   "oneOf": [
                     {
@@ -14714,16 +14828,6 @@
                     }
                   ]
                 },
-                "paid": {
-                  "oneOf": [
-                    {
-                      "type": "boolean"
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
-                },
                 "isRegistered": {
                   "type": "boolean"
                 },
@@ -14790,12 +14894,12 @@
                 "type",
                 "firstName",
                 "lastName",
+                "paid",
                 "profile",
                 "organization",
                 "eventId",
                 "bibNumber",
                 "checkedInAt",
-                "paid",
                 "isRegistered",
                 "linkedUser"
               ]
@@ -15264,6 +15368,16 @@
               }
             ]
           },
+          "paid": {
+            "oneOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "organization": {
             "oneOf": [
               {
@@ -15317,16 +15431,6 @@
               }
             ]
           },
-          "paid": {
-            "oneOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
           "isStaff": {
             "type": "boolean"
           }
@@ -15340,13 +15444,13 @@
           "firstName",
           "lastName",
           "userId",
+          "paid",
           "organization",
           "eventId",
           "bibNumber",
           "expirationDate",
           "csvUploadId",
           "checkedInAt",
-          "paid",
           "isStaff"
         ]
       },
@@ -16730,6 +16834,16 @@
               }
             ]
           },
+          "paid": {
+            "oneOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "organization": {
             "oneOf": [
               {
@@ -16783,16 +16897,6 @@
               }
             ]
           },
-          "paid": {
-            "oneOf": [
-              {
-                "type": "boolean"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          },
           "isStaff": {
             "type": "boolean"
           }
@@ -16806,13 +16910,13 @@
           "firstName",
           "lastName",
           "userId",
+          "paid",
           "organization",
           "eventId",
           "bibNumber",
           "expirationDate",
           "csvUploadId",
           "checkedInAt",
-          "paid",
           "isStaff"
         ]
       },
@@ -19519,6 +19623,77 @@
           ]
         }
       },
+      "DancersPriorityspotlightsResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "username": {
+              "type": "string"
+            },
+            "avatar": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "location": {
+              "type": "string"
+            },
+            "gpa": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "gradYear": {
+              "oneOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sentAt": {
+              "type": "string"
+            },
+            "featuredUntil": {
+              "type": "string"
+            },
+            "active": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "id",
+            "name",
+            "username",
+            "avatar",
+            "location",
+            "gpa",
+            "gradYear",
+            "sentAt",
+            "featuredUntil",
+            "active"
+          ]
+        }
+      },
       "DancersMeRequest": {
         "type": "object",
         "properties": {
@@ -19838,6 +20013,70 @@
           "skillCount",
           "styles",
           "sports"
+        ]
+      },
+      "DancersMeSpotlightsResponse": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "schoolId": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "username": {
+              "type": "string"
+            },
+            "avatar": {
+              "oneOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "sentAt": {
+              "type": "string"
+            },
+            "featuredUntil": {
+              "type": "string"
+            },
+            "nextEligibleAt": {
+              "type": "string"
+            },
+            "active": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "id",
+            "schoolId",
+            "name",
+            "username",
+            "avatar",
+            "sentAt",
+            "featuredUntil",
+            "nextEligibleAt",
+            "active"
+          ]
+        }
+      },
+      "DancersMeSpotlightsRequest": {
+        "type": "object",
+        "properties": {
+          "schoolId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "schoolId"
         ]
       },
       "DancersSubmissionsResponse": {

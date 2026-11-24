@@ -9,6 +9,12 @@ const GetDancersController = () =>
   import("./explore/get-dancers/controller.ts");
 const GetRecommendedDancersController = () =>
   import("./get-recommended-dancers/controller.ts");
+const GetPrioritySpotlightsController = () =>
+  import("./get-priority-spotlights/controller.ts");
+const GetMySpotlightsController = () =>
+  import("./get-my-spotlights/controller.ts");
+const CreateSpotlightController = () =>
+  import("./create-spotlight/controller.ts");
 const GetSportsController = () => import("./profile/get-sports/controller.ts");
 const UpdateSportsController = () =>
   import("./profile/update-sports/controller.ts");
@@ -86,6 +92,15 @@ router
       .use([middleware.school()]);
 
     router
+      .get("priority-spotlights", [GetPrioritySpotlightsController])
+      .openapi({
+        summary: "Get priority spotlights",
+        description:
+          "Returns dancers with an active paid Priority Spotlight placement featuring them to the authenticated school",
+      })
+      .use([middleware.school()]);
+
+    router
       .group(() => {
         router.patch("", [UpdatePortfolioController]).openapi({
           summary: "Update my portfolio",
@@ -130,6 +145,16 @@ router
         router.get("checklist", [GetChecklistController]).openapi({
           summary: "Get dancer profile checklist",
           description: "Returns the dancer's profile checklist",
+        });
+        router.get("spotlights", [GetMySpotlightsController]).openapi({
+          summary: "Get my spotlights",
+          description:
+            "Returns the dancer's purchased Priority Spotlight placements with their schools and active state",
+        });
+        router.post("spotlights", [CreateSpotlightController]).openapi({
+          summary: "Send a spotlight",
+          description:
+            "Creates a 7-day Priority Spotlight placement featuring the dancer to a program (payment not yet wired)",
         });
       })
       .prefix("me")

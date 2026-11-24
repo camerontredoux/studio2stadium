@@ -28,3 +28,11 @@ export function useUpdateSubmissionStatus() {
     },
   });
 }
+
+export function useSendSpotlight() {
+  return $api.useMutation("post", "/dancers/me/spotlights", {
+    meta: {
+      invalidateQueries: [recruitingQueries.mySpotlights().queryKey],
+    },
+  });
+}

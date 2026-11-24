@@ -18,11 +18,10 @@ import {
   HiUserCircle,
 } from "react-icons/hi";
 
-import { HiOutlineSparkles, HiSparkles } from "react-icons/hi2";
-
 import { useSession } from "@/lib/session";
 import { Activity } from "./activity";
 import { NavLink } from "./nav-link";
+import { RecruitingNav } from "./recruiting-nav";
 
 interface NavbarProps {
   hidden: boolean;
@@ -61,12 +60,7 @@ export function Navbar({ hidden, onFocus }: NavbarProps) {
             activeIcon={HiCalendar}
             inactiveIcon={HiOutlineCalendar}
           />
-          <NavLink
-            to="/recruiting"
-            label="Recruiting"
-            activeIcon={HiSparkles}
-            inactiveIcon={HiOutlineSparkles}
-          />
+          <RecruitingNav />
           {session.type === "dancer" && (
             <NavLink
               to="/tracker"

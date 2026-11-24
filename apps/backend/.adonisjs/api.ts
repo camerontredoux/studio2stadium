@@ -623,6 +623,10 @@ type DancersRecommendedGetHead = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/get-recommended-dancers/validator.ts')['schema']>>
   response: MakeTuyauResponse<import('../app/modules/dancers/get-recommended-dancers/controller.ts').default['handle'], true>
 }
+type DancersPriorityspotlightsGetHead = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/get-priority-spotlights/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/get-priority-spotlights/controller.ts').default['handle'], true>
+}
 type DancersMePatch = {
   request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/profile/update-portfolio/validator.ts')['validator']>>
   response: MakeTuyauResponse<import('../app/modules/dancers/profile/update-portfolio/controller.ts').default['handle'], true>
@@ -666,6 +670,14 @@ type DancersMeFollowersGetHead = {
 type DancersMeChecklistGetHead = {
   request: unknown
   response: MakeTuyauResponse<import('../app/modules/dancers/profile/get-profile-checklist/controller.ts').default['handle'], false>
+}
+type DancersMeSpotlightsGetHead = {
+  request: unknown
+  response: MakeTuyauResponse<import('../app/modules/dancers/get-my-spotlights/controller.ts').default['handle'], false>
+}
+type DancersMeSpotlightsPost = {
+  request: MakeTuyauRequest<InferInput<typeof import('../app/modules/dancers/create-spotlight/validator.ts')['schema']>>
+  response: MakeTuyauResponse<import('../app/modules/dancers/create-spotlight/controller.ts').default['handle'], true>
 }
 type DancersSubmissionsGetHead = {
   request: unknown
@@ -1822,6 +1834,12 @@ export interface ApiDefinition {
       '$get': DancersRecommendedGetHead;
       '$head': DancersRecommendedGetHead;
     };
+    'priority-spotlights': {
+      '$url': {
+      };
+      '$get': DancersPriorityspotlightsGetHead;
+      '$head': DancersPriorityspotlightsGetHead;
+    };
     'me': {
       '$url': {
       };
@@ -1870,6 +1888,13 @@ export interface ApiDefinition {
         };
         '$get': DancersMeChecklistGetHead;
         '$head': DancersMeChecklistGetHead;
+      };
+      'spotlights': {
+        '$url': {
+        };
+        '$get': DancersMeSpotlightsGetHead;
+        '$head': DancersMeSpotlightsGetHead;
+        '$post': DancersMeSpotlightsPost;
       };
     };
     'submissions': {

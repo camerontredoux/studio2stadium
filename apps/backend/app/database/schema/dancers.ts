@@ -86,3 +86,36 @@ export const interests = pg.pgTable(
     pg.check("count <= 3", sql`${table.count} <= 3`),
   ]
 );
+
+// A "Spotlight" a dancer sends to a program: a time window during which the
+// dancer is featured in that program's Dancer Spotlight section. Each send is
+// its own immutable record (createdAt is the submission time, featuredUntil is
+// the 7-day expiry) so that expired spotlights are preserved as history and a
+// dancer can hold several across different programs at once. A dancer may send
+// to the same program only once per 30-day cooldown (createdAt + 30 days),
+// enforced in create-spotlight/service.ts — so there is deliberately no unique
+// (dancer, school) constraint here.
+export const featuredPlacements = pg.pgTable(
+  "featured_placements",
+  {
+    id: pg.uuid().primaryKey().defaultRandom(),
+    dancerId: pg
+      .uuid()
+      .notNull()
+      .references(() => dancerProfiles.id, { onDelete: "cascade" }),
+    schoolId: pg
+      .uuid()
+      .notNull()
+      .references(() => schoolProfiles.id, { onDelete: "cascade" }),
+    featuredUntil: pg.timestamp({ withTimezone: true }).notNull(),
+    paid: pg.boolean().notNull().default(true),
+    ...timestamps,
+  },
+  (table) => [
+    // The school-facing lookup filters by school and an active window.
+    pg.index().on(table.schoolId, table.featuredUntil),
+    // The dancer-facing lookup lists a dancer's sends newest-first and backs the
+    // cooldown check (latest send per program).
+    pg.index().on(table.dancerId, table.schoolId, table.createdAt),
+  ]
+);

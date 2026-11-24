@@ -10,8 +10,11 @@ import { FreeTierAlert } from "./components/free-tier-alert";
 import { PremiumRoadmap } from "./components/roadmap/premium-roadmap";
 import { DancerSpotlight } from "./components/spotlight/dancer-spotlight";
 import { DancerSpotlightSkeleton } from "./components/spotlight/dancer-spotlight-skeleton";
+import { PrioritySpotlight } from "./components/spotlight/priority-spotlight";
+import { PrioritySpotlightSkeleton } from "./components/spotlight/priority-spotlight-skeleton";
 import { ProgramSpotlight } from "./components/spotlight/program-spotlight";
 import { ProgramSpotlightSkeleton } from "./components/spotlight/program-spotlight-skeleton";
+import { SpotlightAd } from "./components/spotlight/spotlight-ad";
 
 export function FeedPage() {
   const session = useSession();
@@ -37,6 +40,7 @@ export function FeedPage() {
           <>
             <FreeTierAlert />
             <PremiumRoadmap />
+            <SpotlightAd />
             <Suspense fallback={<ProgramSpotlightSkeleton />}>
               <ProgramSpotlight />
             </Suspense>
@@ -44,9 +48,14 @@ export function FeedPage() {
         )}
 
         {session.type === "school" && (
-          <Suspense fallback={<DancerSpotlightSkeleton />}>
-            <DancerSpotlight />
-          </Suspense>
+          <>
+            <Suspense fallback={<PrioritySpotlightSkeleton />}>
+              <PrioritySpotlight />
+            </Suspense>
+            <Suspense fallback={<DancerSpotlightSkeleton />}>
+              <DancerSpotlight />
+            </Suspense>
+          </>
         )}
 
         <Suspense fallback={<FeedSkeleton />}>

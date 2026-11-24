@@ -54,6 +54,8 @@ import { Route as ApproutesResourcesLibraryRouteImport } from './routes/_app/(ro
 import { Route as ApproutesResourcesFavoritesRouteImport } from './routes/_app/(routes)/resources/favorites'
 import { Route as ApproutesResourcesBlogRouteImport } from './routes/_app/(routes)/resources/blog'
 import { Route as ApproutesRecruitingSubmitRouteImport } from './routes/_app/(routes)/recruiting/submit'
+import { Route as ApproutesRecruitingPrioritySpotlightsRouteImport } from './routes/_app/(routes)/recruiting/priority-spotlights'
+import { Route as ApproutesRecruitingMySpotlightsRouteImport } from './routes/_app/(routes)/recruiting/my-spotlights'
 import { Route as ApproutesRecruitingEditRouteImport } from './routes/_app/(routes)/recruiting/edit'
 import { Route as ApproutesExploreUsernameRouteImport } from './routes/_app/(routes)/explore/$username'
 import { Route as ApproutesEventsEventIdRouteImport } from './routes/_app/(routes)/events/$eventId'
@@ -325,6 +327,18 @@ const ApproutesRecruitingSubmitRoute =
     path: '/submit',
     getParentRoute: () => ApproutesRecruitingRouteRoute,
   } as any)
+const ApproutesRecruitingPrioritySpotlightsRoute =
+  ApproutesRecruitingPrioritySpotlightsRouteImport.update({
+    id: '/priority-spotlights',
+    path: '/priority-spotlights',
+    getParentRoute: () => ApproutesRecruitingRouteRoute,
+  } as any)
+const ApproutesRecruitingMySpotlightsRoute =
+  ApproutesRecruitingMySpotlightsRouteImport.update({
+    id: '/my-spotlights',
+    path: '/my-spotlights',
+    getParentRoute: () => ApproutesRecruitingRouteRoute,
+  } as any)
 const ApproutesRecruitingEditRoute = ApproutesRecruitingEditRouteImport.update({
   id: '/edit',
   path: '/edit',
@@ -573,6 +587,8 @@ export interface FileRoutesByFullPath {
   '/events/$eventId': typeof ApproutesEventsEventIdRoute
   '/explore/$username': typeof ApproutesExploreUsernameRoute
   '/recruiting/edit': typeof ApproutesRecruitingEditRoute
+  '/recruiting/my-spotlights': typeof ApproutesRecruitingMySpotlightsRoute
+  '/recruiting/priority-spotlights': typeof ApproutesRecruitingPrioritySpotlightsRoute
   '/recruiting/submit': typeof ApproutesRecruitingSubmitRoute
   '/resources/blog': typeof ApproutesResourcesBlogRoute
   '/resources/favorites': typeof ApproutesResourcesFavoritesRoute
@@ -649,6 +665,8 @@ export interface FileRoutesByTo {
   '/events/$eventId': typeof ApproutesEventsEventIdRoute
   '/explore/$username': typeof ApproutesExploreUsernameRoute
   '/recruiting/edit': typeof ApproutesRecruitingEditRoute
+  '/recruiting/my-spotlights': typeof ApproutesRecruitingMySpotlightsRoute
+  '/recruiting/priority-spotlights': typeof ApproutesRecruitingPrioritySpotlightsRoute
   '/recruiting/submit': typeof ApproutesRecruitingSubmitRoute
   '/resources/blog': typeof ApproutesResourcesBlogRoute
   '/resources/favorites': typeof ApproutesResourcesFavoritesRoute
@@ -731,6 +749,8 @@ export interface FileRoutesById {
   '/_app/(routes)/events/$eventId': typeof ApproutesEventsEventIdRoute
   '/_app/(routes)/explore/$username': typeof ApproutesExploreUsernameRoute
   '/_app/(routes)/recruiting/edit': typeof ApproutesRecruitingEditRoute
+  '/_app/(routes)/recruiting/my-spotlights': typeof ApproutesRecruitingMySpotlightsRoute
+  '/_app/(routes)/recruiting/priority-spotlights': typeof ApproutesRecruitingPrioritySpotlightsRoute
   '/_app/(routes)/recruiting/submit': typeof ApproutesRecruitingSubmitRoute
   '/_app/(routes)/resources/blog': typeof ApproutesResourcesBlogRoute
   '/_app/(routes)/resources/favorites': typeof ApproutesResourcesFavoritesRoute
@@ -812,6 +832,8 @@ export interface FileRouteTypes {
     | '/events/$eventId'
     | '/explore/$username'
     | '/recruiting/edit'
+    | '/recruiting/my-spotlights'
+    | '/recruiting/priority-spotlights'
     | '/recruiting/submit'
     | '/resources/blog'
     | '/resources/favorites'
@@ -888,6 +910,8 @@ export interface FileRouteTypes {
     | '/events/$eventId'
     | '/explore/$username'
     | '/recruiting/edit'
+    | '/recruiting/my-spotlights'
+    | '/recruiting/priority-spotlights'
     | '/recruiting/submit'
     | '/resources/blog'
     | '/resources/favorites'
@@ -969,6 +993,8 @@ export interface FileRouteTypes {
     | '/_app/(routes)/events/$eventId'
     | '/_app/(routes)/explore/$username'
     | '/_app/(routes)/recruiting/edit'
+    | '/_app/(routes)/recruiting/my-spotlights'
+    | '/_app/(routes)/recruiting/priority-spotlights'
     | '/_app/(routes)/recruiting/submit'
     | '/_app/(routes)/resources/blog'
     | '/_app/(routes)/resources/favorites'
@@ -1344,6 +1370,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApproutesRecruitingSubmitRouteImport
       parentRoute: typeof ApproutesRecruitingRouteRoute
     }
+    '/_app/(routes)/recruiting/priority-spotlights': {
+      id: '/_app/(routes)/recruiting/priority-spotlights'
+      path: '/priority-spotlights'
+      fullPath: '/recruiting/priority-spotlights'
+      preLoaderRoute: typeof ApproutesRecruitingPrioritySpotlightsRouteImport
+      parentRoute: typeof ApproutesRecruitingRouteRoute
+    }
+    '/_app/(routes)/recruiting/my-spotlights': {
+      id: '/_app/(routes)/recruiting/my-spotlights'
+      path: '/my-spotlights'
+      fullPath: '/recruiting/my-spotlights'
+      preLoaderRoute: typeof ApproutesRecruitingMySpotlightsRouteImport
+      parentRoute: typeof ApproutesRecruitingRouteRoute
+    }
     '/_app/(routes)/recruiting/edit': {
       id: '/_app/(routes)/recruiting/edit'
       path: '/edit'
@@ -1653,6 +1693,8 @@ const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
 
 interface ApproutesRecruitingRouteRouteChildren {
   ApproutesRecruitingEditRoute: typeof ApproutesRecruitingEditRoute
+  ApproutesRecruitingMySpotlightsRoute: typeof ApproutesRecruitingMySpotlightsRoute
+  ApproutesRecruitingPrioritySpotlightsRoute: typeof ApproutesRecruitingPrioritySpotlightsRoute
   ApproutesRecruitingSubmitRoute: typeof ApproutesRecruitingSubmitRoute
   ApproutesRecruitingIndexRoute: typeof ApproutesRecruitingIndexRoute
 }
@@ -1660,6 +1702,9 @@ interface ApproutesRecruitingRouteRouteChildren {
 const ApproutesRecruitingRouteRouteChildren: ApproutesRecruitingRouteRouteChildren =
   {
     ApproutesRecruitingEditRoute: ApproutesRecruitingEditRoute,
+    ApproutesRecruitingMySpotlightsRoute: ApproutesRecruitingMySpotlightsRoute,
+    ApproutesRecruitingPrioritySpotlightsRoute:
+      ApproutesRecruitingPrioritySpotlightsRoute,
     ApproutesRecruitingSubmitRoute: ApproutesRecruitingSubmitRoute,
     ApproutesRecruitingIndexRoute: ApproutesRecruitingIndexRoute,
   }

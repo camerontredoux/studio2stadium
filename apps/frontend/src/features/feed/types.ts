@@ -5,3 +5,6 @@ export type RecommendedSchool =
 
 export type RecommendedDancer =
   ApiSchemas["DancersRecommendedResponse"][number];
+
+export type PrioritySpotlightDancer =
+  ApiSchemas["DancersPriorityspotlightsResponse"][number];

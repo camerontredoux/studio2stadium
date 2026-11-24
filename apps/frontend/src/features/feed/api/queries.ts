@@ -23,4 +23,6 @@ export const feedQueries = {
     $api.queryOptions("get", "/dancers/recommended", {
       params: { query: { limit: 20 } },
     }),
+  prioritySpotlights: () =>
+    $api.queryOptions("get", "/dancers/priority-spotlights"),
 };

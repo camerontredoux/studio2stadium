@@ -7134,6 +7134,56 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/dancers/priority-spotlights": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get priority spotlights
+         * @description Returns dancers with an active paid Priority Spotlight placement featuring them to the authenticated school
+         */
+        get: {
+            parameters: {
+                query?: {
+                    limit?: (string | number) | null;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DancersPriorityspotlightsResponse"];
+                    };
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/dancers/me": {
         parameters: {
             query?: never;
@@ -7562,6 +7612,79 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dancers/me/spotlights": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get my spotlights
+         * @description Returns the dancer's purchased Priority Spotlight placements with their schools and active state
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["DancersMeSpotlightsResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Send a spotlight
+         * @description Creates a 7-day Priority Spotlight placement featuring the dancer to a program (payment not yet wired)
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": components["schemas"]["DancersMeSpotlightsRequest"];
+                };
+            };
+            responses: {
+                /** @description No Content */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unprocessable Entity */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -12064,6 +12187,7 @@ export interface components {
                 type: components["schemas"]["UploadKind"];
                 firstName: string;
                 lastName: string;
+                paid: boolean | null;
                 profile: {
                     studio: string | null;
                     gpa: number | null;
@@ -12078,7 +12202,6 @@ export interface components {
                 eventId: string;
                 bibNumber: number | null;
                 checkedInAt: string | null;
-                paid: boolean | null;
                 isRegistered: boolean;
                 linkedUser: {
                     id: string;
@@ -12165,13 +12288,13 @@ export interface components {
             firstName: string;
             lastName: string;
             userId: string | null;
+            paid: boolean | null;
             organization: string | null;
             eventId: string;
             bibNumber: number | null;
             expirationDate: string | null;
             csvUploadId: string | null;
             checkedInAt: string | null;
-            paid: boolean | null;
             isStaff: boolean;
         };
         OrgsIdEventsIdRostersResendinvitesRequest: {
@@ -12441,13 +12564,13 @@ export interface components {
             firstName: string;
             lastName: string;
             userId: string | null;
+            paid: boolean | null;
             organization: string | null;
             eventId: string;
             bibNumber: number | null;
             expirationDate: string | null;
             csvUploadId: string | null;
             checkedInAt: string | null;
-            paid: boolean | null;
             isStaff: boolean;
         };
         OrgsIdDancersResponse: {
@@ -12930,6 +13053,18 @@ export interface components {
             sameState: boolean;
             meetsGpaRequirement: boolean;
         }[];
+        DancersPriorityspotlightsResponse: {
+            id: string;
+            name: string;
+            username: string;
+            avatar: string | null;
+            location: string;
+            gpa: number | null;
+            gradYear: number | null;
+            sentAt: string;
+            featuredUntil: string;
+            active: boolean;
+        }[];
         DancersMeRequest: {
             birthday?: string | null;
             location?: string | null;
@@ -12982,6 +13117,20 @@ export interface components {
             skillCount: number;
             styles: boolean;
             sports: boolean;
+        };
+        DancersMeSpotlightsResponse: {
+            id: string;
+            schoolId: string;
+            name: string;
+            username: string;
+            avatar: string | null;
+            sentAt: string;
+            featuredUntil: string;
+            nextEligibleAt: string;
+            active: boolean;
+        }[];
+        DancersMeSpotlightsRequest: {
+            schoolId: string;
         };
         DancersSubmissionsResponse: {
             id: string;

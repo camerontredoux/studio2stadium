@@ -7,7 +7,6 @@ import { Link } from "@tanstack/react-router";
 import {
   GraduationCapIcon,
   MapPin,
-  SparklesIcon,
   StarIcon,
   TargetIcon,
 } from "lucide-react";
@@ -52,12 +51,8 @@ export function DancerSpotlight() {
   return (
     <div className="overflow-clip rounded-2xl border">
       <div className="from-brand/10 via-brand/5 to-background relative overflow-clip bg-linear-to-br p-4">
-        <div className="text-brand absolute -top-1 -left-2 -z-10 flex items-center gap-2 opacity-10">
-          <SparklesIcon className="size-24 rotate-6" />
-          <SparklesIcon className="size-16 rotate-186" />
-        </div>
         <div className="flex justify-between gap-2">
-          <h2 className="font-semibold">Dancer Spotlight</h2>
+          <h2 className="font-semibold">Suggested Dancers</h2>
           <MatchTierBadge matchTier={recommended.matchTier} />
         </div>
         <p className="text-muted-foreground text-sm">
