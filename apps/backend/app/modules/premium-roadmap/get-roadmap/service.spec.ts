@@ -171,15 +171,12 @@ test.group("GetRoadmapService", (group) => {
     assert.isFalse(await isEligible(lapsed));
   });
 
-  test("members past day 30 get no new roadmap, but keep one they already have", async ({
+  test("members past day 30 still get a roadmap, new or existing", async ({
     assert,
   }) => {
     const late = await createDancer();
     await subscribe(late.id, { startedAt: new Date(Date.now() - 31 * DAY_MS) });
-    assert.deepEqual(await service().execute(late), {
-      eligible: false,
-      roadmap: null,
-    });
+    assert.equal(eligible(await service().execute(late)).daysSinceStart, 31);
 
     const existing = await createDancer();
     await subscribe(existing.id, { startedAt: new Date() });

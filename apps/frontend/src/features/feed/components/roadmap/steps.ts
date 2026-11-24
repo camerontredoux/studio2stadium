@@ -86,3 +86,9 @@ export function isComplete(roadmap: PremiumRoadmap) {
 export function isCollapsedByDefault(roadmap: PremiumRoadmap) {
   return isComplete(roadmap) || roadmap.daysSinceStart > ROADMAP_DAYS;
 }
+
+// Shown until every step is done and day 30 has passed, so a dancer with
+// steps left keeps the card past day 30 until they finish.
+export function isHidden(roadmap: PremiumRoadmap) {
+  return isComplete(roadmap) && roadmap.daysSinceStart > ROADMAP_DAYS;
+}
