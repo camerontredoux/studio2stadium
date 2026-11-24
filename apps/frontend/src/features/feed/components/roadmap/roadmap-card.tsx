@@ -26,7 +26,6 @@ import {
   CircleIcon,
   LoaderIcon,
   LockIcon,
-  SparklesIcon,
 } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
@@ -221,10 +220,6 @@ export function RoadmapCard({ roadmap }: { roadmap: PremiumRoadmap }) {
     >
       <Collapsible open={open} onOpenChange={setOpen}>
         <div className="from-brand/10 via-brand/5 to-background relative overflow-clip bg-linear-to-br p-4">
-          <div className="text-brand absolute -top-1 -left-2 -z-10 flex items-center gap-2 opacity-10">
-            <SparklesIcon className="size-24 rotate-6" />
-            <SparklesIcon className="size-16 rotate-186" />
-          </div>
           <div className="flex items-start justify-between gap-2">
             <div>
               <h2 className="font-semibold">{TITLE}</h2>
