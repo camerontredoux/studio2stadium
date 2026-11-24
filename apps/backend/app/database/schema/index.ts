@@ -20,3 +20,4 @@ export * from "./event-features.ts";
 export * from "./event-tier-purchases.ts";
 export * from "./tracker.ts";
 export * from "./week-pass-emails.ts";
+export * from "./promotion-redemptions.ts";

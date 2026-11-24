@@ -3,6 +3,7 @@ import { subscriptions } from "#database/schema/subscriptions";
 import { users } from "#database/schema/users";
 import { DatabaseService } from "#database/service";
 import { GetSubscriptionService } from "#modules/subscriptions/get-status/service";
+import { PromotionRedemptionService } from "#modules/subscriptions/record-promotion-redemption/service";
 import stripe from "#payments/stripe/main";
 import { priceIdFor } from "#shared/plans";
 import {
@@ -61,7 +62,10 @@ test.group("Create checkout", (group) => {
   });
 
   const service = () =>
-    new Service(new GetSubscriptionService(new DatabaseService()));
+    new Service(
+      new GetSubscriptionService(new DatabaseService()),
+      new PromotionRedemptionService(new DatabaseService())
+    );
 
   test("Season Pass discloses $69 every 3 months, renewing automatically", async ({
     assert,

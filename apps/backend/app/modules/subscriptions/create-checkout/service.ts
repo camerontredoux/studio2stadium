@@ -1,6 +1,7 @@
 import { E_BAD_REQUEST } from "#exceptions/bad-request";
 import { GetSubscriptionService } from "#modules/subscriptions/get-status/service";
 import { WEEK_PASS_PURCHASE } from "#modules/subscriptions/fulfill-checkout/service";
+import { PromotionRedemptionService } from "#modules/subscriptions/record-promotion-redemption/service";
 import stripe from "#payments/stripe/main";
 import { priceIdFor, type PaidPlan } from "#shared/plans";
 import env from "#start/env";
@@ -10,7 +11,10 @@ import { type Validator } from "./validator.ts";
 
 @inject()
 export class Service {
-  constructor(private subscriptions: GetSubscriptionService) {}
+  constructor(
+    private subscriptions: GetSubscriptionService,
+    private promotions: PromotionRedemptionService
+  ) {}
 
   async execute(userId: string, email: string, payload: Validator) {
     const plan: PaidPlan =
@@ -45,6 +49,10 @@ export class Service {
 
     const stripePrice = await stripe.api.prices.retrieve(price);
 
+    // Stripe cannot refuse one code per customer, so an account that has
+    // used a once-per-account code (S2SSAVE) gets no promotion code field.
+    const allowPromotionCodes = !(await this.promotions.hasRedeemed(userId));
+
     return await stripe.api.checkout.sessions.create({
       client_reference_id: userId,
       customer_email: email,
@@ -59,7 +67,7 @@ export class Service {
       custom_text: {
         submit: { message: checkoutDisclosure(stripePrice, firstChargeAt) },
       },
-      allow_promotion_codes: true,
+      allow_promotion_codes: allowPromotionCodes,
       payment_method_types: ["card"],
       ui_mode: "embedded",
       line_items: [

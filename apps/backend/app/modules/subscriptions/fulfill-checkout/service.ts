@@ -1,5 +1,6 @@
 import { subscriptions, weekPasses } from "#database/schema/subscriptions";
 import { DatabaseService } from "#database/service";
+import { PromotionRedemptionService } from "#modules/subscriptions/record-promotion-redemption/service";
 import { SubscriptionCreatedEvent } from "#modules/webhooks/stripe/event";
 import stripe from "#payments/stripe/main";
 import { WEEK_PASS_DAYS } from "#shared/plans";
@@ -24,7 +25,8 @@ export type CompletedSession = Pick<
   | "metadata"
   | "payment_status"
   | "payment_intent"
->;
+> &
+  Partial<Pick<Stripe.Checkout.Session, "discounts">>;
 
 export function isWeekPassSession(session: Pick<CompletedSession, "metadata">) {
   return session.metadata?.purchase === WEEK_PASS_PURCHASE;
@@ -40,7 +42,10 @@ export function isWeekPassSession(session: Pick<CompletedSession, "metadata">) {
 export class FulfillCheckoutService {
   constructor(
     private db: DatabaseService,
-    private recordWelcome: RecordWeekPassWelcome = new RecordWeekPassWelcome()
+    private recordWelcome: RecordWeekPassWelcome = new RecordWeekPassWelcome(),
+    private promotions: PromotionRedemptionService = new PromotionRedemptionService(
+      db
+    )
   ) {}
 
   async execute(session: CompletedSession) {
@@ -48,16 +53,23 @@ export class FulfillCheckoutService {
     if (!userId) return;
 
     if (isWeekPassSession(session)) {
-      return await this.weekPass(userId, session);
-    }
-
-    if (session.subscription) {
-      return await this.subscription(
+      await this.weekPass(userId, session);
+    } else if (session.subscription) {
+      await this.subscription(
         userId,
         typeof session.subscription === "string"
           ? session.subscription
           : session.subscription.id
       );
+    } else {
+      return;
+    }
+
+    // After access is granted, so a Stripe hiccup reading the code cannot
+    // hold up a paid purchase. A failure here fails the webhook delivery,
+    // and Stripe's retry records it.
+    if (session.payment_status !== "unpaid") {
+      await this.promotions.record(userId, session);
     }
   }
 
