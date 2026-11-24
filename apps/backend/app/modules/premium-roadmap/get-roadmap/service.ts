@@ -169,10 +169,16 @@ export class GetRoadmapService {
 
     if (!membership?.startedAt) return INELIGIBLE;
 
-    // Every paying member gets a roadmap, however long they have paid. The
-    // client hides the card once all steps are done and day 30 has passed.
+    // Members who started before the roadmap existed only get one if they
+    // are still inside their first 30 days.
     const premiumStartedAt =
       membership.roadmapStartedAt ?? membership.startedAt;
+    if (
+      !membership.roadmapStartedAt &&
+      now.getTime() - premiumStartedAt.getTime() > ROADMAP_DAYS * DAY_MS
+    ) {
+      return INELIGIBLE;
+    }
 
     // Steps count activity since the member started paying. The roadmap's
     // own start can be later (a one-off restart in October 2026 moved it
